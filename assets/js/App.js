@@ -6,7 +6,8 @@ const App = {
     //client-side
     if (typeof window !== 'undefined') {
       //enable bootstrap tooltip
-      $('[data-toggle="tooltip"]').tooltip(); 
+      var node = $('[data-toggle="tooltip"]');
+      if (typeof node !== 'undefined') node.tooltip(); 
 
       //more here
     }
