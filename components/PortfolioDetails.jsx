@@ -1,5 +1,3 @@
-var _ = require('lodash');
-var $ = require('jquery');
 var React = require("react");
 var Router = require("react-router");
 var Link = Router.Link;
@@ -9,10 +7,77 @@ var PortfolioHolding = require('./PortfolioHolding.jsx');
 
 module.exports = React.createClass({
 
+
+  addHolding() {
+    var ticker = window.prompt("Ticker");
+    if (ticker) {
+      this.buyHolding(ticker);
+    }
+  },
+
+  buyHolding(ticker) {
+    ticker = ticker.toUpperCase();
+    var self = this;
+    var portfolioHolding = _.find(this.state.data.holdings, {ticker: ticker});
+    //portfolio already contains this holding
+    if (portfolioHolding) {
+      portfolioHolding.shares = portfolioHolding.shares + 1;
+      this.setState({data: this.state.data});
+      
+      Api.put('portfolioHolding', portfolioHolding.id, portfolioHolding, function() { 
+          self.fetchData(); 
+      });
+    }
+    //portfolio does not contain this holding
+    else {
+      portfolioHolding = {portfolioId: this.props.params.id, id:0, ticker:ticker, shares:1, cost:0};
+      this.state.data.holdings = this.state.data.holdings.concat(portfolioHolding);
+      console.dir(this.state.data);
+      this.setState({data: this.state.data}); //id will be updated later
+
+      Api.post('portfolioHolding', portfolioHolding, function(data) { 
+        //update new portfolio's id
+        _.find(self.state.data.holdings, {id: portfolioHolding.id}).id=data.id;
+        self.setState({data: self.state.data});
+
+        self.fetchData();
+      });
+    }
+  },
+
+  sellHolding: function(ticker) {
+    var self = this;
+    var portfolioHolding = _.find(this.state.data.holdings, {ticker: ticker});
+    //portfolio already contains this holding
+    if (portfolioHolding) {
+      portfolioHolding.shares = portfolioHolding.shares - 1;      
+
+      if (portfolioHolding.shares <= 0) {
+        this.state.data.holdings = _.difference(this.state.data.holdings, _.filter(this.state.data.holdings, {ticker:ticker}));
+        this.setState({data: this.state.data});
+        
+        Api.delete('portfolioHolding', portfolioHolding.id, function() { 
+          self.fetchData(); 
+        });
+      }
+      else {
+        this.setState({data: this.state.data});
+        
+        Api.put('portfolioHolding', portfolioHolding.id, portfolioHolding, function() { 
+          self.fetchData(); 
+        });
+      }
+    }
+    //portfolio does not contain this holding
+    else {
+      console.log("Dude wtf");
+    }
+  },
+
   fetchData() {
     var self = this;
 
-    Api.get('portfolioDetails/' + this.props.params.id, function(data) { 
+    Api.get(this.componentDataUrl, function(data) { 
       self.setState({data: data}); 
     }, function(errorCode) {
       if (errorCode == 403) {
@@ -23,18 +88,24 @@ module.exports = React.createClass({
   },
 
   getInitialState() {
-    return {data: Api.getInitial('portfolioDetails/' + this.props.params.id)};
+    this.componentDataUrl = 'portfolioDetails/' + this.props.params.id;
+    return {data: Api.getInitial(this.componentDataUrl)};
   },  
 
   componentDidMount() {
     var self = this;
-    io.socket.on('portfolioDetails/' + this.props.params.id, function (msg) {
+
+    io.socket.on(this.componentDataUrl, function (msg) {
       //quick and dirty for now
       self.fetchData();
     });
 
-   self.fetchData();
+    self.fetchData();
   }, 
+
+  componentDidUpdate() {
+    App.init();
+  },
 
   render: function() {    
     var self = this;
@@ -58,7 +129,7 @@ module.exports = React.createClass({
         <br/>
         <div className="text-center">
           <Link to="/" className="btn btn-default"><i className="fa fa-backward" aria-hidden="true"/> Back</Link> 
-          &nbsp;<a onClick={this.addPortfolio} className="btn btn-primary">
+          &nbsp;<a onClick={this.addHolding} className="btn btn-primary">
             <i className="fa fa-plus" aria-hidden="true"/> Add Holding
           </a>
         </div>

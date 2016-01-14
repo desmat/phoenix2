@@ -3,18 +3,18 @@ var Api = require('./Api');
 const App = {
 
   init() {
-    //console.log('App.init()');
-
     //client-side
     if (typeof window !== 'undefined') {
-      //var $ = require('jquery'); //jquery is included on the client-side
-      //$('[data-toggle="tooltip"]').tooltip(); 
+      //enable bootstrap tooltip
+      var node = $('[data-toggle="tooltip"]');
+      if (typeof node !== 'undefined') node.tooltip(); 
 
-      //TODO ^^^ figure this shit out (http://stackoverflow.com/questions/26059762/callback-when-dom-is-loaded-in-react-js):      
+      //more here
     }
     //server-side
     else {
-
+      
+      //more here
     }
   },
 

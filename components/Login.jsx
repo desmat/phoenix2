@@ -1,8 +1,6 @@
-var _ = require('lodash');
 var React = require("react");
 var Link = require('react-router').Link;
 var App = require('../assets/js/App');
-var $ = require('jquery');
 
 module.exports = React.createClass({
 
@@ -19,6 +17,7 @@ module.exports = React.createClass({
   },
 
   keyDown(e) {
+    //grab [ENTER] keypress
     if (e.keyCode == 13) this.login();
   },
 

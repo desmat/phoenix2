@@ -1,16 +1,16 @@
-var _ = require('lodash');
 var React = require("react");
 var Api = require('../assets/js/Api');
 
 module.exports = React.createClass({
+
   getInitialState() {
-    return {data: Api.getInitial('about')};
+    this.componentDataUrl = 'about';
+    return {data: Api.getInitial(this.componentDataUrl)};
   },  
 
   componentDidMount() {
     var self = this;
-    Api.get('about', function(data) { 
-    	//console.log('got data');
+    Api.get(this.componentDataUrl, function(data) { 
       self.setState({data: data}); 
     });
   },

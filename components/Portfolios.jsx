@@ -1,5 +1,3 @@
-var _ = require('lodash');
-var $ = require('lodash');
 var React = require("react");
 var Api = require('../assets/js/Api');
 var App = require('../assets/js/App');
@@ -15,24 +13,25 @@ module.exports = React.createClass({
 
       Api.post('portfolio', newPortfolio, function(data) { 
         //update new portfolio's id
-        _.findWhere(self.state.data, {id: newPortfolio.id}).id=data.id;
+        _.find(self.state.data, {id: newPortfolio.id}).id=data.id;
         self.setState({data: self.state.data});
       });
     }
   }, 
 
   deletePortfolio: function(id) {
-    var portfolios = _.difference(this.state.data, _.where(this.state.data, {id:id}));
+    var portfolios = _.difference(this.state.data, _.filter(this.state.data, {id: id}));
     this.setState({data: portfolios});
 
     Api.delete('portfolio', id);
   },
 
   renamePortfolio: function(id, name) {
-    var portfolio = _.findWhere(this.state.data, {id:id});
+    var portfolio = _.find(this.state.data, {id: id});
     if (portfolio) {
       portfolio.name=name;
       this.setState({data: this.state.data});
+
       Api.put('portfolio', id, portfolio);
     }
   },
@@ -40,7 +39,7 @@ module.exports = React.createClass({
   fetchData() {
     var self = this;
 
-    Api.get('portfolio', function(data) { 
+    Api.get(this.componentDataUrl, function(data) { 
       self.setState({data: data}); 
     }, function(errorCode) {
       if (errorCode == 403) {
@@ -51,25 +50,29 @@ module.exports = React.createClass({
   },
 
   getInitialState() {
-    return {data: Api.getInitial('portfolio')};
+    this.componentDataUrl = 'portfolio';
+    return {data: Api.getInitial(this.componentDataUrl)};
   },  
 
   componentDidMount() {
     var self = this;
-    io.socket.on('portfolio', function (msg) {
+
+    io.socket.on(this.componentDataUrl, function (msg) {
       //quick and dirty for now
       self.fetchData();
     });
 
-   self.fetchData();
-
-   //TODO vvv figure this shit out (http://stackoverflow.com/questions/26059762/callback-when-dom-is-loaded-in-react-js):
-   // $('[data-toggle="tooltip"]').tooltip(); 
+    self.fetchData();
   },  
 
+  componentDidUpdate() {
+    App.init();
+  },
+
   render: function() {
-    var self = this;
+    var self = this;    
     var portfolios = [];
+
     if (this.state.data) {
       var portfolios = this.state.data.map(function(portfolio) {
         return (

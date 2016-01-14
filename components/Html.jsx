@@ -23,6 +23,7 @@ module.exports = React.createClass({
           <script src="/js/dependencies/sails.io.js"></script>
           <script src="/js/dependencies/build.js"></script>
           <script src="/js/dependencies/jquery.min.js"></script>
+          <script src="/js/dependencies/lodash.min.js"></script>
           <script src="/js/dependencies/bootstrap.min.js"></script>
           <script src="/js/bundle.js"></script>
         </body>

@@ -1,5 +1,4 @@
 var React = require("react");
-var ReactDOM = require('react-dom');
 var Router = require("react-router");
 var Route = Router.Route;
 var IndexRoute = Router.IndexRoute;
@@ -15,7 +14,7 @@ module.exports = (
     <Route path="/" component={require("./Body.jsx")}  >
       <IndexRoute component={require("./Portfolios.jsx")} data="portfolio"/>
       <Route path="portfolio/:id" component={require("./PortfolioDetails.jsx")} data="portfolioDetails/:id"/>
-      <Route path="about" component={require("./About.jsx")} data="about" />
+      <Route path="about" component={require("./About.jsx")} data="about portfolio" />
       <Route path="login" component={require("./Login.jsx")} />
       <Route path="register" component={require("./Register.jsx")} />
     </Route>

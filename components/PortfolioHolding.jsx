@@ -1,5 +1,3 @@
-var _ = require('lodash');
-var $ = require('jquery');
 var React = require("react");
 var Router = require("react-router");
 var Link = Router.Link;

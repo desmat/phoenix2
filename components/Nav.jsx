@@ -4,7 +4,6 @@ var Link = ReactRouter.Link;
 var IndexLink = ReactRouter.IndexLink;
 var Api = require('../assets/js/Api');
 var App = require('../assets/js/App');
-var $ = require('jquery');
 
 module.exports = React.createClass({
 

@@ -1,4 +1,3 @@
-var _ = require('lodash');
 var React = require('react');
 var ReactDOM = require('react-dom');
 var ReactDOMServer = require('react-dom/server') ;
@@ -63,7 +62,7 @@ var renderHtml = function(req, res, renderProps, modelsAndData, title, descripti
  */
 module.exports = function(req, res, next) {
   //console.log("Rendering " + req.originalUrl);
-  //console.dir(req.params);
+  // console.dir(req.params);
 
   var location = createLocation(req.originalUrl);
 
@@ -112,103 +111,78 @@ module.exports = function(req, res, next) {
 
           //FIRST LOOK FOR ROUTES OVERWRITING STRAIGHT MODEL ACCESS
           var mockRequest = httpMocks.createRequest({method: 'GET', url: '/api/' + data});          
-          var mockResponse = httpMocks.createResponse();                    
-          sails.router.route(mockRequest, mockResponse);
-          var mockResponseData = mockResponse.statusCode == 200 ? mockResponse._getData() : '';
+          var mockResponse = httpMocks.createResponse({eventEmitter: require('events').EventEmitter});
 
-          //TODO ^^^ here we need to check for the userId=:userId secured end-point 
+          mockResponse.on('end', function(a, b, c) {
+            //console.log('<-- called sails.router.route');                    
+            
+            var mockResponseData = this.statusCode == 200 ? this._getData() : '';
+            // console.log('---- mockResponseData'); console.dir(mockResponseData);
 
-          if (mockResponseData.length > 0) {
-            sails.log.debug('fetched data from sails router for [' + data + ']');
+            //TODO ^^^ here we need to check for the userId=:userId secured end-point 
 
-            var results = JSON.parse(mockResponseData);
+            if (mockResponseData.length > 0) {
+              sails.log.debug('fetched data from sails router for [' + data + ']');
 
-            // make data available for components to render on the back-end
-            global.__ReactInitState__[data.trim().toLowerCase()] = results;
+              var results = JSON.parse(mockResponseData);
 
-            // make data available on the front-end
-            modelsAndData.push({model: data.trim().toLowerCase(), data: results});
+              // make data available for components to render on the back-end
+              global.__ReactInitState__[data.trim().toLowerCase()] = results;
 
-            if (i == datae.length - 1) {
-              //console.log('done fetching data from models; rendering the whole thing');
-              return renderHtml(req, res, renderProps, modelsAndData);
-            }
-          }
-          //NO MATCH FROM ROUTER: LOOK FOR MODEL OR CONTROLLER DIRECTLY
-          else {
-            // parse out the query portion and convert into json
-            var modelAndQuery = data.split('?');
-            var query = {};
-            if (modelAndQuery.length > 1) {
-              _.each(modelAndQuery[1].split('&'), function(q) {
-                var r = q.split('=');
-                var n = r[0];
-                var v = true;
-                if (r.length > 1) v = r[1];
+              // make data available on the front-end
+              modelsAndData.push({model: data.trim().toLowerCase(), data: results});
 
-//TODO: apply similar logic to controller and router access
-                //apply virtual variables such as :userId
-                if (v == ':userId' && req.hasOwnProperty('session') && req.session.hasOwnProperty('userId')) {
-                  v = req.session.userId;
-                  //also this is a 'virtual query param', meaning that the front-end doesn't know it was applied. Let's remove it from the data key
-                  data = data.replace(n + '=:userId&', '').replace(n + '=:userId', '');
-                  //and remove trailing '?' or '&'
-                  if (data.indexOf('&', data.length - 1) !== -1) data = data.substring(0, data.length - 1);
-                  if (data.indexOf('?', data.length - 1) !== -1) data = data.substring(0, data.length - 1);
-                }
-                
-                query[n] = v;
-              });
-            }
-
-            // parse out specific record url (Foobar/123)
-            var modelAndId = modelAndQuery[0].trim().split('/');
-            if (modelAndId.length > 1) query['id'] = modelAndId[1];
-
-            // parse out model name
-            var sailsModelName = modelAndId[0].trim().toLowerCase();
-
-            //Look for controller
-            var sailsController = sails.controllers['api'];
-            if (typeof sailsController !== 'undefined' && sailsController.hasOwnProperty(sailsModelName)) {
-              var mockRequest = httpMocks.createRequest({method: 'GET', url: '/api/' + data});          
-              var mockResponse = httpMocks.createResponse();                    
-              sailsController[sailsModelName](mockRequest, mockResponse);
-              var mockResponseData = mockResponse.statusCode == 200 ? mockResponse._getData() : '';
-
-              if (mockResponseData.length > 0) {
-                sails.log.debug('fetched data from sails controller for [' + data + ']');
-
-                var results = JSON.parse(mockResponseData);
-
-                // make data available for components to render on the back-end
-                global.__ReactInitState__[data.trim().toLowerCase()] = results;
-
-                // make data available on the front-end
-                modelsAndData.push({model: data.trim().toLowerCase(), data: results});
-
-                if (i == datae.length - 1) {
-                  //console.log('done fetching data from models; rendering the whole thing');
-                  return renderHtml(req, res, renderProps, modelsAndData);
-                }
+              if (i == datae.length - 1) {
+                //console.log('done fetching data from models; rendering the whole thing');
+                return renderHtml(req, res, renderProps, modelsAndData);
               }
             }
+            //NO MATCH FROM ROUTER: LOOK FOR MODEL OR CONTROLLER DIRECTLY
             else {
-              //ok fine look for model directly
-              var sailsModel = sails.models[sailsModelName];
+              // parse out the query portion and convert into json
+              var modelAndQuery = data.split('?');
+              var query = {};
+              if (modelAndQuery.length > 1) {
+                _.each(modelAndQuery[1].split('&'), function(q) {
+                  var r = q.split('=');
+                  var n = r[0];
+                  var v = true;
+                  if (r.length > 1) v = r[1];
 
-              // console.log('model: ' + sailsModelName);
-              // console.log('query: ' + JSON.stringify(query));
+//TODO: apply similar logic to controller and router access
+                  //apply virtual variables such as :userId
+                  if (v == ':userId' && req.hasOwnProperty('session') && req.session.hasOwnProperty('userId')) {
+                    v = req.session.userId;
+                    //also this is a 'virtual query param', meaning that the front-end doesn't know it was applied. Let's remove it from the data key
+                    data = data.replace(n + '=:userId&', '').replace(n + '=:userId', '');
+                    //and remove trailing '?' or '&'
+                    if (data.indexOf('&', data.length - 1) !== -1) data = data.substring(0, data.length - 1);
+                    if (data.indexOf('?', data.length - 1) !== -1) data = data.substring(0, data.length - 1);
+                  }
+                  
+                  query[n] = v;
+                });
+              }
 
-              if (typeof sailsModel !== 'undefined') {
-                sails.log.debug('fetching data from model [' + sailsModelName + '] with query [' + JSON.stringify(query) + ']');
+              // parse out specific record url (Foobar/123)
+              var modelAndId = modelAndQuery[0].trim().split('/');
+              if (modelAndId.length > 1) query['id'] = modelAndId[1];
 
-                sailsModel.find(query, function(err, results) {
-                  if (err) {
-                    //return res.serverError(err);
-                    console.log("Error fetching data: " + err);
-                    //return renderHtml(req, res, renderProps, []);
-                  } 
+              // parse out model name
+              var sailsModelName = modelAndId[0].trim().toLowerCase();
+
+              //Look for controller
+              var sailsController = sails.controllers['api'];
+              if (typeof sailsController !== 'undefined' && sailsController.hasOwnProperty(sailsModelName)) {
+                var mockRequest = httpMocks.createRequest({method: 'GET', url: '/api/' + data});          
+                var mockResponse = httpMocks.createResponse();                    
+                sailsController[sailsModelName](mockRequest, mockResponse);
+                var mockResponseData = mockResponse.statusCode == 200 ? mockResponse._getData() : '';
+
+                if (mockResponseData.length > 0) {
+                  sails.log.debug('fetched data from sails controller for [' + data + ']');
+
+                  var results = JSON.parse(mockResponseData);
 
                   // make data available for components to render on the back-end
                   global.__ReactInitState__[data.trim().toLowerCase()] = results;
@@ -220,15 +194,48 @@ module.exports = function(req, res, next) {
                     //console.log('done fetching data from models; rendering the whole thing');
                     return renderHtml(req, res, renderProps, modelsAndData);
                   }
-                });
+                }
               }
-              //edge case: there were some models in the router but last one didn't match
-              else if (i == datae.length - 1) {
-                //console.log('done fetching data from models; rendering the whole thing');
-                return renderHtml(req, res, renderProps, modelsAndData);
-              } 
-            }           
-          }
+              else {
+                //ok fine look for model directly
+                var sailsModel = sails.models[sailsModelName];
+
+                // console.log('model: ' + sailsModelName);
+                // console.log('query: ' + JSON.stringify(query));
+
+                if (typeof sailsModel !== 'undefined') {
+                  sails.log.debug('fetching data from model [' + sailsModelName + '] with query [' + JSON.stringify(query) + ']');
+
+                  sailsModel.find(query, function(err, results) {
+                    if (err) {
+                      //return res.serverError(err);
+                      console.log("Error fetching data: " + err);
+                      //return renderHtml(req, res, renderProps, []);
+                    } 
+
+                    // make data available for components to render on the back-end
+                    global.__ReactInitState__[data.trim().toLowerCase()] = results;
+
+                    // make data available on the front-end
+                    modelsAndData.push({model: data.trim().toLowerCase(), data: results});
+
+                    if (i == datae.length - 1) {
+                      //console.log('done fetching data from models; rendering the whole thing');
+                      return renderHtml(req, res, renderProps, modelsAndData);
+                    }
+                  });
+                }
+                //edge case: there were some models in the router but last one didn't match
+                else if (i == datae.length - 1) {
+                  //console.log('done fetching data from models; rendering the whole thing');
+                  return renderHtml(req, res, renderProps, modelsAndData);
+                } 
+              }           
+            }
+          });          
+
+          //console.log('--> calling sails.router.route');                    
+          sails.router.route(mockRequest, mockResponse, function() {console.log('ASDF');});
         });
       }
     } 

@@ -7,25 +7,39 @@
 
 module.exports = {
 
-  // portfolios(req, res) {
-  //   return res.json([{"name":"My Practice Portfolio","cash":10000,"id":1},{"name":"Things I'm Watching","cash":10000,"id":2}]);
-  // },
-
   portfolioDetails(req, res) {
-    //console.log('api.portfolioDetail');
-    if (req.params['id'] === '1') {
-      return res.json({"name":"My Practice Portfolio","cash":10000,"id":1,"holdings":[{"ticker":"MSFT","name":"Microsoft Corporation","shares":"2","cost":107.74,"checkpointTransactionId":4,"id":1,"portfolioId":1,"price":"53.48"},{"ticker":"YHOO","name":"Yahoo! Inc.","shares":"3","cost":91.05,"checkpointTransactionId":4,"id":2,"portfolioId":1,"price":"30.46"},{"ticker":"AAPL","name":"Apple Inc.","shares":"1","cost":100.15,"checkpointTransactionId":4,"id":3,"portfolioId":1,"price":"101.03"}],"cashCalculated":9701.06,"valueCalculated":10000.43});
+    var portfolioId = req.params['id'];
+
+    // console.log('ApiController.portfolioDetail: portfolioId=' + portfolioId);
+
+    if (typeof portfolioId !== 'undefined') {
+      Portfolio.findOne({id: portfolioId}, function(err, portfolio) {
+        //console.log('here'); console.dir(portfolio);
+        if (err) {        
+          console.log('ApiController.portfolioDetails: Portfolio.findOne error: ' + err);
+          return res.json({error: "Error: " + err});
+        }
+
+        if (portfolio) {
+          PortfolioHolding.find({portfolioId: portfolioId}, function(err, portfolioHoldings) {
+            if (err) {        
+              console.log('ApiController.portfolioDetails: PortfolioHolding.find error: ' + err);
+              return res.json({error: "Error: " + err});
+            }
+
+            portfolio['holdings'] = portfolioHoldings;
+            return res.json(portfolio);
+          });
+        }
+        else {
+          return res.json({});
+        }
+      });
     }
-    else if (req.params['id'] === '2') {
-      return res.json({"name":"Things I'm Watching","cash":10000,"id":2,"holdings":[{"portfolioId":2,"ticker":"GOOG","name":"Alphabet Inc.","shares":1,"cost":719.07,"price":"720.77"},{"portfolioId":2,"ticker":"IBM","name":"International Business Machines","shares":2,"cost":265.76,"price":"133.0972"}],"cashCalculated":9015.17,"valueCalculated":10002.13});
-    }
-    else {
+    else {  
       return res.json({});
     }
   },
-
-
-
 
   login(req, res) {
     // console.log('api controller login');

@@ -46,6 +46,8 @@ module.exports.routes = {
   *                                                                          *
   ***************************************************************************/
 
-  // 'get /': 'IndexController.index',
+  // 'GET /': 'IndexController.index',
+
+  // 'GET /api/portfolio/:id/details': 'PortfolioController.details',
   
 };
