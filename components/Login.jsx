@@ -1,8 +1,6 @@
-var _ = require('lodash');
 var React = require("react");
 var Link = require('react-router').Link;
 var App = require('../assets/js/App');
-var $ = require('jquery');
 
 module.exports = React.createClass({
 

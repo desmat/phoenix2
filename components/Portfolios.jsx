@@ -1,5 +1,3 @@
-var _ = require('lodash');
-var $ = require('lodash');
 var React = require("react");
 var Api = require('../assets/js/Api');
 var App = require('../assets/js/App');

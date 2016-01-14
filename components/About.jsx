@@ -1,4 +1,3 @@
-var _ = require('lodash');
 var React = require("react");
 var Api = require('../assets/js/Api');
 
@@ -10,7 +9,6 @@ module.exports = React.createClass({
   componentDidMount() {
     var self = this;
     Api.get('about', function(data) { 
-    	//console.log('got data');
       self.setState({data: data}); 
     });
   },
