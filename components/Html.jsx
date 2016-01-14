@@ -7,7 +7,7 @@ module.exports = React.createClass({
     return (
       <html>
         <head>
-          <title>To-Do's (Isomorphic React Demo)</title>
+          <title>Project Phoenix</title>
           <meta charSet="utf-8" />
           <meta httpEquiv="X-UA-Compatible" content="IE=edge,chrome=1" />
           <meta name="description" content="TODO" />

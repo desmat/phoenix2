@@ -23,8 +23,8 @@ module.exports = React.createClass({
 
     return (
       <div>
-      <p>A simple to-do list built with Node and Sails on the back-end, and React on the front-end with isomorphism configured for easy-going development.</p>
-      <p>Documentation and source code: <a href='https://github.com/desmat/sails-react-demo'>https://github.com/desmat/sails-react-demo</a>.</p>
+      <p>Super secret project phoenix, rising from the ashes and all that...</p>
+      <p>Documentation and source code: <a href='https://github.com/desmat/phoenix2'>https://github.com/desmat/phoenix2</a>.</p>
 
       {this.state.data.map(function(aboutText) {
   			return (
