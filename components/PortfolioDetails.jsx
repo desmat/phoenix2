@@ -118,10 +118,10 @@ module.exports = React.createClass({
 
     return(
       <div className="portfolio-details">
-        <h1>Portfolio: {this.state.data.name}</h1>
-        <h2>Value: ${this.state.data.value}</h2>
-        <h2>Cash: ${this.state.data.cash}</h2>
-        <h2>Holdings</h2>
+        <h2>Portfolio: {this.state.data.name}</h2>
+        <h3>Value: ${this.state.data.value}</h3>
+        <h3>Cash: ${this.state.data.cash}</h3>
+        <h3>Holdings</h3>
         <div className="portfolio-holdings row text-nowrap">
           {holdings}
         </div>
