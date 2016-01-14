@@ -13,24 +13,25 @@ module.exports = React.createClass({
 
       Api.post('portfolio', newPortfolio, function(data) { 
         //update new portfolio's id
-        _.findWhere(self.state.data, {id: newPortfolio.id}).id=data.id;
+        _.find(self.state.data, {id: newPortfolio.id}).id=data.id;
         self.setState({data: self.state.data});
       });
     }
   }, 
 
   deletePortfolio: function(id) {
-    var portfolios = _.difference(this.state.data, _.where(this.state.data, {id:id}));
+    var portfolios = _.difference(this.state.data, _.filter(this.state.data, {id: id}));
     this.setState({data: portfolios});
 
     Api.delete('portfolio', id);
   },
 
   renamePortfolio: function(id, name) {
-    var portfolio = _.findWhere(this.state.data, {id:id});
+    var portfolio = _.find(this.state.data, {id: id});
     if (portfolio) {
       portfolio.name=name;
       this.setState({data: this.state.data});
+
       Api.put('portfolio', id, portfolio);
     }
   },
