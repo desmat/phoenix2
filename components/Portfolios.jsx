@@ -39,7 +39,7 @@ module.exports = React.createClass({
   fetchData() {
     var self = this;
 
-    Api.get('portfolio', function(data) { 
+    Api.get(this.componentDataUrl, function(data) { 
       self.setState({data: data}); 
     }, function(errorCode) {
       if (errorCode == 403) {
@@ -50,25 +50,29 @@ module.exports = React.createClass({
   },
 
   getInitialState() {
-    return {data: Api.getInitial('portfolio')};
+    this.componentDataUrl = 'portfolio';
+    return {data: Api.getInitial(this.componentDataUrl)};
   },  
 
   componentDidMount() {
     var self = this;
-    io.socket.on('portfolio', function (msg) {
+
+    io.socket.on(this.componentDataUrl, function (msg) {
       //quick and dirty for now
       self.fetchData();
     });
 
-   self.fetchData();
-
-   //TODO vvv figure this shit out (http://stackoverflow.com/questions/26059762/callback-when-dom-is-loaded-in-react-js):
-   // $('[data-toggle="tooltip"]').tooltip(); 
+    self.fetchData();
   },  
 
+  componentDidUpdate() {
+    App.init();
+  },
+
   render: function() {
-    var self = this;
+    var self = this;    
     var portfolios = [];
+
     if (this.state.data) {
       var portfolios = this.state.data.map(function(portfolio) {
         return (

@@ -17,6 +17,7 @@ module.exports = React.createClass({
   },
 
   keyDown(e) {
+    //grab [ENTER] keypress
     if (e.keyCode == 13) this.login();
   },
 
