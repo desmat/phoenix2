@@ -28,9 +28,10 @@ module.exports = {
 
 
     portfolioId: {
-      type: "integer", 
-      required: true
+      model: "portfolio"
     },
+
+  
 
 
   }

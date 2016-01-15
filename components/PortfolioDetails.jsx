@@ -88,7 +88,7 @@ module.exports = React.createClass({
   },
 
   getInitialState() {
-    this.componentDataUrl = 'portfolioDetails/' + this.props.params.id;
+    this.componentDataUrl = 'portfolio/' + this.props.params.id;
     return {data: Api.getInitial(this.componentDataUrl)};
   },  
 
