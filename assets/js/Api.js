@@ -62,6 +62,7 @@ module.exports = {
 	}, 
 
 	put(model, id, data, onSuccess, onError) {
+    //console.log('Api.put(' + model + ', ' + id + ')');
     var modelAndQuery = model.split('?'); //we might want to keep query portions if present for caching but not for calling end-point
 
 		io.socket.put('/api/' + modelAndQuery[0] + '/' + id, data, function(data, jwres) {
@@ -72,6 +73,7 @@ module.exports = {
 				console.dir(jwres.error);
 			}
 			else {
+        //console.log('Api.put(' + model + ', ' + id + '): success');
 				// cacheReactInitState(model, data);
         if (onSuccess) onSuccess(data);
 			}

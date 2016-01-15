@@ -11,6 +11,8 @@ module.exports = React.createClass({
   },
 
   componentDidMount() {
+    //console.log('Body.componentDidMount');
+
     //super hack!
     App.registerNavigate(this.navigate);
 

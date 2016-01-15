@@ -7,7 +7,6 @@ var PortfolioHolding = require('./PortfolioHolding.jsx');
 
 module.exports = React.createClass({
 
-
   addHolding() {
     var ticker = window.prompt("Ticker");
     if (ticker) {
@@ -16,6 +15,7 @@ module.exports = React.createClass({
   },
 
   buyHolding(ticker) {
+    //console.log('PortfolioDetails.buyHolding(' + ticker + ')');
     ticker = ticker.toUpperCase();
     var self = this;
     var portfolioHolding = _.find(this.state.data.holdings, {ticker: ticker});
@@ -24,28 +24,23 @@ module.exports = React.createClass({
       portfolioHolding.shares = portfolioHolding.shares + 1;
       this.setState({data: this.state.data});
       
-      Api.put('portfolioHolding', portfolioHolding.id, portfolioHolding, function() { 
-          self.fetchData(); 
+      Api.put('portfolioHolding', portfolioHolding.id, portfolioHolding, function(data) { 
+        self.fetchData();
       });
     }
     //portfolio does not contain this holding
     else {
       portfolioHolding = {portfolioId: this.props.params.id, id:0, ticker:ticker, shares:1, cost:0};
       this.state.data.holdings = this.state.data.holdings.concat(portfolioHolding);
-      console.dir(this.state.data);
       this.setState({data: this.state.data}); //id will be updated later
 
       Api.post('portfolioHolding', portfolioHolding, function(data) { 
-        //update new portfolio's id
-        _.find(self.state.data.holdings, {id: portfolioHolding.id}).id=data.id;
-        self.setState({data: self.state.data});
-
         self.fetchData();
       });
     }
   },
 
-  sellHolding: function(ticker) {
+  sellHolding(ticker) {
     var self = this;
     var portfolioHolding = _.find(this.state.data.holdings, {ticker: ticker});
     //portfolio already contains this holding
@@ -75,6 +70,7 @@ module.exports = React.createClass({
   },
 
   fetchData() {
+    // console.log('PortfolioDetails.fetchData'); 
     var self = this;
 
     Api.get(this.componentDataUrl, function(data) { 
@@ -87,24 +83,40 @@ module.exports = React.createClass({
     });
   },
 
+  socketIo(msg) {
+    // console.log('PortfolioDetails.socketIo'); //console.dir(msg);
+    if (msg.id == this.props.params.id) {
+      this.fetchData();
+    }
+  },
+
   getInitialState() {
-    this.componentDataUrl = 'portfolioDetails/' + this.props.params.id;
+    // console.log('PortfolioDetails.getInitialState');
+    this.componentName = 'PortfolioDetails';
+    this.socketIoModel = 'portfolio';
+    this.componentDataUrl = 'portfolio/' + this.props.params.id;
     return {data: Api.getInitial(this.componentDataUrl)};
   },  
 
+  componentWillMount() {
+    // console.log('PortfolioDetails.componentWillMount');
+  },
+
   componentDidMount() {
-    var self = this;
-
-    io.socket.on(this.componentDataUrl, function (msg) {
-      //quick and dirty for now
-      self.fetchData();
-    });
-
-    self.fetchData();
+    // console.log('PortfolioDetails.componentDidMount');
+    //TODO: figure out why this won't kick in when loading this component from back-end
+    App.registerSocketIo(this.componentName, this.socketIoModel, this.socketIo);
+    this.fetchData();
   }, 
 
   componentDidUpdate() {
+    // console.log('PortfolioDetails.componentDidUpdate');
     App.init();
+  },
+
+  componentWillUnmount() {
+    // console.log('PortfolioDetails.componentWillUnmount');
+    App.registerSocketIo(this.componentName, this.socketIoModel);
   },
 
   render: function() {    
@@ -118,10 +130,10 @@ module.exports = React.createClass({
 
     return(
       <div className="portfolio-details">
-        <h1>Portfolio: {this.state.data.name}</h1>
-        <h2>Value: ${this.state.data.value}</h2>
-        <h2>Cash: ${this.state.data.cash}</h2>
-        <h2>Holdings</h2>
+        <h2>Portfolio: {this.state.data.name}</h2>
+        <h3>Value: ${this.state.data.value}</h3>
+        <h3>Cash: ${this.state.data.cash}</h3>
+        <h3>Holdings</h3>
         <div className="portfolio-holdings row text-nowrap">
           {holdings}
         </div>
@@ -136,7 +148,5 @@ module.exports = React.createClass({
       </div>
     );
   },
-
-
 
 });

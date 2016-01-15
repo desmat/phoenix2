@@ -18,7 +18,7 @@ module.exports = React.createClass({
     return (
       <div className="portfolio-holding">
         <div className="col-xs-8">          
-          {this.props.data.name} ({this.props.data.ticker}): {this.props.data.shares} shares, ${this.props.data.cost} cost
+          {this.props.data.name} ({this.props.data.ticker}): {this.props.data.shares} shares, ${this.props.data.value} value, ${this.props.data.cost} cost
         </div>
 
         <div className="col-xs-4 text-right">

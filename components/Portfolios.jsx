@@ -4,7 +4,8 @@ var App = require('../assets/js/App');
 var Portfolio = require('./Portfolio.jsx');
 
 module.exports = React.createClass({
-  addPortfolio: function() {
+  
+  addPortfolio() {
     var self = this;
     var name = window.prompt("New Portfolio","My Portfolio");
     if (name) {
@@ -19,14 +20,14 @@ module.exports = React.createClass({
     }
   }, 
 
-  deletePortfolio: function(id) {
+  deletePortfolio(id) {
     var portfolios = _.difference(this.state.data, _.filter(this.state.data, {id: id}));
     this.setState({data: portfolios});
 
     Api.delete('portfolio', id);
   },
 
-  renamePortfolio: function(id, name) {
+  renamePortfolio(id, name) {
     var portfolio = _.find(this.state.data, {id: id});
     if (portfolio) {
       portfolio.name=name;
@@ -37,6 +38,7 @@ module.exports = React.createClass({
   },
 
   fetchData() {
+    //console.log('Portfolio.fetchData');
     var self = this;
 
     Api.get(this.componentDataUrl, function(data) { 
@@ -49,24 +51,35 @@ module.exports = React.createClass({
     });
   },
 
+  socketIo(msg) {
+    //console.log('Portfolio.socketIo'); //console.dir(msg);
+    this.fetchData();
+  },
+
   getInitialState() {
+    this.componentName = 'Portfolio';
     this.componentDataUrl = 'portfolio';
     return {data: Api.getInitial(this.componentDataUrl)};
   },  
 
+  componentWillMount() {
+    //console.log('Portfolio.componentWillMount');
+  }, 
+
   componentDidMount() {
-    var self = this;
-
-    io.socket.on(this.componentDataUrl, function (msg) {
-      //quick and dirty for now
-      self.fetchData();
-    });
-
-    self.fetchData();
+    // console.log('Portfolio.componentDidMount');
+    App.registerSocketIo(this.componentName, this.componentDataUrl, this.socketIo);
+    this.fetchData();
   },  
 
   componentDidUpdate() {
+    //console.log('Portfolio.componentDidUpdate');
     App.init();
+  },
+
+  componentWillUnmount() {
+    //console.log('Portfolio.componentWillUnmount');
+    App.registerSocketIo(this.componentName, this.componentDataUrl);
   },
 
   render: function() {

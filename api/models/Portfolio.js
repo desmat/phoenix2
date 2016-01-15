@@ -20,7 +20,12 @@ module.exports = {
     "value": {
       "type": "float",
       "required": false
-    }
+    },
+
+    holdings: {
+      collection: "portfolioHolding",
+      via: "portfolioId",
+    },
 
   }
 };
