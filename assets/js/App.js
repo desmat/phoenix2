@@ -1,6 +1,44 @@
 var Api = require('./Api');
 
+
+
 const App = {
+
+  registerSocketIo(component, model, fn) {
+    //console.log('App.registerSocketIo');
+
+    if (typeof window !== 'undefined') {
+      if (!window.hasOwnProperty('__ReactSocketIoCallbacks__')) {
+        window.__ReactSocketIoCallbacks__ = {};
+        window.__ReactSocketIoCallbackCallers__ = {};
+      }
+
+      if (!window.__ReactSocketIoCallbacks__.hasOwnProperty(model)) {
+        //console.log('App.registerSocketIo: setting up iosocket callback for model [' + model + ']');
+        window.__ReactSocketIoCallbacks__[model] = {};
+
+        var f = function(msg) {
+          _.each(Object.keys(window.__ReactSocketIoCallbacks__[model]), function(key) {
+            // console.log('App.registerSocketIo: calling iosocket callback for component [' + key + ']');
+            window.__ReactSocketIoCallbacks__[model][key](msg);
+          });
+        };
+
+        // console.log('App.registerSocketIo: setting up iosocket callback for model [' + model + ']: actually setting up io.socket');
+        window.__ReactSocketIoCallbackCallers__[model] = f;
+        io.socket.on(model, f);
+      }
+
+      if (fn) {
+        // console.log('App.registerSocketIo: registering component [' + component + '] for callback on model [' + model + ']');
+        window.__ReactSocketIoCallbacks__[model][component] = fn;
+      }
+      else {
+        // console.log('App.registerSocketIo: de-registering component [' + component + '] for callback on model [' + model + ']');
+        delete window.__ReactSocketIoCallbacks__[model][component];
+      }
+    }
+  },
 
   init() {
     //client-side

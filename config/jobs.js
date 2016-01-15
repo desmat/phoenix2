@@ -5,7 +5,7 @@
 module.exports.jobs = [
   // {
   //   name: "Job 1", 
-  //   interval: 500, 
+  //   interval: 1000, 
   //   job: function() {
   //     console.log('*** Job 1 ***');
   //   }
