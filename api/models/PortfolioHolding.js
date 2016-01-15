@@ -32,8 +32,6 @@ module.exports = {
 
   }, 
 
-  
-
   beforeDestroy(portfolioHolding, cb) {
     //console.log('PortfolioHolding.beforeDestroy: '); console.dir(portfolioHolding);
 

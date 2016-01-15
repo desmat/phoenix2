@@ -42,7 +42,7 @@ module.exports.data = [
     PortfolioHolding: [
       {"ticker":"MSFT","shares":"2","cost":107.74,"portfolioId":1},{"ticker":"YHOO","shares":"3","cost":91.05,"portfolioId":1},{"ticker":"AAPL","shares":"1","cost":100.15,"id":3,"portfolioId":1},
       {"portfolioId":2,"ticker":"GOOG","shares":1,"cost":719.07},{"portfolioId":2,"ticker":"IBM","shares":2,"cost":265.76},
-      {portfolioId: 3, ticker: 'AAPL', shares: 1, "cost":100.15}, {portfolioId: 3, ticker: 'AMNZ', shares: 2, cost: 1200.00},
+      {portfolioId: 3, ticker: 'AAPL', shares: 1, "cost":100.15}, {portfolioId: 3, ticker: 'AMZN', shares: 2, cost: 1200.00},
     ]
   }, 
   {
