@@ -7,7 +7,7 @@
 
 module.exports = {
 
-	findOne(req, res) {
+  findOne(req, res) {
     var portfolioId = req.params['id'];
 
     //console.log("PortfolioController.findOne: id=" + portfolioId);

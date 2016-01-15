@@ -7,5 +7,13 @@
 
 module.exports = {
 	
+  updateAll(req, res) {
+    res.write("Updating all tickers...");
+    TickerService.updateAll(function() {
+      res.write("Done!");
+      res.end();
+      return;
+    });
+  }
 };
 

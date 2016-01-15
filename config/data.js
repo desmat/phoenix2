@@ -52,7 +52,7 @@ module.exports.data = [
       {"ticker":"AAPL","name":"Apple Inc.","price":"101.03"},      
       {"ticker":"GOOG","name":"Alphabet Inc.","price":"720.77"},
       {"ticker":"IBM","name":"International Business Machines","price":"133.0972"},
-      {"ticker":"AMNZ","name":"Amazon","price":"700.00"},
+      {"ticker":"AMZN","name":"Amazon","price":"700.00"},
     ]
   },
 ];

@@ -15,7 +15,7 @@ module.exports = React.createClass({
   },
 
   buyHolding(ticker) {
-    console.log('PortfolioDetails.buyHolding(' + ticker + ')');
+    //console.log('PortfolioDetails.buyHolding(' + ticker + ')');
     ticker = ticker.toUpperCase();
     var self = this;
     var portfolioHolding = _.find(this.state.data.holdings, {ticker: ticker});
@@ -105,7 +105,7 @@ module.exports = React.createClass({
   componentDidMount() {
     // console.log('PortfolioDetails.componentDidMount');
     //TODO: figure out why this won't kick in when loading this component from back-end
-    // App.registerSocketIo(this.componentName, this.socketIoModel, this.socketIo);
+    App.registerSocketIo(this.componentName, this.socketIoModel, this.socketIo);
     this.fetchData();
   }, 
 
@@ -116,7 +116,7 @@ module.exports = React.createClass({
 
   componentWillUnmount() {
     // console.log('PortfolioDetails.componentWillUnmount');
-    // App.registerSocketIo(this.componentName, this.socketIoModel);
+    App.registerSocketIo(this.componentName, this.socketIoModel);
   },
 
   render: function() {    

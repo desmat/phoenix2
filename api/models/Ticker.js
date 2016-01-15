@@ -21,6 +21,21 @@ module.exports = {
       "required": false
     },
 
-  }
+  }, 
+
+  afterUpdate(ticker, cb) {
+    //console.log('Ticker.afterUpdate: '); console.dir(ticker);
+
+    PortfolioHolding.find({ticker: ticker.ticker}, function(err, portfolioHoldings) {
+      _.each(portfolioHoldings, function(portfolioHolding) {
+        //ping front-end to fetch fresh data
+        Portfolio.publishUpdate(portfolioHolding.portfolioId);
+      });
+
+      cb();
+    });
+  },  
+
+
 };
 

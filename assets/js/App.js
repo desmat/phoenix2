@@ -1,8 +1,6 @@
 var Api = require('./Api');
 
-
-
-const App = {
+module.exports = {
 
   registerSocketIo(component, model, fn) {
     //console.log('App.registerSocketIo');
@@ -134,7 +132,3 @@ const App = {
   },
   
 };
-
-App.init();
-
-module.exports = App;
