@@ -113,25 +113,6 @@ module.exports = {
   },
 
   getQuote(ticker, cb) {
-    //WTF THIS DOESN'T WORK ANYMORE! MAYBE I HIT IT TOO HARD AND GOT BANNED!
-
-    // var url = 'https://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20yahoo.finance.quotes%20where%20symbol%20in%20(%22' + ticker + '%22)%0A%09%09&format=json&diagnostics=false&env=http%3A%2F%2Fdatatables.org%2Falltables.env';
-    // request(url, function(err, resp, body) {
-    //   if (err) return cb(err);
-
-    //   var data = JSON.parse(body);
-    //   //console.log('getQuote: '); console.dir(data);
-
-    //   if (!data || !data.query || !data.query.result) return cb("Empty ticker query: " + ticker); 
-
-    //   var name =  data.query.results.quote.Name;
-
-    //   if (!data.query.results.quote.Name) return cb("Ticker not found: " + ticker);
-
-    //   cb(null, data.query.results.quote);
-    // });
-    
-
     var quotes = this.getQuotes([ticker], function(err, quotes) {
       if (err) return cb(err);
 
