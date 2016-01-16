@@ -1,4 +1,5 @@
 var TickerService = require('../api/services/TickerService');
+var TransactionService = require('../api/services/TransactionService');
 
 /**
  * Jobs to be initialized at startup
@@ -7,7 +8,7 @@ var TickerService = require('../api/services/TickerService');
 module.exports.jobs = [
   {
     name: "Update Tickers", 
-    interval: 1000 * 60 * 60, //let's just start with every hour then we'll ramp it up
+    interval: 1000 * 60 * 10, //every 10 mins
     job: function() {
       sails.log.debug('*** Update Tickers Job ***');
       //TODO make sure we're only getting data when market open
@@ -21,11 +22,13 @@ module.exports.jobs = [
       }
     }
   },
-  // {
-  //   name: "Job 2", 
-  //   interval: 800, 
-  //   job: function() {
-  //     sails.log.debug('*** Job 2 ***');
-  //   }
-  // },
+  {
+    name: "Transaction Job", 
+    interval: 500, 
+    job: function() {
+      //sails.log.debug('*** Transaction Job2 ***');
+
+      TransactionService.process();
+    }
+  },
 ]

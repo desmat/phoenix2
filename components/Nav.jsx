@@ -26,7 +26,7 @@ module.exports = React.createClass({
   getInitialState() {
     //return {authenticated: App.isAuthenticated()};
     return {authenticated: true};
-  },  
+  },
 
   componentDidMount() {
     App.registerAuthenticatedChanged(this.authenticationChanged);
@@ -40,7 +40,7 @@ module.exports = React.createClass({
     if (this.state.authenticated) {
       return (
         <div>
-          <nav className="navbar-inverse">
+          <nav className="navbar-inverse navbar-fixed-top">
               <div className="container-fluid">
                 <div className="navbar-header">
                   <button type="button" className="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
@@ -58,8 +58,8 @@ module.exports = React.createClass({
                   </ul>
                 </div>
               </div>
-            </nav>  
-            <br/> 
+            </nav>
+            <br/>
          </div>
       );
     }
@@ -83,8 +83,8 @@ module.exports = React.createClass({
     		          </ul>
     		        </div>
     		      </div>
-    		    </nav>	
-    		    <br/>	
+    		    </nav>
+    		    <br/>
     		 </div>
     	);
     }

@@ -31,37 +31,31 @@ module.exports = {
 
     Ticker.findOne({ticker: symbol}, function(err, ticker) {
       if (err) {
-        console.log('TickerService.getTickerDetails: Ticker.findOne error: ' + err);
-        return;
+        return cb('Ticker.findOne error: ' + err);
       }
 
       if (!ticker) {        
-        //TODO get name and fresh price from external service
-
         self.getQuote(symbol, function(err, data) {
           //console.log('TickerService.getTickerDetails: getQuote: '); console.dir(data);
           if (err) {
-            console.log('TickerService.getTickerDetails: getQuote error: ' + err);
-            return cb({});
+            return cb('getQuote error: ' + err);
           }
 
           if (!data) {
-            console.log('TickerService.getTickerDetails: getQuote error: symbol not found: ' + symbol);
-            return cb({});
+            return cb('getQuote error: symbol not found: ' + symbol);
           }
 
           Ticker.create({ticker: symbol, name: data.Name, price: data.LastTradePriceOnly}, function(err, ticker) {
             if (err) {
-              console.log('TickerService.getTickerDetails: Ticker.create error: ' + err);
-              return;
+              return cb('Ticker.create error: ' + err);
             }
 
-            cb(ticker);
+            cb(null, ticker);
           });
         });
       }
       else {
-        cb(ticker);
+        cb(null, ticker);
       }
     });      
   },
@@ -106,8 +100,6 @@ module.exports = {
 
           return cb();
         }
-
-        return cb();
       });
     });
   },
