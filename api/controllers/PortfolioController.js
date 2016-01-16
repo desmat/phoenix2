@@ -27,5 +27,37 @@ module.exports = {
     }
   },
 
+  buy(req, res) {
+    var portfolioId = req.params['id'];
+    var ticker = req.params['ticker'];
+
+    //console.log('PortfolioController.buy: id=' + portfolioId, ' ticker=' + ticker);
+
+    PortfolioService.buyOrSell(portfolioId, ticker, 'buy', function(err) {
+      if (err) {
+        sails.log.warn(err);
+        return res.json({error: 'Error buying ticker [' + ticker + ']: ' + err});
+      }
+
+      return res.json({});
+    });
+  }, 
+
+  sell(req, res) {
+    var portfolioId = req.params['id'];
+    var ticker = req.params['ticker'];
+
+    //console.log('PortfolioController.sell: id=' + portfolioId, ' ticker=' + ticker);
+
+    PortfolioService.buyOrSell(portfolioId, ticker, 'sell', function(err) {
+      if (err) {
+        sails.log.warn(err);
+        return res.json({error: 'Error selling ticker [' + ticker + ']: ' + err});
+      }
+
+      return res.json({});
+    });
+  }, 
+
 };
 

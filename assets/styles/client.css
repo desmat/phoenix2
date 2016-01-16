@@ -1,4 +1,5 @@
-/*a {
+/*
+a {
 	text-decoration: none; 
 	color:blue;
 }
@@ -15,6 +16,12 @@ a.selected {
 	font-weight: bold;
 }
 */
+
+
+body {
+	margin-top: 28px;
+	margin-bottom: 8px;
+}
 
 .row {
 	margin-top: 3px;
@@ -40,4 +47,9 @@ a.selected {
 .portfolio-item:hover {
 	text-decoration: underline;
 }
+
+.navbar-inverse .navbar-brand {
+    color: #fff;
+}
+
 

@@ -26,6 +26,7 @@ module.exports = {
   },
 
   getPortfolioDetails(portfolioId, cb) {
+    var self = this;
     //console.log('PortfolioService.getPortfolioDetails(' + portfolioId + ')');
 
     Portfolio.findOne({id: portfolioId}).populate('holdings').exec(function(err, portfolio) {
@@ -35,15 +36,18 @@ module.exports = {
       }
 
       if (portfolio) {
-        portfolio.value = 0;
+        portfolio.value = portfolio.cash;
         var totalCost = 0;
+
         // fill live values from ticker table
         Ticker.find({}, function(err, tickers) {
+
           _.each(portfolio.holdings, function(holding) {
+
             var ticker = _.find(tickers, {ticker: holding.ticker});
             if (ticker) {
-              totalCost = totalCost + holding.cost;
-              portfolio.value = portfolio.value + (holding.shares * ticker.price);
+              //totalCost = totalCost + holding.cost;
+              portfolio.value += (holding.shares * ticker.price);
 
               holding.name = ticker.name;
               holding.price = Math.round(100 * ticker.price) / 100;
@@ -52,10 +56,10 @@ module.exports = {
             }
           });
 
-          portfolio.cash = Math.round(100 * (portfolio.cash - totalCost)) / 100;
-          portfolio.value = Math.round(100 * (portfolio.value + portfolio.cash)) / 100;
+          portfolio.cash = Math.round(100 * portfolio.cash) / 100;
+          portfolio.value = Math.round(100 * portfolio.value) / 100;
 
-          //console.log('PortfolioService.getPortfolioDetails(' + portfolioId + '): returning');
+          // console.log('PortfolioService.getPortfolioDetails(' + portfolioId + '): returning');
           return cb(portfolio);             
         });
       }
@@ -64,5 +68,27 @@ module.exports = {
       }
     });
   },
+
+  buyOrSell(portfolioId, ticker, buyOrSell, cb) { 
+    Portfolio.findOne({id: portfolioId}, function(err, portfolio) {
+      if (err) {
+        sails.log.warn('Error buying/selling ticker [' + ticker + '] on portfolio [' + portfolioId + ']: ' + err);
+        return cb(err);
+      }
+      else if (!portfolio) {
+        sails.log.warn('Error buying/selling ticker [' + ticker + ']: portfolio [' + portfolioId + '] not found');
+        return cb(err);
+      }
+
+      Transaction.create({type: buyOrSell, portfolioId: portfolioId, ticker: ticker}, function(err, transaction) {
+        if (err) {
+          sails.log.warn('Error buying/selling ticker [' + ticker + '] on portfolio [' + portfolioId + ']: Error creating transaction: ' + err);
+          return cb(err);
+        }
+
+        return cb();
+      });
+    });
+  }, 
 
 }
