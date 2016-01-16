@@ -1,6 +1,29 @@
 var request = require('request');
+var moment = require('moment-timezone');
 
 module.exports = {
+
+  isMarketOpen() {
+    var today = moment.tz(today, "America/New_York");
+    var marketOpen = moment.tz(today, "America/New_York").hours(9).minutes(30).seconds(0);
+    var marketClose = moment.tz(today, "America/New_York").hours(16).minutes(0).seconds(0);
+    var marketCloseHalf = moment.tz(today, "America/New_York").hours(13).minutes(0).seconds(0);
+
+    return today.day() >= 1 && today.day() <= 5 && 
+        today.diff(marketOpen) > 0 && today.diff(marketClose) < 0
+        !this.isMarketHoliday() &&
+        !(this.isMarketHalfDay() && today.diff(marketCloseHalf) < 0);
+  },
+
+  isMarketHoliday() {
+    //TODO
+    return false;
+  }, 
+
+  isMarketHalfDay() {
+    //TODO
+    return false;
+  },
 
   getTickerDetails(symbol, cb) {
     //console.log('TickerService.getTickerDetails: symbol=' + symbol);
@@ -47,52 +70,75 @@ module.exports = {
     var self = this;
 
     Ticker.find({}, function(err, tickers) {
-      _.each(tickers, function(ticker) {
-        self.getQuote(ticker.ticker, function(err, data) {
-          if (err) {
-            console.log('TickerService.updateAll: getQuote error: ' + err);
-          }
+      var tickersToQuery = _.map(tickers, function(i) { return i.ticker });
 
-          if (data) {
-            //console.log('TickerService.updateAll: Ticker [' + ticker.ticker + ']: getQuote: '); console.dir(data);
-            var dirty = false;
+      self.getQuotes(tickersToQuery, function(err, datae) {
 
-            if (ticker.name != data.Name) {
-              ticker.name = data.Name;
-              dirty = true;
+        if (err) {
+          console.log('TickerService.updateAll: getQuotes error: ' + err);
+          return cb();
+        }
+
+        if (datae) {
+          _.each(datae, function(data) {
+            //console.log('TickerService.updateAll: getQuotes: data: '); console.dir(data);
+
+            var ticker = _.find(tickers, {ticker: data.Symbol});
+            if (ticker) {
+              var dirty = false;
+
+              if (ticker.name != data.Name) {
+                ticker.name = data.Name;
+                dirty = true;
+              }
+
+              if (ticker.price !== Math.round(100 * parseFloat(data.LastTradePriceOnly)) / 100) {
+                ticker.price = Math.round(100 * parseFloat(data.LastTradePriceOnly)) / 100;
+                dirty = true;
+              }
+
+              if (dirty) {
+                console.log('TickerService.updateAll: Ticker [' + ticker.ticker + '] updated');
+                ticker.save();
+              }
             }
+          });
 
-            if (ticker.price !== Math.round(100 * parseFloat(data.LastTradePriceOnly)) / 100) {
-              ticker.price = Math.round(100 * parseFloat(data.LastTradePriceOnly)) / 100;
-              dirty = true;
-            }
+          return cb();
+        }
 
-            if (dirty) {
-              console.log('TickerService.updateAll: Ticker [' + ticker.ticker + '] updated');
-              ticker.save();
-            }
-          }
-        });
+        return cb();
       });
-
-      cb();
     });
   },
 
   getQuote(ticker, cb) {
+    //WTF THIS DOESN'T WORK ANYMORE! MAYBE I HIT IT TOO HARD AND GOT BANNED!
 
-    var url = 'https://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20yahoo.finance.quotes%20where%20symbol%20in%20(%22' + ticker + '%22)%0A%09%09&format=json&diagnostics=false&env=http%3A%2F%2Fdatatables.org%2Falltables.env';
-    request(url, function(err, resp, body) {
+    // var url = 'https://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20yahoo.finance.quotes%20where%20symbol%20in%20(%22' + ticker + '%22)%0A%09%09&format=json&diagnostics=false&env=http%3A%2F%2Fdatatables.org%2Falltables.env';
+    // request(url, function(err, resp, body) {
+    //   if (err) return cb(err);
+
+    //   var data = JSON.parse(body);
+    //   //console.log('getQuote: '); console.dir(data);
+
+    //   if (!data || !data.query || !data.query.result) return cb("Empty ticker query: " + ticker); 
+
+    //   var name =  data.query.results.quote.Name;
+
+    //   if (!data.query.results.quote.Name) return cb("Ticker not found: " + ticker);
+
+    //   cb(null, data.query.results.quote);
+    // });
+    
+
+    var quotes = this.getQuotes([ticker], function(err, quotes) {
       if (err) return cb(err);
 
-      var data = JSON.parse(body);
+      //console.dir(quotes);
+      if (quotes && quotes.length > 0) return cb(null, quotes[0]);
 
-      if (!data || !data.query || !data.query.result) return cb("Empty ticker query: " + ticker); 
-      var name =  data.query.results.quote.Name;
-
-      if (!data.query.results.quote.Name) return cb("Ticker not found: " + ticker);
-
-      cb(null, data.query.results.quote);
+      return cb('Empty ticker query result: ' + ticker);
     });
   },
 
@@ -108,7 +154,12 @@ module.exports = {
       if (err) return cb(err);
 
       var data = JSON.parse(body);
-      if (data.query.count === 1) {
+      //console.log('getQuotes: '); console.dir(data);
+
+      if (data.query.count === 0) {
+        cb('Empty ticker query result: ' + tickersToQuery);
+      }
+      else if (data.query.count === 1) {
         cb(null, [data.query.results.quote]);
       }
       else {
