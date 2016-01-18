@@ -23,6 +23,7 @@ module.exports = React.createClass({
 
     return (
       <div>
+      <h1></h1>
       <p>Super secret project phoenix, rising from the ashes and all that...</p>
       <p>Documentation and source code: <a href='https://github.com/desmat/phoenix2'>https://github.com/desmat/phoenix2</a>.</p>
 
