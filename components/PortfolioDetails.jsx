@@ -24,9 +24,14 @@ module.exports = React.createClass({
       portfolioHolding.shares = portfolioHolding.shares + 1;
       this.setState({data: this.state.data});
       
-      Api.put('portfolioHolding', portfolioHolding.id, portfolioHolding, function(data) { 
-        self.fetchData();
+      // Api.put('portfolioHolding', portfolioHolding.id, portfolioHolding, function(data) { 
+      //   self.fetchData();
+      // });
+
+      Api.post('portfolio/' + this.state.data.id + '/buy/' + ticker, {}, function(data) { 
+        //self.fetchData();
       });
+
     }
     //portfolio does not contain this holding
     else {
@@ -34,8 +39,8 @@ module.exports = React.createClass({
       this.state.data.holdings = this.state.data.holdings.concat(portfolioHolding);
       this.setState({data: this.state.data}); //id will be updated later
 
-      Api.post('portfolioHolding', portfolioHolding, function(data) { 
-        self.fetchData();
+      Api.post('portfolio/' + this.state.data.id + '/buy/' + ticker, {}, function(data) { 
+        //self.fetchData();
       });
     }
   },
@@ -51,15 +56,15 @@ module.exports = React.createClass({
         this.state.data.holdings = _.difference(this.state.data.holdings, _.filter(this.state.data.holdings, {ticker:ticker}));
         this.setState({data: this.state.data});
         
-        Api.delete('portfolioHolding', portfolioHolding.id, function() { 
-          self.fetchData(); 
+        Api.post('portfolio/' + this.state.data.id + '/sell/' + ticker, {}, function(data) { 
+          //self.fetchData();
         });
       }
       else {
         this.setState({data: this.state.data});
         
-        Api.put('portfolioHolding', portfolioHolding.id, portfolioHolding, function() { 
-          self.fetchData(); 
+        Api.post('portfolio/' + this.state.data.id + '/sell/' + ticker, {}, function(data) { 
+          //self.fetchData();
         });
       }
     }

@@ -1,4 +1,5 @@
 var TickerService = require('../api/services/TickerService');
+var TransactionService = require('../api/services/TransactionService');
 
 /**
  * Jobs to be initialized at startup
@@ -21,11 +22,22 @@ module.exports.jobs = [
       }
     }
   },
-  // {
-  //   name: "Job 2", 
-  //   interval: 800, 
-  //   job: function() {
-  //     sails.log.debug('*** Job 2 ***');
-  //   }
-  // },
+  {
+    name: "Transaction Job", 
+    interval: 1000, 
+    job: function() {
+      //sails.log.debug('*** Transaction Job2 ***');
+
+      TransactionService.process();
+    }
+  },
+  {
+    name: "Portfolio Transaction Job", 
+    interval: 1000, 
+    job: function() {
+      //sails.log.debug('*** Transaction Job2 ***');
+
+      //TransactionService.processPortfolio();
+    }
+  },
 ]
