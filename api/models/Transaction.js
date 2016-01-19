@@ -12,7 +12,11 @@ module.exports = {
       type: "string", 
       required: true
     }, 
-    data: {
+    portfolioId: {
+      type: "integer", 
+      required: true
+    }, 
+    ticker: {
       type: "string", 
       required: true
     }, 

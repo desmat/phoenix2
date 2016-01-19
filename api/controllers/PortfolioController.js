@@ -10,7 +10,7 @@ module.exports = {
   findOne(req, res) {
     var portfolioId = req.params['id'];
 
-    console.log("PortfolioController.findOne: id=" + portfolioId);
+    //console.log("PortfolioController.findOne: id=" + portfolioId);
 
     if (typeof portfolioId !== 'undefined') {
       PortfolioService.getPortfolioDetails(portfolioId, function(portfolio) {
@@ -31,7 +31,7 @@ module.exports = {
     var portfolioId = req.params['id'];
     var ticker = req.params['ticker'];
 
-    console.log('PortfolioController.buy: id=' + portfolioId, ' ticker=' + ticker);
+    //console.log('PortfolioController.buy: id=' + portfolioId, ' ticker=' + ticker);
 
     PortfolioService.buyOrSell(portfolioId, ticker, 'buy', function(err) {
       if (err) {
@@ -47,7 +47,7 @@ module.exports = {
     var portfolioId = req.params['id'];
     var ticker = req.params['ticker'];
 
-    console.log('PortfolioController.sell: id=' + portfolioId, ' ticker=' + ticker);
+    //console.log('PortfolioController.sell: id=' + portfolioId, ' ticker=' + ticker);
 
     PortfolioService.buyOrSell(portfolioId, ticker, 'sell', function(err) {
       if (err) {

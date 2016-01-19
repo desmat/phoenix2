@@ -24,20 +24,11 @@ module.exports.jobs = [
   },
   {
     name: "Transaction Job", 
-    interval: 1000, 
+    interval: 500, 
     job: function() {
       //sails.log.debug('*** Transaction Job2 ***');
 
       TransactionService.process();
-    }
-  },
-  {
-    name: "Portfolio Transaction Job", 
-    interval: 1000, 
-    job: function() {
-      //sails.log.debug('*** Transaction Job2 ***');
-
-      //TransactionService.processPortfolio();
     }
   },
 ]
