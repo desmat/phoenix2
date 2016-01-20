@@ -17,8 +17,10 @@ module.exports = React.createClass({
   render() {
     return (     
       <tr>
-        <th className={this.props.data.id == 0 ? "text-right text-muted" : "text-left"} scope="row">{this.props.data.ticker}</th>
-        <td className={this.props.data.id == 0 ? "text-right text-muted" : "text-left"} width="100%">{this.props.data.name}</td>
+        <th className={this.props.data.id == 0 ? "text-left text-muted" : "text-left"} scope="row">{this.props.data.ticker}</th>
+        <td className={this.props.data.id == 0 ? "text-left text-muted" : "text-left"} width="100%">{this.props.data.name}</td>
+        <td className={this.props.data.id == 0 ? "text-right text-nowrap text-muted" : "text-nowrap text-right"}>{this.props.data.price}</td>
+        <td className={this.props.data.id == 0 ? "text-left text-nowrap text-muted" : "text-nowrap text-left"}>(<span className={this.props.data.change > 0 ? "text-right text-nowrap text-success" : this.props.data.change < 0 ? "text-right text-nowrap text-danger" : "text-right text-nowrap"}>{this.props.data.percentChange}</span>)</td>
         <td className={this.props.data.dirty ? "text-right text-muted" : "text-right"}>{this.props.data.shares}</td>
         <td className={this.props.data.dirty ? "text-right text-muted" : "text-right"}>${this.props.data.value}</td>
         <td className={this.props.data.dirty ? "text-right text-muted" : "text-right"}>${this.props.data.cost}</td>

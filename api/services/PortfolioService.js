@@ -53,6 +53,8 @@ module.exports = {
               holding.price = (Math.round(100 * ticker.price) / 100).toFixed(2);
               holding.cost = (Math.round(100 * holding.cost) / 100).toFixed(2);
               holding.value = (Math.round(100 * holding.shares * ticker.price) / 100).toFixed(2);
+              holding.change = ticker.change ? (Math.round(100 * ticker.change) / 100).toFixed(2) : 0;
+              holding.percentChange = ticker.percentChange ? (ticker.percentChange >= 0 ? '+' : '') + (Math.round(100 * ticker.percentChange) / 100).toFixed(2) + '%' : '+0%';
             }
           });
 

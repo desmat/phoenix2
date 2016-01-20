@@ -150,11 +150,12 @@ module.exports = React.createClass({
         <table className="table table-sm table-hover portfolio-holdings">
           <thead className="thead-default">
             <tr>
-              <th colSpan="2" className="text-left">Holding</th>
-              <th className="text-right">Qty</th>
-              <th className="text-right">Value</th>
-              <th className="text-right">Cost</th>
-              <th className="text-right"></th>
+              <th colSpan="2" className="text-left"></th>
+              <th colSpan="2" className="text-center">Price</th>
+              <th className="text-center">Qty</th>
+              <th className="text-center">Value</th>
+              <th className="text-center">Cost</th>
+              <th></th>
             </tr>
           </thead>
           <tbody>

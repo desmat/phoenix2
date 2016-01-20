@@ -20,6 +20,14 @@ module.exports = {
       "type": "float",
       "required": false
     },
+    "change": {
+      "type": "float",
+      "required": false
+    },
+    "percentChange": {
+      "type": "float",
+      "required": false
+    },
 
   }, 
 

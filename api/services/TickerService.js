@@ -41,11 +41,19 @@ module.exports = {
             return cb('getQuote error: ' + err);
           }
 
-          if (!data) {
+          if (!data || !data.Name) {
             return cb('getQuote error: symbol not found: ' + symbol);
           }
 
-          Ticker.create({ticker: symbol, name: data.Name, price: data.LastTradePriceOnly}, function(err, ticker) {
+          var ticker = {
+            ticker: symbol, 
+            name: data.Name, 
+            price: parseFloat(data.LastTradePriceOnly),
+            change: parseFloat(data.Change),
+            percentChange: parseFloat(data.PercentChange.replace('%')),
+          };
+
+          Ticker.create(ticker, function(err, ticker) {
             if (err) {
               return cb('Ticker.create error: ' + err);
             }
@@ -88,6 +96,9 @@ module.exports = {
 
               if (ticker.price !== Math.round(100 * parseFloat(data.LastTradePriceOnly)) / 100) {
                 ticker.price = Math.round(100 * parseFloat(data.LastTradePriceOnly)) / 100;
+                change = parseFloat(data.Change),
+                percentChange = parseFloat(data.PercentChange.replace('%')),
+
                 dirty = true;
               }
 
