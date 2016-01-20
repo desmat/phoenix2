@@ -50,14 +50,14 @@ module.exports = {
               portfolio.value += (holding.shares * ticker.price);
 
               holding.name = ticker.name;
-              holding.price = Math.round(100 * ticker.price) / 100;
-              holding.cost = Math.round(100 * holding.cost) / 100;
-              holding.value = Math.round(100 * holding.shares * ticker.price) / 100;
+              holding.price = (Math.round(100 * ticker.price) / 100).toFixed(2);
+              holding.cost = (Math.round(100 * holding.cost) / 100).toFixed(2);
+              holding.value = (Math.round(100 * holding.shares * ticker.price) / 100).toFixed(2);
             }
           });
 
-          portfolio.cash = Math.round(100 * portfolio.cash) / 100;
-          portfolio.value = Math.round(100 * portfolio.value) / 100;
+          portfolio.cash = (Math.round(100 * portfolio.cash) / 100).toFixed(2);
+          portfolio.value = (Math.round(100 * portfolio.value) / 100).toFixed(2);
 
           // console.log('PortfolioService.getPortfolioDetails(' + portfolioId + '): returning');
           return cb(portfolio);             

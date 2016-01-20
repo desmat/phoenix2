@@ -22,6 +22,8 @@ module.exports = React.createClass({
     //portfolio already contains this holding
     if (portfolioHolding) {
       portfolioHolding.shares = portfolioHolding.shares + 1;
+      portfolioHolding.dirty = true;
+      this.state.data.dirty = true;
       this.setState({data: this.state.data});
       
       // Api.put('portfolioHolding', portfolioHolding.id, portfolioHolding, function(data) { 
@@ -35,8 +37,9 @@ module.exports = React.createClass({
     }
     //portfolio does not contain this holding
     else {
-      portfolioHolding = {portfolioId: this.props.params.id, id:0, ticker:ticker, shares:1, cost:0};
+      portfolioHolding = {portfolioId: this.props.params.id, id:0, ticker:ticker, shares:1, cost:0, dirty: true};
       this.state.data.holdings = this.state.data.holdings.concat(portfolioHolding);
+      this.state.data.dirty = true;
       this.setState({data: this.state.data}); //id will be updated later
 
       Api.post('portfolio/' + this.state.data.id + '/buy/' + ticker, {}, function(data) { 
@@ -51,9 +54,11 @@ module.exports = React.createClass({
     //portfolio already contains this holding
     if (portfolioHolding) {
       portfolioHolding.shares = portfolioHolding.shares - 1;      
+      portfolioHolding.dirty = true;
 
       if (portfolioHolding.shares <= 0) {
         this.state.data.holdings = _.difference(this.state.data.holdings, _.filter(this.state.data.holdings, {ticker:ticker}));
+        this.state.data.dirty = true;
         this.setState({data: this.state.data});
         
         Api.post('portfolio/' + this.state.data.id + '/sell/' + ticker, {}, function(data) { 
@@ -61,6 +66,7 @@ module.exports = React.createClass({
         });
       }
       else {
+        this.state.data.dirty = true;
         this.setState({data: this.state.data});
         
         Api.post('portfolio/' + this.state.data.id + '/sell/' + ticker, {}, function(data) { 
@@ -137,12 +143,24 @@ module.exports = React.createClass({
     return(
       <div className="portfolio-details">
         <h2>Portfolio: {this.state.data.name}</h2>
-        <h3>Value: ${this.state.data.value}</h3>
-        <h3>Cash: ${this.state.data.cash}</h3>
-        <h3>Holdings</h3>
-        <div className="portfolio-holdings row text-nowrap">
-          {holdings}
-        </div>
+        <h3>Value: <span className={this.state.data.dirty ? "text-muted" : ""}>${this.state.data.value}</span></h3>
+        <h3>Cash: <span className={this.state.data.dirty ? "text-muted" : ""}>${this.state.data.cash}</span></h3>
+        <h3></h3>
+
+        <table className="table table-sm table-hover portfolio-holdings">
+          <thead className="thead-default">
+            <tr>
+              <th colSpan="2" className="text-left">Holding</th>
+              <th className="text-right">Qty</th>
+              <th className="text-right">Value</th>
+              <th className="text-right">Cost</th>
+              <th className="text-right"></th>
+            </tr>
+          </thead>
+          <tbody>
+            {holdings}
+          </tbody>
+        </table>
 
         <br/>
         <div className="text-center">

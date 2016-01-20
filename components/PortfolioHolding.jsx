@@ -15,17 +15,18 @@ module.exports = React.createClass({
   },
 
   render() {
-    return (
-      <div className="portfolio-holding">
-        <div className="col-xs-8">
-          {this.props.data.name} ({this.props.data.ticker}): {this.props.data.shares} shares, ${this.props.data.value} value, ${this.props.data.cost} cost
-        </div>
-
-        <div className="col-xs-4 text-right">
+    return (     
+      <tr>
+        <th className={this.props.data.id == 0 ? "text-right text-muted" : "text-left"} scope="row">{this.props.data.ticker}</th>
+        <td className={this.props.data.id == 0 ? "text-right text-muted" : "text-left"} width="100%">{this.props.data.name}</td>
+        <td className={this.props.data.dirty ? "text-right text-muted" : "text-right"}>{this.props.data.shares}</td>
+        <td className={this.props.data.dirty ? "text-right text-muted" : "text-right"}>${this.props.data.value}</td>
+        <td className={this.props.data.dirty ? "text-right text-muted" : "text-right"}>${this.props.data.cost}</td>
+        <td className="text-right text-nowrap">
           <a href="#" onClick={this.sell} data-toggle="tooltip" title={`Sell some ${this.props.data.ticker}`}><i className="fa fa-remove" aria-hidden="true"/></a>
           &nbsp;<a href="#" onClick={this.buy} data-toggle="tooltip" title={`Buy some ${this.props.data.ticker}`}><i className="fa fa-plus" aria-hidden="true"/></a>
-        </div>
-      </div>
+        </td>
+      </tr>
     );
   }
 })
