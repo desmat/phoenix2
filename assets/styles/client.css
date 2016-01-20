@@ -53,3 +53,48 @@ body {
 }
 
 
+@-webkit-keyframes flash-red {
+  from { background-color: #f2dede; }
+  to { background-color: inherit; }
+}
+@-moz-keyframes flash-red {
+  from { background-color: #f2dede; }
+  to { background-color: inherit; }
+}
+@-o-keyframes flash-red {
+  from { background-color: #f2dede; }
+  to { background-color: inherit; }
+}
+@keyframes flash-red {
+  from { background-color: #f2dede; }
+  to { background-color: inherit; }
+}
+.flash-red {
+  -webkit-animation: flash-red 1s ; /* Safari 4+ */
+  -moz-animation:    flash-red 1s ; /* Fx 5+ */
+  -o-animation:      flash-red 1s ; /* Opera 12+ */
+  animation:         flash-red 1s ; /* IE 10+ */
+}
+
+@-webkit-keyframes flash-green {
+  from { background-color: #dff0d8; }
+  to { background-color: inherit; }
+}
+@-moz-keyframes flash-green {
+  from { background-color: #dff0d8; }
+  to { background-color: inherit; }
+}
+@-o-keyframes flash-green {
+  from { background-color: #dff0d8; }
+  to { background-color: inherit; }
+}
+@keyframes flash-green {
+  from { background-color: #dff0d8; }
+  to { background-color: inherit; }
+}
+.flash-green {
+  -webkit-animation: flash-green 1s ; /* Safari 4+ */
+  -moz-animation:    flash-green 1s ; /* Fx 5+ */
+  -o-animation:      flash-green 1s ; /* Opera 12+ */
+  animation:         flash-green 1s ; /* IE 10+ */
+}

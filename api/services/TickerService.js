@@ -1,5 +1,6 @@
 var request = require('request');
 var moment = require('moment-timezone');
+var _ = require('lodash'); //for some reason can't find the chunk function... I thought Sails used lodash...
 
 module.exports = {
 
@@ -49,9 +50,10 @@ module.exports = {
             ticker: symbol, 
             name: data.Name, 
             price: parseFloat(data.LastTradePriceOnly),
-            change: parseFloat(data.Change),
-            percentChange: parseFloat(data.PercentChange.replace('%')),
           };
+
+          ticker.change = data.Change ? parseFloat(data.Change) : 0.00,
+          ticker.percentChange = data.PercentChange ? parseFloat(data.PercentChange.replace('%')) : 0.00,
 
           Ticker.create(ticker, function(err, ticker) {
             if (err) {
@@ -74,43 +76,47 @@ module.exports = {
     Ticker.find({}, function(err, tickers) {
       var tickersToQuery = _.map(tickers, function(i) { return i.ticker });
 
-      self.getQuotes(tickersToQuery, function(err, datae) {
+      //break up quotes query to 5 at a time
 
-        if (err) {
-          console.log('TickerService.updateAll: getQuotes error: ' + err);
-          return cb();
-        }
+      _.each(_.chunk(tickersToQuery, 5), function(chunk) {
+        self.getQuotes(chunk, function(err, datae) {
 
-        if (datae) {
-          _.each(datae, function(data) {
-            //console.log('TickerService.updateAll: getQuotes: data: '); console.dir(data);
+          if (err) {
+            console.log('TickerService.updateAll: getQuotes error: ' + err);
+            return cb();
+          }
 
-            var ticker = _.find(tickers, {ticker: data.Symbol});
-            if (ticker) {
-              var dirty = false;
+          if (datae) {
+            _.each(datae, function(data) {
+              //console.log('TickerService.updateAll: getQuotes: data: '); console.dir(data);
 
-              if (ticker.name != data.Name) {
-                ticker.name = data.Name;
-                dirty = true;
+              var ticker = _.find(tickers, {ticker: data.Symbol});
+              if (ticker) {
+                var dirty = false;
+
+                if (ticker.name != data.Name) {
+                  ticker.name = data.Name;
+                  dirty = true;
+                }
+
+                if (ticker.price !== Math.round(100 * parseFloat(data.LastTradePriceOnly)) / 100) {
+                  ticker.price = Math.round(100 * parseFloat(data.LastTradePriceOnly)) / 100;
+                  ticker.change = data.Change ? parseFloat(data.Change) : 0.00,
+                  ticker.percentChange = data.PercentChange ? parseFloat(data.PercentChange.replace('%')) : 0.00,
+
+                  dirty = true;
+                }
+
+                if (dirty) {
+                  console.log('TickerService.updateAll: Ticker [' + ticker.ticker + '] updated');
+                  ticker.save();
+                }
               }
+            });
 
-              if (ticker.price !== Math.round(100 * parseFloat(data.LastTradePriceOnly)) / 100) {
-                ticker.price = Math.round(100 * parseFloat(data.LastTradePriceOnly)) / 100;
-                change = parseFloat(data.Change),
-                percentChange = parseFloat(data.PercentChange.replace('%')),
-
-                dirty = true;
-              }
-
-              if (dirty) {
-                console.log('TickerService.updateAll: Ticker [' + ticker.ticker + '] updated');
-                ticker.save();
-              }
-            }
-          });
-
-          return cb();
-        }
+            return cb();
+          }
+        });
       });
     });
   },
