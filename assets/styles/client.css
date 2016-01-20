@@ -19,8 +19,12 @@ a.selected {
 
 
 body {
-	margin-top: 28px;
+	margin-top: 0px;
 	margin-bottom: 8px;
+}
+
+h2 {
+  margin-top: -6px;
 }
 
 .row {
