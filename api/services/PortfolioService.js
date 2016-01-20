@@ -46,7 +46,7 @@ module.exports = {
 
             var ticker = _.find(tickers, {ticker: holding.ticker});
             if (ticker) {
-              //totalCost = totalCost + holding.cost;
+              totalCost += holding.cost;
               portfolio.value += (holding.shares * ticker.price);
 
               holding.name = ticker.name;
@@ -55,9 +55,13 @@ module.exports = {
               holding.value = (Math.round(100 * holding.shares * ticker.price) / 100).toFixed(2);
               holding.change = ticker.change ? (Math.round(100 * ticker.change) / 100).toFixed(2) : 0;
               holding.percentChange = ticker.percentChange ? (ticker.percentChange >= 0 ? '+' : '') + (Math.round(100 * ticker.percentChange) / 100).toFixed(2) + '%' : '+0%';
+              holding.returnPercent = (Math.round(10000 * (holding.value - holding.cost) / holding.cost) / 100).toFixed(2);
+              holding.returnPercentFormatted = (holding.returnPercent >= 0 ? '+' : '') + holding.returnPercent + '%';
             }
           });
 
+          portfolio.returnPercent = (Math.round(10000 * (portfolio.value - (totalCost + portfolio.cash)) / portfolio.cash) / 100).toFixed(2);
+          portfolio.returnPercentFormatted = portfolio.returnPercent >= 0 ? '+' : '' + portfolio.returnPercent + '%';
           portfolio.cash = (Math.round(100 * portfolio.cash) / 100).toFixed(2);
           portfolio.value = (Math.round(100 * portfolio.value) / 100).toFixed(2);
 

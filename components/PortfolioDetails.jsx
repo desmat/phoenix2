@@ -143,7 +143,7 @@ module.exports = React.createClass({
     return(
       <div className="portfolio-details">
         <h2>Portfolio: {this.state.data.name}</h2>
-        <h3>Value: <span className={this.state.data.dirty ? "text-muted" : ""}>${this.state.data.value}</span></h3>
+        <h3>Value: <span className={this.state.data.dirty ? "text-muted" : ""}>${this.state.data.value} (<span className={this.state.data.returnPercent > 0 ? "text-success" : this.state.data.returnPercent < 0 ? "text-danger" : ""}>{this.state.data.returnPercentFormatted}</span>)</span></h3>
         <h3>Cash: <span className={this.state.data.dirty ? "text-muted" : ""}>${this.state.data.cash}</span></h3>
         <h3></h3>
 
@@ -151,10 +151,9 @@ module.exports = React.createClass({
           <thead className="thead-default">
             <tr>
               <th colSpan="2" className="text-left"></th>
-              <th colSpan="2" className="text-center">Price</th>
               <th className="text-center">Qty</th>
-              <th className="text-center">Value</th>
-              <th className="text-center">Cost</th>
+              <th colSpan="2" className="text-center">Price</th>
+              <th colSpan="2" className="text-center">Value</th>
               <th></th>
             </tr>
           </thead>
