@@ -10,7 +10,7 @@ module.exports.jobs = [
     name: "Update Tickers", 
     interval: 1000 * 60 * 1, //every 1 mins
     job: function() {
-      sails.log.debug('*** Update Tickers Job ***');
+      // sails.log.debug('*** Update Tickers Job ***');
       //TODO make sure we're only getting data when market open
       
       if (TickerService.isMarketOpen()) {
@@ -26,9 +26,18 @@ module.exports.jobs = [
     name: "Transaction Job", 
     interval: 500, 
     job: function() {
-      //sails.log.debug('*** Transaction Job2 ***');
+      //sails.log.debug('*** Transaction Job ***');
 
       TransactionService.process();
     }
   },
+  // {
+  //   name: "Portfolio Job", 
+  //   interval: 500, 
+  //   job: function() {
+  //     sails.log.debug('*** Portfolio Job ***');
+
+  //     PortfolioService.processPortfolios();
+  //   }
+  // },
 ]
