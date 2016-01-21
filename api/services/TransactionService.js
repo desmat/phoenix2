@@ -49,7 +49,8 @@ module.exports = {
         holding.cost += ticker.price * count;
         holding.transactionId = transactionId;
 
-        portfolio.cash -= ticker.price * count;
+        portfolio.cash -= holding.cost;
+        portfolio.cost += holding.cost;
         portfolio.transactionId = transactionId;
 
         var f = function(err) {

@@ -46,6 +46,7 @@ module.exports = React.createClass({
     //portfolio does not contain this holding
     else {
       portfolioHolding = {portfolioId: this.props.params.id, id:0, ticker:ticker, shares:1, cost:0, dirty: true};
+console.dir(this.state.data);
       this.state.data.holdings = this.state.data.holdings.concat(portfolioHolding);
       this.state.data.dirty = true;
       this.setState({data: this.state.data}); //id will be updated later
@@ -144,7 +145,7 @@ module.exports = React.createClass({
     // console.log('PortfolioDetails.getInitialState');
     this.componentName = 'PortfolioDetails';
     this.socketIoModel = 'portfolio';
-    this.componentDataUrl = 'portfolio/' + this.props.params.id;
+    this.componentDataUrl = 'portfolio/' + this.props.params.id + '/details';
     return {data: Api.getInitial(this.componentDataUrl)};
   },  
 

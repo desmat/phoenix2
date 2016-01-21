@@ -21,14 +21,14 @@ module.exports = {
       "type": "float",
       "required": false
     },
-    "returnPercent": {
-      "type": "float",
-      "required": false
-    },
-    "returnPercentFormatted": {
-      "type": "string",
-      "required": false
-    },
+    // "returnPercent": {
+    //   "type": "float",
+    //   "required": false
+    // },
+    // "returnPercentFormatted": {
+    //   "type": "string",
+    //   "required": false
+    // },
 
     holdings: {
       collection: "portfolioHolding",

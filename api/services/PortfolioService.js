@@ -1,6 +1,27 @@
 
 module.exports = {
 
+  processPortfolioHoldingDetails(holding, ticker, cb) {
+    var self = this;
+    console.log('PortfolioService.processPortfolioHoldingDetails(' + holding.id + ')');
+
+    self.getPortfolioHoldingDetails(holding, ticker, function(err, holding) {
+      if (err) {
+        //TODO
+      }
+
+      holding.save(function(err) {
+        if (err) {
+          var msg = 'PortfolioService.processPortfolioHoldingDetails(' + holding.id + ', ...): holding.save error: ' + err; 
+          sails.log.warn(msg);
+          return cb(msg, holding);
+        }
+
+        return cb(null, holding);
+      });
+    });
+  },
+
   processPortfolioDetails(portfolio, cb) {
     var self = this;
     console.log('PortfolioService.processPortfolioDetails(' + portfolio.id + ', ...)');
@@ -59,9 +80,26 @@ module.exports = {
     });
   },
 
+  getPortfolioHoldingDetails(holding, ticker, cb) {
+    var self = this;
+    console.log('PortfolioService.getPortfolioHoldingDetails(' + holding.id + ')');
+
+    holding.name = ticker.name;
+    holding.price = (Math.round(100 * ticker.price) / 100).toFixed(2);
+    holding.cost = (Math.round(100 * holding.cost) / 100).toFixed(2);
+    holding.value = (Math.round(100 * holding.shares * ticker.price) / 100).toFixed(2);
+    holding.change = ticker.change ? (Math.round(100 * ticker.change) / 100).toFixed(2) : 0;
+    holding.percentChange = ticker.percentChange ? (Math.round(100 * ticker.percentChange) / 100).toFixed(2) : 0;
+    holding.percentChangeFormatted = (holding.percentChange >= 0 ? '+' : '') + holding.percentChange + '%'; 
+    holding.returnPercent = (Math.round(10000 * (holding.value - holding.cost) / holding.cost) / 100).toFixed(2);
+    holding.returnPercentFormatted = (holding.returnPercent >= 0 ? '+' : '') + holding.returnPercent + '%';
+
+    return cb(null, holding);
+  },
+
   getPortfolioDetails(portfolioId, cb) {
     var self = this;
-    //console.log('PortfolioService.getPortfolioDetails(' + portfolioId + ')');
+    console.log('PortfolioService.getPortfolioDetails(' + portfolioId + ')');
 
     Portfolio.findOne({id: portfolioId}).populate('holdings').exec(function(err, portfolio) {
       if (err) {        
@@ -71,37 +109,47 @@ module.exports = {
 
       if (portfolio) {
         portfolio.value = portfolio.cash;
-        var totalCost = 0;
+        portfolio.cost = 0;
 
-        // fill live values from ticker table
-        Ticker.find({}, function(err, tickers) {
+        Ticker.find({ticker: _.map(portfolio.holdings, function(n) { return n.ticker; })}, function(err, tickers) {
 
-          _.each(portfolio.holdings, function(holding) {
+          var done = function(portfolio, i) {
+            if (typeof i === 'undefined' || i == portfolio.holdings.length - 1) {
+              portfolio.returnPercent = (Math.round(10000 * (portfolio.value - (portfolio.cost + portfolio.cash)) / portfolio.cash) / 100).toFixed(2);
+              portfolio.returnPercentFormatted = (portfolio.returnPercent >= 0 ? '+' : '') + portfolio.returnPercent + '%';
+              portfolio.cash = (Math.round(100 * portfolio.cash) / 100).toFixed(2);
+              portfolio.value = (Math.round(100 * portfolio.value) / 100).toFixed(2);
+              return cb(portfolio);
+            }
+          };
+
+          if (!tickers || !tickers.length) {
+            return done(portfolio);
+          }
+
+          _.each(portfolio.holdings, function(holding, i) {
 
             var ticker = _.find(tickers, {ticker: holding.ticker});
-            if (ticker) {
-              totalCost += holding.cost;
+            
+            if (!ticker) {
+              var msg = 'PortfolioService.getPortfolioDetails: ticker not found: ' + holding.ticker; 
+              sails.log.warn(msg);
+              return done(portfolio, i);
+            }
+
+            self.getPortfolioHoldingDetails(holding, ticker, function(err, holding) {
+              if (err) {
+                var msg = 'PortfolioService.getPortfolioDetails: getPortfolioHoldingDetails error: ' + err; 
+                sails.log.warn(msg);
+                return done(portfolio, i);
+              }
+
+              portfolio.cost += parseFloat(holding.cost);
               portfolio.value += (holding.shares * ticker.price);
 
-              holding.name = ticker.name;
-              holding.price = (Math.round(100 * ticker.price) / 100).toFixed(2);
-              holding.cost = (Math.round(100 * holding.cost) / 100).toFixed(2);
-              holding.value = (Math.round(100 * holding.shares * ticker.price) / 100).toFixed(2);
-              holding.change = ticker.change ? (Math.round(100 * ticker.change) / 100).toFixed(2) : 0;
-              holding.percentChange = ticker.percentChange ? (Math.round(100 * ticker.percentChange) / 100).toFixed(2) : 0;
-              holding.percentChangeFormatted = (holding.percentChange >= 0 ? '+' : '') + holding.percentChange + '%'; 
-              holding.returnPercent = (Math.round(10000 * (holding.value - holding.cost) / holding.cost) / 100).toFixed(2);
-              holding.returnPercentFormatted = (holding.returnPercent >= 0 ? '+' : '') + holding.returnPercent + '%';
-            }
+              return done(portfolio, i);
+            });
           });
-
-          portfolio.returnPercent = (Math.round(10000 * (portfolio.value - (totalCost + portfolio.cash)) / portfolio.cash) / 100).toFixed(2);
-          portfolio.returnPercentFormatted = (portfolio.returnPercent >= 0 ? '+' : '') + portfolio.returnPercent + '%';
-          portfolio.cash = (Math.round(100 * portfolio.cash) / 100).toFixed(2);
-          portfolio.value = (Math.round(100 * portfolio.value) / 100).toFixed(2);
-
-          // console.log('PortfolioService.getPortfolioDetails(' + portfolioId + '): returning');
-          return cb(portfolio);             
         });
       }
       else {
