@@ -8,11 +8,10 @@
 module.exports = {
 	
   updateAll(req, res) {
-    res.write("Updating all tickers...");
+    res.send("Updating all tickers...");
     TickerService.updateAll(function() {
-      res.write("Done!");
-      res.end();
-      return;
+      // res.write("Done!");
+      // res.end();
     });
   }
 };

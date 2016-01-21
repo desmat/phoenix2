@@ -8,8 +8,7 @@ var PortfolioHolding = require('./PortfolioHolding.jsx');
 module.exports = React.createClass({
 
   addHolding() {
-
-    //var ticker = window.prompt("Ticker", $('#searchTicker').val());
+    // console.log('PortfolioDetails.addHolding');    
     var ticker = $('#searchTicker').val();
     if (ticker) {
       ticker = ticker.split('-');
@@ -33,15 +32,6 @@ module.exports = React.createClass({
       portfolioHolding.dirty = true;
       this.state.data.dirty = true;
       this.setState({data: this.state.data});
-      
-      // Api.put('portfolioHolding', portfolioHolding.id, portfolioHolding, function(data) { 
-      //   self.fetchData();
-      // });
-
-      Api.post('portfolio/' + this.state.data.id + '/buy/' + ticker, {}, function(data) { 
-        //self.fetchData();
-      });
-
     }
     //portfolio does not contain this holding
     else {
@@ -49,11 +39,11 @@ module.exports = React.createClass({
       this.state.data.holdings = this.state.data.holdings.concat(portfolioHolding);
       this.state.data.dirty = true;
       this.setState({data: this.state.data}); //id will be updated later
-
-      Api.post('portfolio/' + this.state.data.id + '/buy/' + ticker, {}, function(data) { 
-        //self.fetchData();
-      });
     }
+
+    Api.post('portfolio/' + this.state.data.id + '/ticker/' + ticker, {}, function(data) { 
+      //self.fetchData();
+    });    
   },
 
   sellHolding(ticker) {
@@ -68,19 +58,15 @@ module.exports = React.createClass({
         this.state.data.holdings = _.difference(this.state.data.holdings, _.filter(this.state.data.holdings, {ticker:ticker}));
         this.state.data.dirty = true;
         this.setState({data: this.state.data});
-        
-        Api.post('portfolio/' + this.state.data.id + '/sell/' + ticker, {}, function(data) { 
-          //self.fetchData();
-        });
       }
       else {
         this.state.data.dirty = true;
         this.setState({data: this.state.data});
-        
-        Api.post('portfolio/' + this.state.data.id + '/sell/' + ticker, {}, function(data) { 
-          //self.fetchData();
-        });
       }
+
+      Api.delete('portfolio/' + this.state.data.id + '/ticker/' + ticker, null, function(data) { 
+        //self.fetchData();
+      }); 
     }
     //portfolio does not contain this holding
     else {
@@ -153,8 +139,10 @@ module.exports = React.createClass({
   },
 
   _initAddHoldingModal() {
-    var findMatches = function(q, cb, async) {
+    // console.log('PortfolioDetails._initAddHoldingModal');
+    var self = this;
 
+    var findMatches = function(q, cb, async) {
       var where = 'where={"or":[{"ticker":{"contains":"' + q + '"}},{"name":{"contains":"' + q + '"}}]}';
       var url = 'ticker?' + where + '&sort=name%2asc';
 
@@ -181,18 +169,25 @@ module.exports = React.createClass({
 
     var resetModal = function () {
       $("#searchTicker").val('');
-      $("#searchTicker").focus();
-      $("searchTicker").typeahead("close");
+      $("#searchTicker").focus(); //TODO why the hell does brings back last value...
+      $("#searchTicker").typeahead("close");
     };
 
     $("#addHoldingModal").on('shown.bs.modal', resetModal);
     $("#addHoldingModal").on('hidden.bs.modal', resetModal);
+    $("#searchTicker").on('keypress', function(e) { if (e.keyCode == 13) { self.addHolding(); } });
   },
 
   componentDidMount() {
     // console.log('PortfolioDetails.componentDidMount');
-    this._initAddHoldingModal();
 
+    $(document).on('keypress', function(e) {
+      if (e.keyCode == 13 && !$("#addHoldingModal").is(':visible')) {
+        $('#addHoldingModal').modal('show');
+      }
+    });
+
+    this._initAddHoldingModal();
     //TODO: figure out why this won't kick in when loading this component from back-end
     App.registerSocketIo(this.componentName, this.socketIoModel, this.socketIo);
     this.fetchData();
@@ -206,11 +201,7 @@ module.exports = React.createClass({
   componentWillUnmount() {
     // console.log('PortfolioDetails.componentWillUnmount');
     App.registerSocketIo(this.componentName, this.socketIoModel);
-  },
-
-  keyDown(e) {
-    //grab [ENTER] keypress
-    if (e.keyCode == 13) this.addHolding();
+    $(document).off('keypress');
   },
 
   render: function() {    
@@ -223,9 +214,9 @@ module.exports = React.createClass({
     });
 
     return(
-      <div className="portfolio-details">
+      <div className="portfolio-details" onKeyDown={this.bodyKeyDown}>
         <h2>Portfolio: {this.state.data.name}</h2>
-        <h3>Value: <span className={this.state.data.dirty ? "text-muted" : ""}>${this.state.data.value} (<span className={this.state.data.returnPercent > 0 ? "text-success" : this.state.data.returnPercent < 0 ? "text-danger" : ""}>{this.state.data.returnPercentFormatted}</span>)</span></h3>
+        <h3>Value: <span className={this.state.data.dirty ? "text-muted" : ""}>${this.state.data.value} (<span className={this.state.data.returnPercent >= 0 ? "text-success" : this.state.data.returnPercent < 0 ? "text-danger" : ""}>{this.state.data.returnPercentFormatted}</span>)</span></h3>
         <h3>Cash: <span className={this.state.data.dirty ? "text-muted" : ""}>${this.state.data.cash}</span></h3>
         <h3></h3>
 
@@ -265,7 +256,7 @@ module.exports = React.createClass({
               <div className="modal-body">
                   <div className="form-group row">
                     <div className="col-sm-12">
-                      <input onKeyDown={this.keyDown} type="input" className="form-control" id="searchTicker" placeholder="Search stock by symbol or name..." autoComplete="off" autoFocus="true"/>
+                      <input type="input" className="form-control" id="searchTicker" placeholder="Search stock by symbol or name..." autoComplete="off" autoFocus="true"/>
                     </div>
                   </div>
               </div>

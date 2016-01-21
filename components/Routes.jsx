@@ -14,7 +14,7 @@ module.exports = (
     <Route path="/" component={require("./Body.jsx")}  >
       <IndexRoute component={require("./Portfolios.jsx")} data="portfolio"/>
       <Route path="portfolio/:id" component={require("./PortfolioDetails.jsx")} data="portfolio/:id"/>
-      <Route path="about" component={require("./About.jsx")} data="about portfolio" />
+      <Route path="about" component={require("./About.jsx")} data="about" />
       <Route path="login" component={require("./Login.jsx")} />
       <Route path="register" component={require("./Register.jsx")} />
     </Route>

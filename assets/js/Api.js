@@ -65,7 +65,7 @@ module.exports = {
     //console.log('Api.put(' + model + ', ' + id + ')');
     var modelAndQuery = model.split('?'); //we might want to keep query portions if present for caching but not for calling end-point
 
-		io.socket.put('/api/' + modelAndQuery[0] + '/' + id, data, function(data, jwres) {
+		io.socket.put('/api/' + modelAndQuery[0] + (id ? '/' + id : ''), data, function(data, jwres) {
 			//console.dir(jwres);
 			if (typeof jwres.error !== 'undefined') {
 				//TODO figure out what to do with errors
@@ -83,7 +83,7 @@ module.exports = {
 	delete(model, id, onSuccess, onError) {
     var modelAndQuery = model.split('?'); //we might want to keep query portions if present for caching but not for calling end-point
 
-		io.socket.delete('/api/' + modelAndQuery[0] + '/' + id, {}, function(data, jwres) {
+		io.socket.delete('/api/' + modelAndQuery[0] + (id ? '/' + id : ''), {}, function(data, jwres) {
 			//console.dir(jwres);
 			if (typeof jwres.error !== 'undefined') {
 				//TODO figure out what to do with errors

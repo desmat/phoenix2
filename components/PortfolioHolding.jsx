@@ -21,9 +21,9 @@ module.exports = React.createClass({
         <td className={this.props.data.id == 0 ? "text-left text-muted" : "text-left"} width="100%">{this.props.data.name}</td>
         <td className={this.props.data.dirty ? "text-right text-muted" : "text-right"}>{this.props.data.shares}</td>
         <td className={this.props.data.id == 0 ? "text-right text-nowrap text-muted" : "text-nowrap text-right"}>{this.props.data.price}</td>
-        <td className={this.props.data.id == 0 ? "text-left text-nowrap text-muted" : "text-nowrap text-left"}>(<span className={this.props.data.change > 0 ? "text-right text-nowrap text-success" : this.props.data.change < 0 ? "text-right text-nowrap text-danger" : "text-right text-nowrap"}>{this.props.data.percentChange}</span>)</td>
+        <td className={this.props.data.id == 0 ? "text-left text-nowrap text-muted" : "text-nowrap text-left"}>(<span className={this.props.data.change > 0 ? "text-right text-nowrap text-success" : this.props.data.change < 0 ? "text-right text-nowrap text-danger" : "text-right text-nowrap"}>{this.props.data.percentChangeFormatted}</span>)</td>
         <td className={this.props.data.dirty ? "text-right text-muted" : "text-right"}>${this.props.data.value}</td>
-        <td className={this.props.data.dirty ? "text-left text-muted" : "text-left"}>(<span className={this.props.data.returnPercent > 0 ? "text-success" : this.props.data.returnPercent < 0 ? "text-danger" : ""}>{this.props.data.returnPercentFormatted}</span>)</td>
+        <td className={this.props.data.dirty ? "text-left text-muted" : "text-left"}>(<span className={this.props.data.returnPercent >= 0 ? "text-success" : this.props.data.returnPercent < 0 ? "text-danger" : ""}>{this.props.data.returnPercentFormatted}</span>)</td>
         <td className="text-right text-nowrap">
           <a href="#" onClick={this.sell} data-toggle="tooltip" title={`Sell some ${this.props.data.ticker}`}><i className="fa fa-remove" aria-hidden="true"/></a>
           &nbsp;<a href="#" onClick={this.buy} data-toggle="tooltip" title={`Buy some ${this.props.data.ticker}`}><i className="fa fa-plus" aria-hidden="true"/></a>
