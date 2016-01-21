@@ -8,9 +8,17 @@ var PortfolioHolding = require('./PortfolioHolding.jsx');
 module.exports = React.createClass({
 
   addHolding() {
-    var ticker = window.prompt("Ticker");
+
+    //var ticker = window.prompt("Ticker", $('#searchTicker').val());
+    var ticker = $('#searchTicker').val();
     if (ticker) {
-      this.buyHolding(ticker);
+      ticker = ticker.split('-');
+      if (ticker) {
+        if (_.isArray(ticker) && ticker.length > 0) ticker = ticker[0];
+    
+        this.buyHolding(ticker);
+        $('#addHoldingModal').modal('hide');
+      }
     }
   },
 
@@ -144,8 +152,47 @@ module.exports = React.createClass({
     // console.log('PortfolioDetails.componentWillMount');
   },
 
+  _initAddHoldingModal() {
+    var findMatches = function(q, cb, async) {
+
+      var where = 'where={"or":[{"ticker":{"contains":"' + q + '"}},{"name":{"contains":"' + q + '"}}]}';
+      var url = 'ticker?' + where + '&sort=name%2asc';
+
+      Api.get(url, function(data) {
+        var matches = 
+          _.sortBy(
+            _.map(data, function(ticker) { return ticker.ticker + ' - ' + ticker.name; }), 
+            function(n) { return (1 - (n.toLowerCase().split(q.toLowerCase()).length/1000)).toFixed(4) + '-' + n });
+
+        async(matches);
+      });
+    };
+
+    $('#searchTicker').typeahead({
+      hint: false,
+      highlight: true,
+      minLength: 2, 
+      async: true,
+    },
+    {
+      name: 'stocks',
+      source: findMatches
+    });  
+
+    var resetModal = function () {
+      $("#searchTicker").val('');
+      $("#searchTicker").focus();
+      $("searchTicker").typeahead("close");
+    };
+
+    $("#addHoldingModal").on('shown.bs.modal', resetModal);
+    $("#addHoldingModal").on('hidden.bs.modal', resetModal);
+  },
+
   componentDidMount() {
     // console.log('PortfolioDetails.componentDidMount');
+    this._initAddHoldingModal();
+
     //TODO: figure out why this won't kick in when loading this component from back-end
     App.registerSocketIo(this.componentName, this.socketIoModel, this.socketIo);
     this.fetchData();
@@ -159,6 +206,11 @@ module.exports = React.createClass({
   componentWillUnmount() {
     // console.log('PortfolioDetails.componentWillUnmount');
     App.registerSocketIo(this.componentName, this.socketIoModel);
+  },
+
+  keyDown(e) {
+    //grab [ENTER] keypress
+    if (e.keyCode == 13) this.addHolding();
   },
 
   render: function() {    
@@ -195,9 +247,34 @@ module.exports = React.createClass({
         <br/>
         <div className="text-center">
           <Link to="/" className="btn btn-default"><i className="fa fa-backward" aria-hidden="true"/> Back</Link> 
-          &nbsp;<a onClick={this.addHolding} className="btn btn-primary">
-            <i className="fa fa-plus" aria-hidden="true"/> Add Holding
+          &nbsp;<a className="btn btn-primary" id="addholding" data-toggle="modal" data-target="#addHoldingModal">
+            <i className="fa fa-plus" aria-hidden="true"/> Add Stock
           </a>
+        </div>
+
+        {/* Modal add ticker */}
+        <div className="modal fade" id="addHoldingModal" tabIndex="-1" role="dialog" ariaLabelledby="myModalLabel" ariaHidden="true">
+          <div className="modal-dialog" role="document">
+            <div className="modal-content">
+              <div className="modal-header">
+                <button type="button" className="close" data-dismiss="modal" ariaLabel="Close">
+                  <span ariaHidden="true">&times;</span>
+                </button>
+                <h4 className="modal-title" id="myModalLabel">Add Stock</h4>
+              </div>
+              <div className="modal-body">
+                  <div className="form-group row">
+                    <div className="col-sm-12">
+                      <input onKeyDown={this.keyDown} type="input" className="form-control" id="searchTicker" placeholder="Search stock by symbol or name..." autoComplete="off" autoFocus="true"/>
+                    </div>
+                  </div>
+              </div>
+              <div className="modal-footer">
+                <a className="btn btn-default" data-dismiss="modal"><i className="fa fa-backward" aria-hidden="true"/> Cancel</a>
+                <a className="btn btn-primary" onClick={this.addHolding}><i className="fa fa-plus" ariaHidden="true"/> Add</a>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     );
