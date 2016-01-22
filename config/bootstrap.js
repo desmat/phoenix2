@@ -17,30 +17,56 @@ module.exports.bootstrap = function(cb) {
   Database.count().then(function(count) {
     //console.log('database count: ' + count);
     //console.log('data count: ' + data.length);
-
+var dataLength = data.length;
+var dataCount = count
     if (count < data.length) {
-      _.each(data.slice(count, data.length), function(data) {
+      _.each(data.slice(count, data.length), function(data, i) {
         
         //split record as name-value pair
         _.each(data, function(k, v) {          
-          sails.log.debug('Loading up intial [' + v + '] records');          
+          sails.log.debug('Loading up intial [' + v + '] record(s)...');          
+
+
+// console.log(v + ': ' + typeof(k));
+// console.dir(k.length);
+
 
           try {
             this[v].create(k, function(err, created) {
               if (err) {
-                sails.log.error(err);
+                sails.log.warn('Bootstrap error: ' + v + '.create: ' + err);
               }
               else {
                 //mark as inserted
-                Database.create({model: v, count: (typeof k === 'Array' ? k.length : 1)}, function() {
-                  if (err) sails.log.error(err);
-                  //else sails.log.debug('marked [' + v + '] records as inserted');          
+                var count = (typeof k === 'Array' || typeof k === 'object' ? k.length : 1);
+                Database.create({model: v, count: count}, function(err) {
+                  if (err) sails.log.warn('Bootstrap error: Error loading initial [' + v + '] records: ' + err);
+                  // else sails.log.debug('marked [' + v + '] records as inserted');          
+
+                  sails.log.debug('Loaded ' + count + ' [' + v + '] record(s)');          
+                  
+                  if ((dataCount + i + 1) === dataLength) {
+                    //sails.log.debug('Done!');          
+
+                    // update tickers at startup
+                    sails.log.debug('Updating all tickers...');
+                    TickerService.updateAll(function() {
+                      //sails.log.debug("...Done!");
+
+                      // update portfolios at startup
+                      sails.log.debug('Updating all portfolios...');
+                      PortfolioService.processPortfolios(function() {
+                        //sails.log.debug("...Done!");
+                      });
+
+                    });
+                  }
                 });
               }
             });
           } 
           catch (err) {
-            sails.log.warn("Error loading initial [" + v + "] records: " + err);
+            sails.log.warn('Bootstrap error: ' + err);
           }
         });
       });
@@ -67,18 +93,6 @@ module.exports.bootstrap = function(cb) {
     catch (err) {
       sails.log.warn("Error scheduling job [" + job.name + "]: " + err);
     }
-  });
-
-  // update tickers at startup
-
-  TickerService.updateAll(function() {
-    //sails.log.debug("...Done!");
-  });
-
-  // update portfolios at startup
-
-  PortfolioService.processPortfolios(function() {
-    //sails.log.debug("...Done!");
   });
 
 

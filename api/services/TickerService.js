@@ -75,19 +75,38 @@ module.exports = {
 
     Ticker.find({}, function(err, tickers) {
       var tickersToQuery = _.map(tickers, function(i) { return i.ticker });
+      var chunkSize = 5;
+      var chunkCounter = 0;
+      var tickerCounter = 0;
 
-      //break up quotes query to 5 at a time
+      var done = function(chunkCounter, tickerCounter) {
+        //console.log('done(' + chunkCounter + ', ' + tickerCounter + ')');
+        if (typeof chunkCounter === 'undefined') {
+          return cb();
+        }
+        else if (typeof tickerCounter === 'undefined' && chunkSize * chunkCounter >= tickersToQuery.length) {
+          return cb();
+        }
+        else if (tickerCounter >= tickersToQuery.length) {
+          return cb();
+        }                    
+      };
 
-      _.each(_.chunk(tickersToQuery, 5), function(chunk) {
+      //process by chunks
+
+      _.each(_.chunk(tickersToQuery, chunkSize), function(chunk, i) {
+        chunkCounter++;
+
         self.getQuotes(chunk, function(err, datae) {
 
           if (err) {
-            console.log('TickerService.updateAll: getQuotes error: ' + err);
-            return cb();
+            sails.log.warn('TickerService.updateAll: getQuotes error: ' + err);
+            
+            return done(i);
           }
 
           if (datae) {
-            _.each(datae, function(data) {
+            _.each(datae, function(data, ii) {
               //console.log('TickerService.updateAll: getQuotes: data: '); console.dir(data);
 
               var ticker = _.find(tickers, {ticker: data.Symbol});
@@ -108,13 +127,33 @@ module.exports = {
                 }
 
                 if (dirty) {
-                  sails.log.debug('TickerService.updateAll: Ticker [' + ticker.ticker + '] updated');
-                  ticker.save();
+                  //sails.log.debug('TickerService.updateAll: Ticker [' + ticker.ticker + '] updating...');
+                  ticker.save(function(err) {
+                    tickerCounter++;
+
+                    if (err) {
+                      sails.log.warn('TickerService.updateAll: ticker.save error: ' + err);
+                    }
+                    else {
+                      sails.log.debug('TickerService.updateAll: Ticker [' + ticker.ticker + '] updated');
+                    }
+
+                    return done(chunkCounter, tickerCounter);
+                  });
+                }
+                else {
+                  return done(chunkCounter, tickerCounter);
                 }
               }
+              else {
+                return done(chunkCounter, tickerCounter);
+              }              
             });
 
-            return cb();
+            // return cb();
+          }
+          else {
+            return done(chunkCounter);
           }
         });
       });
@@ -122,6 +161,8 @@ module.exports = {
   },
 
   getQuote(ticker, cb) {
+    //console.log('TickerService.getQuote(' + ticker + ')');
+
     var quotes = this.getQuotes([ticker], function(err, quotes) {
       if (err) return cb(err);
 
@@ -133,6 +174,8 @@ module.exports = {
   },
 
   getQuotes(tickers, cb) {
+    //console.log('TickerService.getQuotes(): '); console.dir(tickers);
+
     var tickersToQuery = '';
     for (var i = 0; i < tickers.length; i++) {
       tickersToQuery += '%22' + tickers[i] + '%22' + '%2C';

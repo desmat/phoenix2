@@ -121,7 +121,7 @@ module.exports = {
       });
 
       _.each(transactions, function(n) { 
-        n.state = 'procesed';
+        n.state = 'processed';
         n.save(function(err, transaction) {
           if (err) {
             sails.log.warn('Error saving transaction [' + n.id + ']: ' + err);
