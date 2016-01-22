@@ -9,7 +9,7 @@ module.exports = React.createClass({
     var self = this;
     var name = window.prompt("New Portfolio","My Portfolio");
     if (name) {
-      var newPortfolio = {id: 0, name: name, cash: 10000}; //id will be updated later
+      var newPortfolio = {id: 0, name: name, cash: 10000, value: 10000, returnPercent: 0, returnPercentFormatted: '+0.00'}; //id will be updated later
       this.setState({data: this.state.data.concat(newPortfolio)}); 
 
       Api.post('portfolio', newPortfolio, function(data) { 
@@ -89,7 +89,7 @@ module.exports = React.createClass({
     if (this.state.data) {
       var portfolios = this.state.data.map(function(portfolio) {
         return (
-          <Portfolio key={portfolio.id} name={portfolio.name} id={portfolio.id} data={self.state.data} deletePortfolio={self.deletePortfolio} renamePortfolio={self.renamePortfolio} viewPortfolio={self.viewPortfolio} />
+          <Portfolio key={portfolio.id} id={portfolio.id} data={portfolio} deletePortfolio={self.deletePortfolio} renamePortfolio={self.renamePortfolio} viewPortfolio={self.viewPortfolio} />
         );
       });
     }

@@ -49,6 +49,8 @@ module.exports = {
           return cb(msg);
         }
 
+        Portfolio.publishUpdate(portfolio.id);
+
         return cb(null, portfolio);
       });
     });

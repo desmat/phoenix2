@@ -226,7 +226,7 @@ console.dir(this.state.data);
     return(
       <div className="portfolio-details">
         <h2>Portfolio: {this.state.data.name}</h2>
-        <h3>Value: <span className={this.state.data.dirty ? "text-muted" : ""}>${this.state.data.value} (<span className={this.state.data.returnPercent > 0 ? "text-success" : this.state.data.returnPercent < 0 ? "text-danger" : ""}>{this.state.data.returnPercentFormatted}</span>)</span></h3>
+        <h3>Value: <span className={this.state.data.dirty ? "text-muted" : ""}>${this.state.data.value} (<span className={this.state.data.returnPercent >= 0 ? "text-success" : this.state.data.returnPercent < 0 ? "text-danger" : ""}>{this.state.data.returnPercentFormatted}</span>)</span></h3>
         <h3>Cash: <span className={this.state.data.dirty ? "text-muted" : ""}>${this.state.data.cash}</span></h3>
         <h3></h3>
 

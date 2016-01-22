@@ -20,7 +20,9 @@ module.exports = React.createClass({
     return (
       <div className="portfolio row text-nowrap">
         <div className="col-xs-8">
-          <Link to={`/portfolio/${this.props.id}`} className="portfolio-item">{this.props.name}</Link>
+          <Link to={`/portfolio/${this.props.id}`} className="portfolio-item">
+            {this.props.data.name} - ${this.props.data.value} (<span className={this.props.data.returnPercent >= 0 ? "text-success" : this.props.data.returnPercent < 0 ? "text-danger" : ""}>{this.props.data.returnPercentFormatted}</span>);
+          </Link>
         </div>
         <div className="col-xs-4 text-right">
           <a href='#' onClick={this.delete} data-toggle="tooltip" title="Delete"><i className="fa fa-remove" aria-hidden="true"/></a>
