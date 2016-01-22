@@ -7,11 +7,13 @@ module.exports = React.createClass({
   
   addPortfolio() {
     var self = this;
-    var name = window.prompt("New Portfolio","My Portfolio");
+    var name = $('#portfolioName').val();
     if (name) {
-      var newPortfolio = {id: 0, name: name, cash: 10000}; //id will be updated later
+      var newPortfolio = {id: 0, name: name, cash: 10000, value: 10000, returnPercent: 0, returnPercentFormatted: '+0.00'}; //id will be updated later
       this.setState({data: this.state.data.concat(newPortfolio)}); 
 
+      $('#addPortfolioModal').modal('hide');
+      
       Api.post('portfolio', newPortfolio, function(data) { 
         //update new portfolio's id
         _.find(self.state.data, {id: newPortfolio.id}).id=data.id;
@@ -56,6 +58,19 @@ module.exports = React.createClass({
     this.fetchData();
   },
 
+  _initAddPortfolioModal() {
+    var self = this;
+
+    var resetModal = function () {
+      $("#portfolioName").val('');
+      $("#portfolioName").focus();
+    };
+
+    $("#addPortfolioModal").on('shown.bs.modal', resetModal);
+    $("#addPortfolioModal").on('hidden.bs.modal', resetModal);
+    $("#portfolioName").on('keypress', function(e) { if (e.keyCode == 13) { self.addPortfolio(); } })
+  },
+
   getInitialState() {
     this.componentName = 'Portfolio';
     this.componentDataUrl = 'portfolio';
@@ -67,7 +82,17 @@ module.exports = React.createClass({
   }, 
 
   componentDidMount() {
+    var self = this;
     // console.log('Portfolio.componentDidMount');
+
+    document.activeElement.blur(); //strange: after navigating from the navbar document.onkeypress doesn't work
+    $(document).on('keypress', function(e) {
+      if (e.keyCode == 13 && !$("#addPortfolioModal").is(':visible')) {
+        $('#addPortfolioModal').modal('show');
+      }
+    });
+
+    this._initAddPortfolioModal();
     App.registerSocketIo(this.componentName, this.componentDataUrl, this.socketIo);
     this.fetchData();
   },  
@@ -79,6 +104,7 @@ module.exports = React.createClass({
 
   componentWillUnmount() {
     //console.log('Portfolio.componentWillUnmount');
+    $(document).off('keypress');
     App.registerSocketIo(this.componentName, this.componentDataUrl);
   },
 
@@ -89,7 +115,7 @@ module.exports = React.createClass({
     if (this.state.data) {
       var portfolios = this.state.data.map(function(portfolio) {
         return (
-          <Portfolio key={portfolio.id} name={portfolio.name} id={portfolio.id} data={self.state.data} deletePortfolio={self.deletePortfolio} renamePortfolio={self.renamePortfolio} viewPortfolio={self.viewPortfolio} />
+          <Portfolio key={portfolio.id} id={portfolio.id} data={portfolio} deletePortfolio={self.deletePortfolio} renamePortfolio={self.renamePortfolio} viewPortfolio={self.viewPortfolio} />
         );
       });
     }
@@ -101,13 +127,36 @@ module.exports = React.createClass({
           {portfolios}
           <br/>
           <div className="text-center">
-            <a onClick={this.addPortfolio} className="btn btn-primary">
+            <a className="btn btn-primary" data-toggle="modal" data-target="#addPortfolioModal">
               <i className="fa fa-plus" aria-hidden="true"/> New Portfolio
             </a>
           </div>
         </div>
+        {/* Modal add portfolio */}
+        <div className="modal fade" id="addPortfolioModal" tabIndex="-1" role="dialog" ariaLabelledby="myModalLabel" ariaHidden="true">
+          <div className="modal-dialog" role="document">
+            <div className="modal-content">
+              <div className="modal-header">
+                <button type="button" className="close" data-dismiss="modal" ariaLabel="Close">
+                  <span ariaHidden="true">&times;</span>
+                </button>
+                <h4 className="modal-title" id="addPortfolio">Add Portfolio</h4>
+              </div>
+              <div className="modal-body">
+                  <div className="form-group row">
+                    <div className="col-sm-12">
+                      <input type="input" className="form-control" id="portfolioName" placeholder="Portfolio name..." autoComplete="off" autoFocus="true"/>
+                    </div>
+                  </div>
+              </div>
+              <div className="modal-footer">
+                <a className="btn btn-default" data-dismiss="modal"><i className="fa fa-backward" aria-hidden="true"/> Cancel</a>
+                <a className="btn btn-primary" onClick={this.addHolding}><i className="fa fa-plus" ariaHidden="true"/> Add</a>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
-
     );
   }
 });

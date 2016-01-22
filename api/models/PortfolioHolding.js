@@ -25,6 +25,34 @@ module.exports = {
       "type": "float",
       "required": false
     }, 
+    "value": {
+      "type": "float",
+      "required": false
+    }, 
+    "cost": {
+      "type": "float",
+      "required": false
+    }, 
+    "change": {
+      "type": "float",
+      "required": false
+    }, 
+    "percentChange": {
+      "type": "float",
+      "required": false
+    }, 
+    // "percentChangeFormatted": {
+    //   "type": "string",
+    //   "required": false
+    // }, 
+    "returnPercent": {
+      "type": "float",
+      "required": false
+    }, 
+    // "returnPercentFormatted": {
+    //   "type": "string",
+    //   "required": false
+    // }, 
 
     portfolioId: {
       model: "portfolio"
