@@ -31,13 +31,13 @@ module.exports.jobs = [
       TransactionService.process();
     }
   },
-  // {
-  //   name: "Portfolio Job", 
-  //   interval: 500, 
-  //   job: function() {
-  //     sails.log.debug('*** Portfolio Job ***');
+  {
+    name: "Portfolio Job", 
+    interval: 1000 * 60 * 1, //every 1 mins
+    job: function() {
+      // sails.log.debug('*** Portfolio Job ***');
 
-  //     PortfolioService.processPortfolios();
-  //   }
-  // },
+      PortfolioService.processPortfolios();
+    }
+  },
 ]

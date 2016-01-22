@@ -45,12 +45,12 @@ module.exports = {
           return cb('Insuffient shares');
         }
 
+        holding.transactionId = transactionId;
         holding.shares += count;
         holding.cost += ticker.price * count;
-        holding.transactionId = transactionId;
 
-        portfolio.cash -= holding.cost;
-        portfolio.cost += holding.cost;
+        portfolio.cash -= ticker.price * count;
+        portfolio.cost += ticker.price * count;
         portfolio.transactionId = transactionId;
 
         var f = function(err) {

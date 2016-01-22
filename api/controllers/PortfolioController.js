@@ -9,8 +9,7 @@ module.exports = {
 
   details(req, res) {
     var portfolioId = req.params['id'];
-
-    console.log("PortfolioController.details: id=" + portfolioId);
+    // console.log("PortfolioController.details: id=" + portfolioId);
 
     if (typeof portfolioId !== 'undefined') {
       PortfolioService.getPortfolioDetails(portfolioId, function(portfolio) {
@@ -30,7 +29,6 @@ module.exports = {
   buy(req, res) {
     var portfolioId = req.params['id'];
     var ticker = req.params['ticker'];
-
     //console.log('PortfolioController.buy: id=' + portfolioId, ' ticker=' + ticker);
 
     PortfolioService.buyOrSell(portfolioId, ticker, 'buy', function(err) {
@@ -46,7 +44,6 @@ module.exports = {
   sell(req, res) {
     var portfolioId = req.params['id'];
     var ticker = req.params['ticker'];
-
     //console.log('PortfolioController.sell: id=' + portfolioId, ' ticker=' + ticker);
 
     PortfolioService.buyOrSell(portfolioId, ticker, 'sell', function(err) {

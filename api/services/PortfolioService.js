@@ -1,30 +1,30 @@
 
 module.exports = {
 
-  processPortfolioHoldingDetails(holding, ticker, cb) {
+  // processPortfolioHolding(holding, ticker, cb) {
+  //   var self = this;
+  //   // console.log('PortfolioService.processPortfolioHolding(' + holding.id + ')');
+
+  //   self.getPortfolioHoldingDetails(holding, ticker, function(err, holding) {
+  //     if (err) {
+  //       //TODO
+  //     }
+
+  //     holding.save(function(err) {
+  //       if (err) {
+  //         var msg = 'PortfolioService.processPortfolioHoldingDetails(' + holding.id + ', ...): holding.save error: ' + err; 
+  //         sails.log.warn(msg);
+  //         return cb(msg, holding);
+  //       }
+
+  //       return cb(null, holding);
+  //     });
+  //   });
+  // },
+
+  processPortfolio(portfolio, tickers, cb) {
     var self = this;
-    console.log('PortfolioService.processPortfolioHoldingDetails(' + holding.id + ')');
-
-    self.getPortfolioHoldingDetails(holding, ticker, function(err, holding) {
-      if (err) {
-        //TODO
-      }
-
-      holding.save(function(err) {
-        if (err) {
-          var msg = 'PortfolioService.processPortfolioHoldingDetails(' + holding.id + ', ...): holding.save error: ' + err; 
-          sails.log.warn(msg);
-          return cb(msg, holding);
-        }
-
-        return cb(null, holding);
-      });
-    });
-  },
-
-  processPortfolioDetails(portfolio, cb) {
-    var self = this;
-    console.log('PortfolioService.processPortfolioDetails(' + portfolio.id + ', ...)');
+    // console.log('PortfolioService.processPortfolio(' + portfolio.id + ', ...)');
 
     self.getPortfolioDetails(portfolio.id, function(portfolio, err) {
       if (err) {       
@@ -36,21 +36,20 @@ module.exports = {
       _.each(portfolio.holdings, function(holding) {
         holding.save(function(err) {
           if (err) {
-            var msg = 'PortfolioService.processPortfolioDetails(' + portfolio.id + ', ...): holding.save(' + holding.id + ') error: ' + err; 
+            var msg = 'PortfolioService.processPortfolio(' + portfolio.id + ', ...): holding.save(' + holding.id + ') error: ' + err; 
             sails.log.warn(msg);
-            // return cb(msg);
           }
         });
       });
 
       portfolio.save(function(err) {
         if (err) {
-          var msg = 'PortfolioService.processPortfolioDetails(' + portfolio.id + ', ...): getPortfolioDetails error: ' + err; 
+          var msg = 'PortfolioService.processPortfolio(' + portfolio.id + ', ...): portfolio.save error: ' + err; 
           sails.log.warn(msg);
           return cb(msg);
         }
 
-        return cb();
+        return cb(null, portfolio);
       });
     });
   },
@@ -58,7 +57,7 @@ module.exports = {
   processPortfolios(cb) {
     var self = this;
     if (!cb) cb = function() {};
-    console.log('PortfolioService.processPortfolios()');
+    // console.log('PortfolioService.processPortfolios()');
 
     Portfolio.find({}).populate('holdings').exec(function(err, portfolios) {
       if (err) {       
@@ -67,22 +66,40 @@ module.exports = {
         return cb(msg);
       }
 
-      _.each(portfolios, function(portfolio) {
-        self.processPortfolioDetails(portfolio, function(err, portfolio) {
-          if (err) {       
-            var msg = 'PortfolioService.processPortfolios: processPortfolioDetails error: ' + err; 
-            sails.log.warn(msg);
-          }
-        });
+      var allTheHoldings = _.flatten(_.map(portfolios, function(n) { return n.holdings }));
+      var allTheTickers = _.uniq(_.map(allTheHoldings, function(n) { return n.ticker; }));
 
-        cb();
+      Ticker.find({ticker: allTheTickers}, function(err, tickers) {
+        if (err) {
+          var msg = 'PortfolioService.processPortfolios: Ticker.find error: ' + err; 
+          sails.log.warn(msg);
+          return cb(msg);
+        }
+        
+        if (!tickers || !tickers.length) {
+          return cb();
+        }
+
+        _.each(portfolios, function(portfolio, i) {
+
+          self.processPortfolio(portfolio, tickers, function(err, portfolio) {
+            if (err) {       
+              var msg = 'PortfolioService.processPortfolios: processPortfolio error: ' + err; 
+              sails.log.warn(msg);
+            }
+
+            if (i == portfolios.length - 1) {
+              cb();
+            }
+          });
+        });
       });
     });
   },
 
   getPortfolioHoldingDetails(holding, ticker, cb) {
     var self = this;
-    console.log('PortfolioService.getPortfolioHoldingDetails(' + holding.id + ')');
+    // console.log('PortfolioService.getPortfolioHoldingDetails(' + holding.id + ')');
 
     holding.name = ticker.name;
     holding.price = (Math.round(100 * ticker.price) / 100).toFixed(2);
@@ -99,7 +116,7 @@ module.exports = {
 
   getPortfolioDetails(portfolioId, cb) {
     var self = this;
-    console.log('PortfolioService.getPortfolioDetails(' + portfolioId + ')');
+    // console.log('PortfolioService.getPortfolioDetails(' + portfolioId + ')');
 
     Portfolio.findOne({id: portfolioId}).populate('holdings').exec(function(err, portfolio) {
       if (err) {        
@@ -111,18 +128,24 @@ module.exports = {
         portfolio.value = portfolio.cash;
         portfolio.cost = 0;
 
+        var done = function(portfolio, i) {
+          if (typeof i === 'undefined' || i == portfolio.holdings.length - 1) {
+            portfolio.returnPercent = (Math.round(10000 * (portfolio.value - (portfolio.cost + portfolio.cash)) / portfolio.cash) / 100).toFixed(2);
+            portfolio.returnPercentFormatted = (portfolio.returnPercent >= 0 ? '+' : '') + portfolio.returnPercent + '%';
+            portfolio.cash = (Math.round(100 * portfolio.cash) / 100).toFixed(2);
+            portfolio.value = (Math.round(100 * portfolio.value) / 100).toFixed(2);
+            return cb(portfolio);
+          }
+        };
+
         Ticker.find({ticker: _.map(portfolio.holdings, function(n) { return n.ticker; })}, function(err, tickers) {
 
-          var done = function(portfolio, i) {
-            if (typeof i === 'undefined' || i == portfolio.holdings.length - 1) {
-              portfolio.returnPercent = (Math.round(10000 * (portfolio.value - (portfolio.cost + portfolio.cash)) / portfolio.cash) / 100).toFixed(2);
-              portfolio.returnPercentFormatted = (portfolio.returnPercent >= 0 ? '+' : '') + portfolio.returnPercent + '%';
-              portfolio.cash = (Math.round(100 * portfolio.cash) / 100).toFixed(2);
-              portfolio.value = (Math.round(100 * portfolio.value) / 100).toFixed(2);
-              return cb(portfolio);
-            }
-          };
-
+          if (err) {
+            var msg = 'PortfolioService.getPortfolioDetails: Ticker.find error: ' + err; 
+            sails.log.warn(msg);
+            return done(portfolio);
+          }
+          
           if (!tickers || !tickers.length) {
             return done(portfolio);
           }
