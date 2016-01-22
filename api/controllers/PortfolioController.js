@@ -7,9 +7,9 @@
 
 module.exports = {
 
-  details(req, res) {
+  findOne(req, res) {
     var portfolioId = req.params['id'];
-    // console.log("PortfolioController.details: id=" + portfolioId);
+    // console.log("PortfolioController.findOne: id=" + portfolioId);
 
     if (typeof portfolioId !== 'undefined') {
       PortfolioService.getPortfolioDetails(portfolioId, function(portfolio) {

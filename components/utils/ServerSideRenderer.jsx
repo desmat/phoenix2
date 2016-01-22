@@ -122,7 +122,7 @@ module.exports = function(req, res, next) {
             //TODO ^^^ here we need to check for the userId=:userId secured end-point 
 
             if (mockResponseData.length > 0) {
-              sails.log.debug('fetched data from sails router for [' + data + ']');
+              sails.log.debug('ServerSideRenderer: fetched data from sails router for [' + data + ']');
 
               var results = JSON.parse(mockResponseData);
 
@@ -180,7 +180,7 @@ module.exports = function(req, res, next) {
                 var mockResponseData = mockResponse.statusCode == 200 ? mockResponse._getData() : '';
 
                 if (mockResponseData.length > 0) {
-                  sails.log.debug('fetched data from sails controller for [' + data + ']');
+                  sails.log.debug('ServerSideRenderer: fetched data from sails controller for [' + data + ']');
 
                   var results = JSON.parse(mockResponseData);
 
@@ -204,7 +204,7 @@ module.exports = function(req, res, next) {
                 // console.log('query: ' + JSON.stringify(query));
 
                 if (typeof sailsModel !== 'undefined') {
-                  sails.log.debug('fetching data from model [' + sailsModelName + '] with query [' + JSON.stringify(query) + ']');
+                  sails.log.debug('ServerSideRenderer: fetching data from model [' + sailsModelName + '] with query [' + JSON.stringify(query) + ']');
 
                   sailsModel.find(query, function(err, results) {
                     if (err) {

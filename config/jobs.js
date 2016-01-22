@@ -14,7 +14,7 @@ module.exports.jobs = [
       //TODO make sure we're only getting data when market open
       
       if (TickerService.isMarketOpen()) {
-        sails.log.debug("Updating all tickers...");
+        //sails.log.debug("Job[Update Tickers]: Updating all tickers...");
 
         TickerService.updateAll(function() {
           //sails.log.debug("...Done!");
@@ -28,7 +28,7 @@ module.exports.jobs = [
     job: function() {
       //sails.log.debug('*** Transaction Job ***');
 
-      TransactionService.process();
+      TransactionService.processAll();
     }
   },
   {

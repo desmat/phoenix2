@@ -33,28 +33,18 @@ module.exports = React.createClass({
       portfolioHolding.dirty = true;
       this.state.data.dirty = true;
       this.setState({data: this.state.data});
-      
-      // Api.put('portfolioHolding', portfolioHolding.id, portfolioHolding, function(data) { 
-      //   self.fetchData();
-      // });
-
-      Api.post('portfolio/' + this.state.data.id + '/buy/' + ticker, {}, function(data) { 
-        //self.fetchData();
-      });
-
     }
     //portfolio does not contain this holding
     else {
       portfolioHolding = {portfolioId: this.props.params.id, id:0, ticker:ticker, shares:1, cost:0, dirty: true};
-console.dir(this.state.data);
       this.state.data.holdings = this.state.data.holdings.concat(portfolioHolding);
       this.state.data.dirty = true;
       this.setState({data: this.state.data}); //id will be updated later
-
-      Api.post('portfolio/' + this.state.data.id + '/buy/' + ticker, {}, function(data) { 
-        //self.fetchData();
-      });
     }
+
+    Api.post('portfolio/' + this.state.data.id + '/ticker/' + ticker, {}, function(data) { 
+      //self.fetchData();
+    });    
   },
 
   sellHolding(ticker) {
@@ -69,19 +59,15 @@ console.dir(this.state.data);
         this.state.data.holdings = _.difference(this.state.data.holdings, _.filter(this.state.data.holdings, {ticker:ticker}));
         this.state.data.dirty = true;
         this.setState({data: this.state.data});
-        
-        Api.post('portfolio/' + this.state.data.id + '/sell/' + ticker, {}, function(data) { 
-          //self.fetchData();
-        });
       }
       else {
         this.state.data.dirty = true;
         this.setState({data: this.state.data});
-        
-        Api.post('portfolio/' + this.state.data.id + '/sell/' + ticker, {}, function(data) { 
-          //self.fetchData();
-        });
       }
+
+      Api.delete('portfolio/' + this.state.data.id + '/ticker/' + ticker, null, function(data) { 
+        //self.fetchData();
+      }); 
     }
     //portfolio does not contain this holding
     else {
@@ -145,7 +131,7 @@ console.dir(this.state.data);
     // console.log('PortfolioDetails.getInitialState');
     this.componentName = 'PortfolioDetails';
     this.socketIoModel = 'portfolio';
-    this.componentDataUrl = 'portfolio/' + this.props.params.id + '/details';
+    this.componentDataUrl = 'portfolio/' + this.props.params.id;
     return {data: Api.getInitial(this.componentDataUrl)};
   },  
 

@@ -1,27 +1,6 @@
 
 module.exports = {
 
-  // processPortfolioHolding(holding, ticker, cb) {
-  //   var self = this;
-  //   // console.log('PortfolioService.processPortfolioHolding(' + holding.id + ')');
-
-  //   self.getPortfolioHoldingDetails(holding, ticker, function(err, holding) {
-  //     if (err) {
-  //       //TODO
-  //     }
-
-  //     holding.save(function(err) {
-  //       if (err) {
-  //         var msg = 'PortfolioService.processPortfolioHoldingDetails(' + holding.id + ', ...): holding.save error: ' + err; 
-  //         sails.log.warn(msg);
-  //         return cb(msg, holding);
-  //       }
-
-  //       return cb(null, holding);
-  //     });
-  //   });
-  // },
-
   processPortfolio(portfolio, tickers, cb) {
     var self = this;
     // console.log('PortfolioService.processPortfolio(' + portfolio.id + ', ...)');

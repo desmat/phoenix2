@@ -101,7 +101,7 @@ module.exports.data = [
 {ticker: 'MCD'}, 
 {ticker: 'MMM'}, 
 {ticker: 'MRK'}, 
-{ticker: 'MSFT'},
+// {ticker: 'MSFT'},
 {ticker: 'NKE'}, 
 {ticker: 'PFE'}, 
 {ticker: 'PG'},  

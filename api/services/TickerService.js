@@ -108,7 +108,7 @@ module.exports = {
                 }
 
                 if (dirty) {
-                  console.log('TickerService.updateAll: Ticker [' + ticker.ticker + '] updated');
+                  sails.log.debug('TickerService.updateAll: Ticker [' + ticker.ticker + '] updated');
                   ticker.save();
                 }
               }

@@ -74,13 +74,13 @@ module.exports = {
     }); 
   },
 
-  process(cb) {
+  processAll(cb) {
     var self = this;
     if (!cb) cb = function() {};
 
     Transaction.find({state: 'new'}).sort('id ASC').exec(function(err, transactions) {
       if (err) {
-        sails.log.warn('TransactionService.process: Error processing transactions: ' + err);
+        sails.log.warn('TransactionService.processAll: Error processing transactions: ' + err);
         return cb();
       }
 
@@ -101,7 +101,7 @@ module.exports = {
           self.processPortfolioTransaction(transactionId, transactionPortfolioId, transactionTicker, qty, function(err, portfolio) {
 
             if (err) {
-              sails.log.warn('TransactionService.process: Error processing transactions for ticker [' + transactionTicker + '] on portfolio [' + transactionPortfolioId + ']: ' + err);
+              sails.log.warn('TransactionService.processAll: Error processing transactions for ticker [' + transactionTicker + '] on portfolio [' + transactionPortfolioId + ']: ' + err);
             }
 
             //TODO this fails when adding a new holding
@@ -121,11 +121,13 @@ module.exports = {
       });
 
       _.each(transactions, function(n) { 
-        n.state = 'processed';
-        n.save(function(err) {
+        n.state = 'procesed';
+        n.save(function(err, transaction) {
           if (err) {
             sails.log.warn('Error saving transaction [' + n.id + ']: ' + err);
           }
+
+          sails.log.debug('TransactionService.processAll: processed transaction [' + transaction.id + ']');
         });
       });
 
