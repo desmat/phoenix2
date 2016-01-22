@@ -67,7 +67,14 @@ module.exports = React.createClass({
   }, 
 
   componentDidMount() {
+    var self = this;
     // console.log('Portfolio.componentDidMount');
+
+    document.activeElement.blur(); //strange: after navigating from the navbar document.onkeypress doesn't work
+    $(document).on('keypress', function(e) {
+      if (e.keyCode == 13) self.addPortfolio();
+    });
+
     App.registerSocketIo(this.componentName, this.componentDataUrl, this.socketIo);
     this.fetchData();
   },  
@@ -79,6 +86,7 @@ module.exports = React.createClass({
 
   componentWillUnmount() {
     //console.log('Portfolio.componentWillUnmount');
+    $(document).off('keypress');
     App.registerSocketIo(this.componentName, this.componentDataUrl);
   },
 
@@ -101,7 +109,7 @@ module.exports = React.createClass({
           {portfolios}
           <br/>
           <div className="text-center">
-            <a onClick={this.addPortfolio} className="btn btn-primary">
+            <a onClick={this.addPortfolio} className="btn btn-primary" id="addPortfolio">
               <i className="fa fa-plus" aria-hidden="true"/> New Portfolio
             </a>
           </div>
