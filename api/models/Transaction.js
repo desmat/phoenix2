@@ -19,7 +19,16 @@ module.exports = {
     ticker: {
       type: "string", 
       required: true
-    }, 
+    },
+    quantity: {
+      type: "integer", 
+      required: true,
+      defaultsTo: 1
+    },
+    price: {
+      type: "float", 
+      required: false,
+    },
     state: {
       type: "string", 
       required: true, 
