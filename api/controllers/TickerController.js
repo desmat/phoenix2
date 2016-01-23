@@ -17,7 +17,7 @@ module.exports = {
 
   //WARNING: implementing find(..) will kill socketio and waste you a perfectly good morning!
   details(req, res) {
-    console.log('TickerController.find(...)');
+    // console.log('TickerController.find(...)');
 
     Ticker.find({}, function(err, tickers) {
       if (err) {
@@ -37,7 +37,7 @@ module.exports = {
   }, 
 
   create(req, res) {
-    console.log('TickerController.create(...)');
+    // console.log('TickerController.create(...)');
     // console.dir(req.body);
     var ticker = req.body;
 
