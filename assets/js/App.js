@@ -3,7 +3,7 @@ var Api = require('./Api');
 module.exports = {
 
   registerSocketIo(component, model, fn) {
-    //console.log('App.registerSocketIo');
+    // console.log('App.registerSocketIo');
 
     if (typeof window !== 'undefined') {
       if (!window.hasOwnProperty('__ReactSocketIoCallbacks__')) {
@@ -12,19 +12,30 @@ module.exports = {
       }
 
       if (!window.__ReactSocketIoCallbacks__.hasOwnProperty(model)) {
-        //console.log('App.registerSocketIo: setting up iosocket callback for model [' + model + ']');
+        // console.log('App.registerSocketIo: setting up iosocket callback for model [' + model + ']');
         window.__ReactSocketIoCallbacks__[model] = {};
 
         var f = function(msg) {
+          // console.log('App.registerSocketIo: calling iosocket callbacks');
           _.each(Object.keys(window.__ReactSocketIoCallbacks__[model]), function(key) {
             // console.log('App.registerSocketIo: calling iosocket callback for component [' + key + ']');
             window.__ReactSocketIoCallbacks__[model][key](msg);
           });
         };
 
-        // console.log('App.registerSocketIo: setting up iosocket callback for model [' + model + ']: actually setting up io.socket');
         window.__ReactSocketIoCallbackCallers__[model] = f;
-        io.socket.on(model, f);
+
+        //IMPORTANT: In the case where the model is different than the url we're calling 
+        //           we need to at least ping the model's standard api end-point otherwise 
+        //           the socketio won't kick in
+
+        // console.log('App.registerSocketIo: setting up iosocket callback for model [' + model + ']: pinging socket');
+        Api.head(model, function(data) {
+          // console.log('App.registerSocketIo: setting up iosocket callback for model [' + model + ']: actually setting up io.socket');
+          io.socket.on(model, f);
+        }, function(msg) {
+          console.log('WARNING: unable to ping api end-point for model [' + model + ']');
+        });
       }
 
       if (fn) {

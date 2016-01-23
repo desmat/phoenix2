@@ -48,7 +48,8 @@ module.exports.routes = {
 
   // 'GET /': 'IndexController.index',
 
-  'POST /api/portfolio/:id/ticker/:ticker': 'PortfolioController.buy',
+  'POST   /api/portfolio/:id/ticker/:ticker': 'PortfolioController.buy',
   'DELETE /api/portfolio/:id/ticker/:ticker': 'PortfolioController.sell',
+  'GET    /api/ticker/details': 'TickerController.details',
   
 };

@@ -53,6 +53,7 @@ module.exports = React.createClass({
                 <div id="navbar" className="navbar-collapse collapse">
                   <ul className="nav navbar-nav navbar-right">
                     <li><Link to="/" activeClassName="selected">Portfolios</Link></li>
+                    <li><Link to="/ticker" activeClassName="selected">Tickers</Link></li>
                     <li><Link to="/about" activeClassName="selected">About</Link></li>
                     <li className="disabled"><a href="#" onClick={this.logout} activeClassName="selected">Logout</a></li>
                   </ul>

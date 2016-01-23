@@ -60,6 +60,9 @@ module.exports = {
               return cb('Ticker.create error: ' + err);
             }
 
+            //alert anyone watching tickers that this guy's created
+            Ticker.publishUpdate(ticker.id);
+
             cb(null, ticker);
           });
         });
@@ -137,6 +140,9 @@ module.exports = {
                     else {
                       sails.log.debug('TickerService.updateAll: Ticker [' + ticker.ticker + '] updated');
                     }
+
+                    //alert anyone watching tickers that this guy's updated
+                    Ticker.publishUpdate(ticker.id);
 
                     return done(chunkCounter, tickerCounter);
                   });
