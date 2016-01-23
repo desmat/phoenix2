@@ -2,80 +2,127 @@
 
 module.exports = {
 
-  processPortfolioTransaction(transactionId, portfolioId, tickerSymbol, count, cost, cb) {
-    Portfolio.findOne({id: portfolioId}).populate('holdings').exec(function(err, portfolio) {
+  findPortfolioHolding(portfolio, ticker, cb) {
 
-      if (err) {        
-        return cb('Error querying portfolio [' + portfolioId + ']: ' + err);
+    var holding = _.find(portfolio.holdings, {ticker: ticker});
+    if (holding) {
+      return cb(null, holding);
+    }
+
+    var holding = {
+      id: 0,
+      portfolioId: portfolio.id,
+      ticker: ticker,
+      shares: 0, 
+      cost: 0
+    };
+
+    portfolio.holdings.push(holding);
+
+    return cb(null, holding);
+  },
+
+  processPortfolioTransaction(portfolio, transaction, cb) {
+    // console.log('TransactionService.processPortfolioTransaction');
+
+    this.findPortfolioHolding(portfolio, transaction.ticker, function(err, holding) {
+      if (err) {
+        return cb('Error processPortfolioTransaction: ' + err);
       }
-      else if (!portfolio) {
-        return cb('Portfolio [' + portfolioId + '] not found');
-      }
 
-      // TickerService.getTickerDetails(tickerSymbol, function(err, ticker) {
-      //   if (typeof cost === 'undefined' || _.isNaN(cost)) {
-      //     console.log('asdf');
-      //     cost = ticker.price * count;
-      //   }
+      // console.dir('holding');console.dir(holding);
 
-      //   if (err) {        
-      //     return cb('Error querying ticker [' + tickerSymbol + ']: ' + err, portfolio);
-      //   }
-      //   else if (!ticker) {
-      //     //TODO go find the new ticker!
-      //     return cb('Ticker not found', portfolio);
-      //   }
+      // calculate portfolio and holding cost and cash impacts
 
-        //don't allow cash to go negative
-        if (cost > portfolio.cash) {
-          return cb('Insufficient funds', portfolio);
-        }
+      var cost = parseFloat(0);
+      var cash = parseFloat(0);
 
-        var holding = _.find(portfolio.holdings, {ticker: tickerSymbol});
-        if (!holding) {
-          holding = {
-            id: 0,
-            portfolioId: portfolioId,
-            ticker: tickerSymbol,
-            shares: 0, 
-            cost: 0
-          }
-
-          portfolio.holdings.push(holding);
-        }
-
-        //don't sell things we don't have!
-        if (count < 0 && Math.abs(count) > holding.shares) {
-          return cb('Insuffient shares');
-        }
-
-        holding.transactionId = transactionId;
-        holding.shares += count;
-        holding.cost += cost;
-
-        portfolio.cash -= cost;
-        portfolio.cost += cost;
-        portfolio.transactionId = transactionId;
-
-        var f = function(err) {
-          if (err) {
-            return cb('Error creating/saving/deleting portfolio holding: ' + err, portfolio);
-          }
-
-          return cb(null, portfolio);            
-        };
-
+      if (transaction.type === 'buy') {
+        cost = parseFloat(transaction.price) * parseFloat(transaction.quantity);
+        cash = parseFloat(cost) * parseFloat(-1);
+      } 
+      else if (transaction.type === 'sell') {
         if (holding.shares <= 0) {
-          holding.destroy(f);
+          sails.log.warn('Warning: unable to calculate selling cost for transaction [' + transaction.id + ']: no holding of this ticker');
         }
-        else if (holding.id == 0) {
-          PortfolioHolding.create(holding, f);
+        else if (holding.cost <= 0) {
+          sails.log.warn('Warning: unable to calculate selling cost for transaction [' + transaction.id + ']: holding of this ticker has negative cost');
         }
         else {
-          holding.save(f);
+          cost = (holding.cost / holding.shares) * transaction.quantity * -1;
+          cash = transaction.price * transaction.quantity;
         }
-      // });        
-    }); 
+      } 
+      else  {
+        return cb('Unknown type for transaction [' + transaction.id + ']: ' + transaction.type);
+      }
+
+      //validation
+
+      //don't allow cash to go negative
+      if (cash < 0 && (-1 * cash) > portfolio.cash) {
+        return cb('Insufficient funds');
+      }
+
+      //don't sell things we don't have!
+      if (cost < 0 && transaction.quantity > holding.shares) {
+        return cb('Insuffient shares');
+      }
+
+      holding.transactionId = transaction.id;
+      holding.shares += transaction.quantity * (cost > 0 ? 1 : -1);
+      holding.cost += parseFloat(cost);
+
+      portfolio.transactionId = transaction.id;
+      portfolio.cash += parseFloat(cash);
+      portfolio.cost += parseFloat(cost);
+
+      transaction.state = 'processed';
+      transaction.save(function(err, transaction) {
+        if (err) {
+          return cb('Error saving transaction [' + transaction.id + ']: ' + err)
+        }
+
+        sails.log.debug('TransactionService.processPortfolioTransaction: processed transaction [' + transaction.id + ']');
+        return cb(null, portfolio);            
+      });    
+
+    });
+  },
+
+  processPortfolioTransactions(portfolio, transactions, cb) {
+    var self = this;
+    // console.log('TransactionService.processPortfolioTransactions');
+
+    var left = transactions.length;
+
+    _.each(_.sortBy(transactions, 'id'), function(transaction, i) {
+
+      TickerService.getTickerDetails(transaction.ticker, function(err, ticker) {
+        if (err) {        
+          return cb('Error querying ticker [' + transaction.ticker + ']: ' + err);
+        }
+        else if (!ticker) {
+          //TODO go find the new ticker!
+          return cb('Ticker not found: ' + transaction.ticker);
+        }
+
+        if (typeof transaction.price === 'undefined') {
+          transaction.price = ticker.price;
+        }
+
+        self.processPortfolioTransaction(portfolio, transaction, function(err) {
+          if (err) {
+            sails.log.warn('TransactionService.processPortfolioTransactions: Error processing transaction [' + transaction.id + '] on portfolio [' + portfolio.id + ']: ' + err);
+            return;
+          }
+
+          if (!--left) {
+            return cb(null, portfolio);            
+          }
+        });
+      });
+    });
   },
 
   processAll(cb) {
@@ -88,92 +135,63 @@ module.exports = {
         return cb();
       }
 
-      var byPortfolio = _.groupBy(transactions, function(n) { return n.portfolioId });
+      var transactionsByPortfolio = _.groupBy(transactions, function(n) { return n.portfolioId });
+      var left = Object.keys(transactionsByPortfolio).length;
 
-      _.each(Object.keys(byPortfolio), function(transactionPortfolioId) {
+      _.each(transactionsByPortfolio, function(transactions, portfolioId) {
+        // console.log('processing transactions for portfolio [' + portfolioId + ']');
 
-        var byPortfolioByTicker = _.groupBy(byPortfolio[transactionPortfolioId], function(n) { return n.ticker });
-        var keys = Object.keys(byPortfolioByTicker);
-        var lastKey = keys.length - 1;
+        Portfolio.findOne({id: portfolioId}).populate('holdings').exec(function(err, portfolio) {
+          if (err) {        
+            return cb('Error querying portfolio [' + portfolioId + ']: ' + err);
+          }
+          else if (!portfolio) {
+            return cb('Portfolio [' + portfolioId + '] not found');
+          }
 
-        _.each(keys, function(tickerSymbol, key) {
+          self.processPortfolioTransactions(portfolio, transactions, function(err, portfolio) {
+            if (err) {        
+              return sails.log.warn('TransactionService.processAll: processPortfolioTransactions error: ' + err);
+            }
 
-          var transactionId = _.max(byPortfolioByTicker[tickerSymbol], function(n) { return n.id }).id;
-          var byPortfolioByTickerByType = _.groupBy(byPortfolioByTicker[tickerSymbol], function(n) { return n.type });
-//           var qty = ((byPortfolioByTickerByType['buy'] || []).length - (byPortfolioByTickerByType['sell'] || []).length);
-//console.dir(byPortfolioByTickerByType);       
+            //TODO this fails when adding a new holding
+            
+            if (portfolio && !--left) {
+              // console.log('---> saving portfolio [' + portfolio.id + ']');
+              //only save and publish when processed all holdings for portfolio
 
+              var done = function(err) {
+                if (err) {
+                  sails.log.warn('Error creating/saving/deleting portfolio holding: ' + err);
+                }
+              };
 
+              _.each(portfolio.holdings, function(holding) {
 
-//console.log(_.map(byPortfolioByTickerByType['buy'], function(n) { return n.quantity * n.price; }));
+                if (holding.shares <= 0) {
+                  if (holding.id > 0) holding.destroy(done);
+                }
+                else if (holding.id == 0) {
+                  PortfolioHolding.create(holding, done);
+                }
+                else {
+                  holding.save(done); 
+                }
+              });
 
-            TickerService.getTickerDetails(tickerSymbol, function(err, ticker) {
-              if (err) {        
-                return cb('Error querying ticker [' + tickerSymbol + ']: ' + err);
-              }
-              else if (!ticker) {
-                //TODO go find the new ticker!
-                return cb('Ticker not found');
-              }
+              portfolio.save(function(err, portfolio) {
+                if (err) {    
+                  sails.log.warn('Error saving portfolio [' + portfolioId + ']: ' + err);    
+                  return cb();
+                }
 
-
-//_.each(byPortfolioByTickerByType, function(transactions, type) { 
-
-
-var quantity = 
-  _.reduce(byPortfolioByTickerByType['buy'], function(total, n) { return total + n.quantity; }, 0) - 
-  _.reduce(byPortfolioByTickerByType['sell'], function(total, n) { return total + n.quantity; }, 0);
-
-var total = 
-  _.reduce(byPortfolioByTickerByType['buy'],  function(total, n) { return total + (n.quantity * (typeof n.price !== 'undefined' ? n.price : ticker.price)); }, 0) -   
-  _.reduce(byPortfolioByTickerByType['sell'], function(total, n) { return total + (n.quantity * (typeof n.price !== 'undefined' ? n.price : ticker.price)); }, 0);
-
-console.log('quantity=' + quantity + ' total=' + total);
-
-if (typeof total === 'undefined' || _.isNaN(total)) {
-  //console.log('asdf');
-  total = ticker.price * quantity;
-}
-
-
-            self.processPortfolioTransaction(transactionId, transactionPortfolioId, tickerSymbol, quantity, total, function(err, portfolio) {
-
-              if (err) {
-                sails.log.warn('TransactionService.processAll: Error processing transactions for ticker [' + tickerSymbol + '] on portfolio [' + transactionPortfolioId + ']: ' + err);
-              }
-
-              //TODO this fails when adding a new holding
-              
-
-              //TODO figure out how to deal with buys and sells separated
-              if (portfolio && key == lastKey) {
-                //only save and publish when processed all holdings for portfolio
-                portfolio.save(function(err, portfolio) {
-                  if (err) {        
-                    return cb('Error saving portfolio [' + portfolioId + ']: ' + err);
-                  }
-
-                  Portfolio.publishUpdate(portfolio.id);
-                });
-              }
-            });
+                Portfolio.publishUpdate(portfolio.id);
+                return cb();
+              });
+            }
           });
         });
       });
-
-      _.each(transactions, function(n) { 
-        n.state = 'processed';
-        n.save(function(err, transaction) {
-          if (err) {
-            sails.log.warn('Error saving transaction [' + n.id + ']: ' + err);
-          }
-
-          sails.log.debug('TransactionService.processAll: processed transaction [' + transaction.id + ']');
-        });
-      });
-
-      return cb();
     });
   }, 
-
 }
