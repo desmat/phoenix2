@@ -8,7 +8,10 @@ module.exports = function(req, res, next) {
     return;   
   }
 
-  req.query['userId'] = req.session.userId;
+  if (!req.session.admin) {
+    //admins have access to all
+    req.query['userId'] = req.session.userId;
+  }
 
   next();
 };
