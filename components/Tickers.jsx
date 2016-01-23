@@ -44,11 +44,41 @@ module.exports = React.createClass({
     Api.delete('ticker', id);
   },
 
+  _clearUpdatedFlags(holdingId) {
+    var h = _.find(this.state.data.holdings, {id: holdingId});
+    if (h) {
+      delete h.updatedUp; 
+      delete h.updatedDown; 
+      delete h.flashTimeout;
+      this.setState({data: this.state.data});
+    }
+  },
+
   fetchData() {
     //console.log('Tickers.fetchData'); 
     var self = this;
 
     Api.get(this.componentDataUrl, function(data) { 
+
+      //setup flash flags
+      _.each(data, function(h) {
+        var c = _.find(self.state.data, {id: h.id});
+        if (c) {
+          if (c.price != h.price) {
+            console.log('setting updated');
+            h.updatedUp = h.price > c.price;
+            h.updatedDown = !h.updatedUp;
+          }
+          else {
+            h.updatedUp = c.updatedUp;
+            h.updatedDown = c.updatedDown
+          }
+
+          //take out those flash attribute after a second so that they don't interfere with the next update  
+          setTimeout(self._clearUpdatedFlags(h.id), 1000, h.id);
+        }
+      });
+
       self.setState({data: data}); 
     }, function(errorCode) {
       if (errorCode == 403) {
