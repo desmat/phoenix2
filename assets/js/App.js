@@ -82,6 +82,23 @@ module.exports = {
     return false;    
   },
 
+  isAdmin() {
+    if (typeof window !== 'undefined') {
+      if (window.hasOwnProperty('__ReactInitState__') && 
+          window.__ReactInitState__.hasOwnProperty('_admin')) {
+        return window.__ReactInitState__['_admin'];
+      }
+    }
+    else if (typeof global !== 'undefined') {
+      if (global.hasOwnProperty('__ReactInitState__') && 
+          global.__ReactInitState__.hasOwnProperty('_admin')) {
+        return global.__ReactInitState__['_admin'];
+      }
+    }
+
+    return false;    
+  },
+
   registerAuthenticatedChanged(func) {
     //super hack! I need to figure out how to not use global scope to pass along callbacks in this manner...
     if (typeof window !== 'undefined') {
@@ -92,7 +109,7 @@ module.exports = {
   login(username, password, onSuccess, onError) {
     Api.post('login', {username: username, password: password}, function(data) {
       if (data.hasOwnProperty('login') && data.login == 'ok') {
-        window.__ReactNavAuthenticationChanged(true);
+        window.__ReactNavAuthenticationChanged(true, data.hasOwnProperty('admin') && data.admin);
         if (onSuccess) onSuccess();
       }
       else {

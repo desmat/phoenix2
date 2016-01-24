@@ -32,7 +32,7 @@ module.exports = {
   }, 
 
   afterUpdate(ticker, cb) {
-    console.log('Ticker.afterUpdate: '); console.dir(ticker);
+    // console.log('Ticker.afterUpdate: '); console.dir(ticker);
 
     PortfolioHolding.find({ticker: ticker.ticker}, function(err, portfolioHoldings) {
       if (err || !portfolioHoldings || !portfolioHoldings.length) {

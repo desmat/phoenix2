@@ -19,28 +19,30 @@
 
 module.exports.policies = {
 
-/*
-  '*': ['sessionAuth', 'addUserIdRequestParam'],
+  '*': ['sessionAuthRedirectToLogin', 'addUserIdRequestParam'],
 
   //api end-point
 
   'api': {
-    '*': ['sessionAuth', 'addUserIdRequestParam'], 
+    '*': ['sessionAuthRedirectToLogin', 'addUserIdRequestParam'], 
+
+    'about': true,                                  //no login required
     'login': true,                                  //no login required
     'register': true,                               //no login required
-    'about': true,                                  //no login required
   },  
-  'users': false, //no access to user end-point (TODO allow admin type user)
+
+  //api and components
+  'ticker': 'sessionAuthRedirectToLogin',
+  'user': 'sessionAuthRedirectToLogin',
 
   //components 
 
-  '/': ['sessionAuth', 'addUserIdRequestParam'],  //portfolio list
-  'portfolio': ['sessionAuth', 'addUserIdRequestParam'],  //portfolio details
+  '/': ['sessionAuthRedirectToLogin', 'addUserIdRequestParam'],  //portfolio list
+  'portfolio': ['sessionAuthRedirectToLogin', 'addUserIdRequestParam'],  //portfolio details
 
   'about': true,    //no login required
   'login': true,    //no login required
   'register': true, //no login required
-*/  
 
   /***************************************************************************
   *                                                                          *

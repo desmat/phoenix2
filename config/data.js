@@ -29,6 +29,11 @@ module.exports.data = [
         "username": "Demo2", 
         "password": "Password1"
       },
+      {
+        "username": "Admin", 
+        "password": "Password1", 
+        "admin": true
+      },
     ]
   },
   {
