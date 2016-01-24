@@ -18,7 +18,7 @@
 
 
 module.exports.policies = {
-
+/*
   '*': ['sessionAuthRedirectToLogin', 'addUserIdRequestParam'],
 
   //api end-point
@@ -43,7 +43,7 @@ module.exports.policies = {
   'about': true,    //no login required
   'login': true,    //no login required
   'register': true, //no login required
-
+*/
   /***************************************************************************
   *                                                                          *
   * Default policy for all controllers and actions (`true` allows public     *

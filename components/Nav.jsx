@@ -26,15 +26,15 @@ module.exports = React.createClass({
   },
 
   getInitialState() {
-    return {authenticated: App.isAuthenticated(), admin: App.isAdmin()};
-    // return {authenticated: true, admin: true};
+    // return {authenticated: App.isAuthenticated(), admin: App.isAdmin()};
+    return {authenticated: true, admin: true};
   },
 
   componentDidMount() {
     App.registerAuthenticatedChanged(this.authenticationChanged);
 
-    this.setState({authenticated: App.isAuthenticated(), admin: App.isAdmin()});
-    // return {authenticated: true, admin: true};
+    // this.setState({authenticated: App.isAuthenticated(), admin: App.isAdmin()});
+    return {authenticated: true, admin: true};
   },
 
   render: function() {
@@ -57,7 +57,7 @@ module.exports = React.createClass({
                     <li><Link to="/" activeClassName="selected">Portfolios</Link></li>
                     <li><Link to="/ticker" activeClassName="selected">Tickers</Link></li>
                     <li><Link to="/about" activeClassName="selected">About</Link></li>
-                    <li><a href="#" onClick={this.logout} activeClassName="selected">Logout</a></li>
+                    <li className="disabled"><a href="#" onClick={this.logout} activeClassName="selected">Logout</a></li>
                   </ul>
                 </div>
               </div>
@@ -83,7 +83,7 @@ module.exports = React.createClass({
                   <ul className="nav navbar-nav navbar-right">
                     <li><Link to="/" activeClassName="selected">Portfolios</Link></li>
                     <li><Link to="/about" activeClassName="selected">About</Link></li>
-                    <li><a href="#" onClick={this.logout} activeClassName="selected">Logout</a></li>
+                    <li className="disabled"><a href="#" onClick={this.logout} activeClassName="selected">Logout</a></li>
                   </ul>
                 </div>
               </div>
