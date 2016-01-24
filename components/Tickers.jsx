@@ -105,6 +105,21 @@ module.exports = React.createClass({
     // console.log('Tickers.componentWillMount');
   },
 
+  _setupPageKeyPressed(set){
+    if (set) {
+      console.log('setting keypressed');
+      document.activeElement.blur(); //strange: after navigating from the navbar document.onkeypress doesn't work
+      $(document).on('keypress', function(e) {
+        if (e.keyCode == 13 && !$("#addTickerModal").is(':visible')) {
+          $('#addTickerModal').modal('show');
+        }
+      });
+    }
+    else {
+      $(document).off('keypress');      
+    }
+  },
+
   _initAddTickerModal() {
     // console.log('Tickers._initAddTickerModal');
     var self = this;
@@ -142,18 +157,14 @@ module.exports = React.createClass({
 
     $("#addTickerModal").on('shown.bs.modal', resetModal);
     $("#addTickerModal").on('hidden.bs.modal', resetModal);
+    
     $("#searchTicker").on('keypress', function(e) { if (e.keyCode == 13) { self.addTicker(); } });
   },
 
   componentDidMount() {
     //console.log('Tickers.componentDidMount');
 
-    $(document).on('keypress', function(e) {
-      if (e.keyCode == 13 && !$("#addTickerModal").is(':visible')) {
-        $('#addTickerModal').modal('show');
-      }
-    });
-
+    this._setupPageKeyPressed(true);
     this._initAddTickerModal();
     //TODO: figure out why this won't kick in when loading this component from back-end
     App.registerSocketIo(this.componentName, this.socketIoModel, this.socketIo);
@@ -168,7 +179,7 @@ module.exports = React.createClass({
   componentWillUnmount() {
     // console.log('Tickers.componentWillUnmount');
     App.registerSocketIo(this.componentName, this.socketIoModel);
-    $(document).off('keypress');
+    this._setupPageKeyPressed();
   },
 
   render: function() {    

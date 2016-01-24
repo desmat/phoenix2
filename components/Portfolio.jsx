@@ -10,25 +10,23 @@ module.exports = React.createClass({
   },
 
   rename() {
-    var name = window.prompt("Rename Portfolio",this.props.name);
-    if (name) {
-      this.props.renamePortfolio(this.props.id, name);
-    }
+    this.props.renamePortfolio(this.props.id);
   },
 
   render() {
     return (
-      <div className="portfolio row text-nowrap">
-        <div className="col-xs-8">
-          <Link to={`/portfolio/${this.props.id}`} className="portfolio-item">
-            {this.props.data.name} - ${this.props.data.value} (<span className={this.props.data.returnPercent >= 0 ? "text-success" : this.props.data.returnPercent < 0 ? "text-danger" : ""}>{this.props.data.returnPercentFormatted}</span>);
-          </Link>
-        </div>
-        <div className="col-xs-4 text-right">
+      <tr className={this.props.data.updatedUp ? "flash-green" : this.props.data.updatedDown ? "flash-red" : ""}>
+        <td className={this.props.data.id == 0 ? "text-left text-muted" : "text-left"}>
+          <Link to={`/portfolio/${this.props.id}`} className="portfolio-item">{this.props.data.name}</Link>
+        </td>
+        <td className={this.props.data.id == 0 ? "text-right text-nowrap text-muted" : "text-nowrap text-right"}>
+          <span className={this.props.data.returnPercent >= 0 ? "text-success" : this.props.data.returnPercent < 0 ? "text-danger" : ""}>{this.props.data.returnPercentFormatted}</span>
+        </td>
+        <td className="text-right text-nowrap">
           <a href='#' onClick={this.delete} data-toggle="tooltip" title="Delete"><i className="fa fa-remove" aria-hidden="true"/></a>
           &nbsp;<a href='#' onClick={this.rename} data-toggle="tooltip" title="Rename"><i className="fa fa-pencil" aria-hidden="true"/></a>
-        </div>
-      </div>
-    );
+        </td>
+      </tr>
+    )
   }
 });
