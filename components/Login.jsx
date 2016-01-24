@@ -22,13 +22,16 @@ module.exports = React.createClass({
   },
 
   setDemoUserCredentials1() {
-    this.setDemoUserCredentials(1);
+    this.setDemoUserCredentials('Demo1');
   },
   setDemoUserCredentials2() {
-    this.setDemoUserCredentials(2);
+    this.setDemoUserCredentials('Demo2');
   },
-  setDemoUserCredentials(num) {
-    this.state.data.username="Demo" + num;
+  setDemoUserCredentialsAdmin() {
+    this.setDemoUserCredentials('Admin');
+  },
+  setDemoUserCredentials(username) {
+    this.state.data.username=username;
     this.state.data.password="Password1";
     this.setState({data: this.state.data});
     this.login();
@@ -74,6 +77,7 @@ module.exports = React.createClass({
           (Demo users: 
           &nbsp;<a href="#" onClick={this.setDemoUserCredentials1}>Demo1</a> 
           &nbsp;<a href="#" onClick={this.setDemoUserCredentials2}>Demo2</a>
+          &nbsp;<a href="#" onClick={this.setDemoUserCredentialsAdmin}>Admin</a>
           )
         </p>
 

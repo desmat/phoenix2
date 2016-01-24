@@ -32,18 +32,22 @@ module.exports = {
   }, 
 
   afterUpdate(ticker, cb) {
-    //console.log('Ticker.afterUpdate: '); console.dir(ticker);
+    // console.log('Ticker.afterUpdate: '); console.dir(ticker);
 
     PortfolioHolding.find({ticker: ticker.ticker}, function(err, portfolioHoldings) {
+      if (err || !portfolioHoldings || !portfolioHoldings.length) {
+        Ticker.publishUpdate(ticker.id, ticker);
+        return cb();
+      }
+
       _.each(portfolioHoldings, function(portfolioHolding) {
         //ping front-end to fetch fresh data
-        Portfolio.publishUpdate(portfolioHolding.portfolioId);
+        Portfolio.publishUpdate(portfolioHolding.portfolioId, portfolioHolding);
       });
 
-      cb();
+      Ticker.publishUpdate(ticker.id, ticker);
+      return cb();
     });
   },  
-
-
 };
 

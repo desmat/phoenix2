@@ -7,6 +7,28 @@ var cacheReactInitState = function(model, data) {
 
 module.exports = {
 
+  head(model, onSuccess, onError) {
+    // console.log('Api.head(' + model + ')');
+    io.socket.request(
+      {
+        method: 'head',
+        url: '/api/' + model,
+        params: {},
+        headers: {}
+      }, function(data, jwres) {
+      //console.dir(jwres);
+      if (typeof jwres.error !== 'undefined') {
+        //TODO figure out what to do with errors
+        console.log('Api error: GET ' + '/api/' + model + ': ' + jwres.statusCode);
+        console.dir(jwres);
+        if (onError) onError(jwres.statusCode);        
+      }
+      else {
+        if (onSuccess) onSuccess(data);
+      }
+    });
+  },
+
 	get(model, onSuccess, onError) {
 		io.socket.get('/api/' + model, {}, function(data, jwres) {
 			//console.dir(jwres);

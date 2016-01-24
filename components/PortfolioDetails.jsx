@@ -188,7 +188,6 @@ module.exports = React.createClass({
     });
 
     this._initAddHoldingModal();
-    //TODO: figure out why this won't kick in when loading this component from back-end
     App.registerSocketIo(this.componentName, this.socketIoModel, this.socketIo);
     this.fetchData();
   }, 

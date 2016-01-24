@@ -61,8 +61,9 @@ module.exports = {
       //all good!
       req.session.authenticated = true;  
       req.session.userId = result.id;  
+      req.session.admin = result.admin;
 
-      return res.json({login: "ok"});
+      return res.json({login: "ok", admin: result.admin});
     });
   }, 
 
@@ -109,6 +110,7 @@ module.exports = {
 
     delete req.session.authenticated;    
     delete req.session.userId;
+    delete req.session.admin;
 
     return res.json({result: "ok"});
   },  

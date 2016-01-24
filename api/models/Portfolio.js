@@ -15,11 +15,18 @@ module.exports = {
     },
     "cash": {
       "type": "float",
-      "required": false
+      "required": true,
+      "defaultsTo": 1
+    },
+    "cost": {
+      "type": "float",
+      "required": true,
+      "defaultsTo": 1
     },
     "value": {
       "type": "float",
-      "required": false
+      "required": true,
+      "defaultsTo": 1
     },
     "returnPercent": {
       "type": "float",
