@@ -19,6 +19,7 @@ var renderHtml = function(req, res, renderProps, modelsAndData, title, descripti
   var state = 
     'window.__ReactInitState__ = {' + 
     '"_authenticated": ' + (req.hasOwnProperty('session') && req.session.hasOwnProperty('authenticated') && req.session.authenticated) + ', ' + 
+    '"_admin": ' + (req.hasOwnProperty('session') && req.session.hasOwnProperty('admin') && req.session.admin) + ', ' + 
     _.map(modelsAndData, function(modelAndData) {
       return '"' + modelAndData.model + '": ' + JSON.stringify(modelAndData.data)
     }) + 
@@ -88,6 +89,7 @@ module.exports = function(req, res, next) {
 
       global.__ReactInitState__ = [];        
       global.__ReactInitState__['_authenticated'] = (req.hasOwnProperty('session') && req.session.hasOwnProperty('authenticated') && req.session.authenticated);
+      global.__ReactInitState__['_admin'] = (req.hasOwnProperty('session') && req.session.hasOwnProperty('admin') && req.session.admin);
 
       if (datae.length == 0) { 
         //other than lists don't load up in the back-end
@@ -109,8 +111,44 @@ module.exports = function(req, res, next) {
             data = data.replace(':id', pathId);
           }
 
+          //check if require admin
+          if (data.indexOf(':admin') > -1) {
+            if (req.session.hasOwnProperty('admin') && req.session.admin) {
+              //access granted
+
+              //this is a 'virtual query param', meaning that the front-end doesn't know it was applied. Let's remove it from the data key
+              data = data.replace(':admin=true&', '').replace(':admin=true', '');
+              data = data.replace('userId=:userId&', '').replace('userId=:userId', '');
+              //TODO ^^^ we need to be more robust here! 
+
+              //and remove trailing '?' or '&'
+              if (data.indexOf('&', data.length - 1) !== -1) data = data.substring(0, data.length - 1);
+              if (data.indexOf('?', data.length - 1) !== -1) data = data.substring(0, data.length - 1);
+            }
+            else {
+              //TODO ACCESS DENIED
+              if (i == datae.length - 1) {
+                //console.log('done fetching data from models; rendering the whole thing');
+                return renderHtml(req, res, renderProps, modelsAndData);
+              }
+            }
+          }
+
+          //other edge case: requires login but user is admin
+
+          if (data.indexOf(':userId') > -1 && req.session.hasOwnProperty('admin') && req.session.admin) {
+            //this is a 'virtual query param', meaning that the front-end doesn't know it was applied. Let's remove it from the data key
+            data = data.replace(':admin=true&', '').replace(':admin=true', '');
+            data = data.replace('userId=:userId&', '').replace('userId=:userId', '');
+            //TODO ^^^ we need to be more robust here! 
+
+            //and remove trailing '?' or '&'
+            if (data.indexOf('&', data.length - 1) !== -1) data = data.substring(0, data.length - 1);
+            if (data.indexOf('?', data.length - 1) !== -1) data = data.substring(0, data.length - 1);
+          }
+
           //FIRST LOOK FOR ROUTES OVERWRITING STRAIGHT MODEL ACCESS
-          var mockRequest = httpMocks.createRequest({method: 'GET', url: '/api/' + data});          
+          var mockRequest = httpMocks.createRequest({method: 'GET', session: req.session, url: '/api/' + data});          
           var mockResponse = httpMocks.createResponse({eventEmitter: require('events').EventEmitter});
 
           mockResponse.on('end', function(a, b, c) {
@@ -125,6 +163,18 @@ module.exports = function(req, res, next) {
               sails.log.debug('ServerSideRenderer: fetched data from sails router for [' + data + ']');
 
               var results = JSON.parse(mockResponseData);
+
+              //clean out data url
+              if (data.indexOf(':userId') > -1) {
+                //this is a 'virtual query param', meaning that the front-end doesn't know it was applied. Let's remove it from the data key
+                data = data.replace('userId=:userId&', '').replace('userId=:userId', '');
+                if (req.session.hasOwnProperty('admin') && req.session.admin) data = data.replace(':admin=true&', '').replace(':admin=true', '');
+                //TODO ^^^ we need to be more robust here! 
+
+                //and remove trailing '?' or '&'
+                if (data.indexOf('&', data.length - 1) !== -1) data = data.substring(0, data.length - 1);
+                if (data.indexOf('?', data.length - 1) !== -1) data = data.substring(0, data.length - 1);
+              }
 
               // make data available for components to render on the back-end
               global.__ReactInitState__[data.trim().toLowerCase()] = results;
@@ -158,15 +208,26 @@ module.exports = function(req, res, next) {
                     //and remove trailing '?' or '&'
                     if (data.indexOf('&', data.length - 1) !== -1) data = data.substring(0, data.length - 1);
                     if (data.indexOf('?', data.length - 1) !== -1) data = data.substring(0, data.length - 1);
+
+                    //TODO remove userId from query if admin
+                    if (req.hasOwnProperty('session') && req.session.admin) {
+                      //skip this property since user is admin
+                      // console.log('Admin: skipping');
+                      return;
+                    }
                   }
-                  
+
                   query[n] = v;
                 });
               }
 
               // parse out specific record url (Foobar/123)
               var modelAndId = modelAndQuery[0].trim().split('/');
-              if (modelAndId.length > 1) query['id'] = modelAndId[1];
+              var findOne = false;
+              if (modelAndId.length > 0 && !_.isNaN(parseInt(_.last(modelAndId)))) {
+                findOne = true;
+                query['id'] = _.last(modelAndId);
+              }
 
               // parse out model name
               var sailsModelName = modelAndId[0].trim().toLowerCase();
@@ -174,7 +235,7 @@ module.exports = function(req, res, next) {
               //Look for controller
               var sailsController = sails.controllers['api'];
               if (typeof sailsController !== 'undefined' && sailsController.hasOwnProperty(sailsModelName)) {
-                var mockRequest = httpMocks.createRequest({method: 'GET', url: '/api/' + data});          
+                var mockRequest = httpMocks.createRequest({method: 'GET', session: req.session, url: '/api/' + data});          
                 var mockResponse = httpMocks.createResponse();                    
                 sailsController[sailsModelName](mockRequest, mockResponse);
                 var mockResponseData = mockResponse.statusCode == 200 ? mockResponse._getData() : '';
@@ -206,7 +267,8 @@ module.exports = function(req, res, next) {
                 if (typeof sailsModel !== 'undefined') {
                   sails.log.debug('ServerSideRenderer: fetching data from model [' + sailsModelName + '] with query [' + JSON.stringify(query) + ']');
 
-                  sailsModel.find(query, function(err, results) {
+                  var queryType = findOne ? 'findOne' : 'find';
+                  sailsModel[queryType](query, function(err, results) {
                     if (err) {
                       //return res.serverError(err);
                       console.log("Error fetching data: " + err);
@@ -234,8 +296,8 @@ module.exports = function(req, res, next) {
             }
           });          
 
-          //console.log('--> calling sails.router.route');                    
-          sails.router.route(mockRequest, mockResponse, function() {console.log('ASDF');});
+          //don't kill this line we need it!         
+          sails.router.route(mockRequest, mockResponse, function() { });
         });
       }
     } 

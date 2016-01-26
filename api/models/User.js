@@ -16,6 +16,11 @@ module.exports = {
       type: 'text',
       required: true
     },
+    admin: {
+      type: 'boolean',
+      required: true, 
+      defaultsTo: false
+    },
   }
 };
 
