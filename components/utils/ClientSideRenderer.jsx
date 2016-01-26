@@ -14,6 +14,20 @@ var routes = require('../Routes.jsx');
 
 if (typeof document == "object") {
 	//console.log('running router on client side!');
+
+
+  //Material-ui dependency
+  //
+  //Needed for onTouchTap
+  //Can go away when react 1.0 release
+  //Check this repo:
+  //https://github.com/zilverline/react-tap-event-plugin  
+  var injectTapEventPlugin = require("react-tap-event-plugin");
+  injectTapEventPlugin();
+
+
+	//init react router on front-end
+
 	var targetElement = document.getElementById('react-content');
 
 	if (typeof targetElement !== 'undefined' && targetElement != null) {

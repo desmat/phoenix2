@@ -15,6 +15,10 @@ module.exports = React.createClass({
           <meta name="viewport" content="initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=0, width=device-width" />
           <link href="/styles/bootstrap.min.css" rel="stylesheet" />
           <link href="/styles/font-awesome.min.css" rel="stylesheet"/>
+          {/* <link href="/styles/roboto-fontface.css" rel="stylesheet"/> */}
+          <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Roboto:300,400,500,700" type="text/css" />
+          <link href="//fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
+
           <link href="/styles/client.css" media="all" rel="stylesheet" />
         </head>
         <body>

@@ -3,16 +3,23 @@ var Api = require('../assets/js/Api');
 var App = require('../assets/js/App');
 var Portfolio = require('./Portfolio.jsx');
 
+var RaisedButton = require('material-ui/lib/raised-button');
+var Dialog = require('material-ui/lib/dialog');
+var ThemeManager = require('material-ui/lib/styles/theme-manager');
+var LightRawTheme = require('material-ui/lib/styles/raw-themes/light-raw-theme');
+var Colors = require('material-ui/lib/styles/colors');
+var FlatButton = require('material-ui/lib/flat-button');
+var TextField = require('material-ui/lib/text-field');
+
 module.exports = React.createClass({
-  
+
   addPortfolio() {
+    console.log('addPortfolio');
     var self = this;
     var name = $('#portfolioName').val();
     if (name) {
       var newPortfolio = {id: 0, name: name, cash: 10000, value: 10000, returnPercent: 0, returnPercentFormatted: '+0.00'}; //id will be updated later
-      this.setState({data: this.state.data.concat(newPortfolio)}); 
-
-      $('#addPortfolioModal').modal('hide');
+      this.setState({data: this.state.data.concat(newPortfolio), addPortfolioDialogOpen: false}); 
       
       Api.post('portfolio', newPortfolio, function(data) { 
         //update new portfolio's id
@@ -30,11 +37,16 @@ module.exports = React.createClass({
   },
 
   renamePortfolio(id) {
+    console.dir(id);
     var portfolio = _.find(this.state.data, {id: id});
     if (portfolio) {
-      $('#newPortfolioName').val(portfolio.name);
-      $('#newPortfolioNameId').val(id);
-      $('#renamePortfolioModal').modal('show');
+      console.dir(portfolio);
+
+      // $('#newPortfolioName').val(portfolio.name);
+      // $('#newPortfolioNameId').val(id);
+
+      //$('#renamePortfolioModal').modal('show');
+      this._openRenamePortfolioDialog();
     }
   },
 
@@ -108,7 +120,12 @@ module.exports = React.createClass({
   getInitialState() {
     this.componentName = 'Portfolio';
     this.componentDataUrl = 'portfolio';
-    return {data: Api.getInitial(this.componentDataUrl)};
+    
+    return {
+      data: Api.getInitial(this.componentDataUrl), 
+      addPortfolioDialogOpen: false, 
+      renamePortfolioDialogOpen: false,
+    };
   },  
 
   componentWillMount() {
@@ -150,7 +167,30 @@ module.exports = React.createClass({
     App.registerSocketIo(this.componentName, this.componentDataUrl);
   },
 
-  render: function() {
+
+
+
+  _openAddPortfolioDialog() {
+    this.setState({addPortfolioDialogOpen: true});
+  },
+
+  _closeAddPortfolioDialog() {
+    this.setState({addPortfolioDialogOpen: false});
+  },
+
+  _openRenamePortfolioDialog() {
+    this.setState({renamePortfolioDialogOpen: true});
+  },
+
+  _closeRenamePortfolioDialog() {
+    this.setState({renamePortfolioDialogOpen: false});
+  },
+
+  _TextFieldChanged(e) {
+    console.dir(e);
+  },
+
+  render() {
     var self = this;    
     var portfolios = [];
 
@@ -161,6 +201,36 @@ module.exports = React.createClass({
         );
       });
     }
+
+    var addPortfolioDialogActions = (
+      <div>
+        <FlatButton
+          label="Cancel"
+          secondary={false}
+          onTouchTap={this._closeAddPortfolioDialog}
+        />
+        <FlatButton
+          label="Add"
+          secondary={true}
+          onTouchTap={this.addPortfolio}
+        />
+      </div>
+    );
+
+    var renamePortfolioDialogActions = (
+      <div>
+        <FlatButton
+          label="Cancel"
+          secondary={false}
+          onTouchTap={this._closeRenamePortfolioDialog}
+        />
+        <FlatButton
+          label="Add"
+          secondary={true}
+          onTouchTap={this.confirmRenamePortfolio}
+        />
+      </div>
+    );
 
     return (
       <div className="portfolio-list-container">
@@ -182,12 +252,32 @@ module.exports = React.createClass({
           
           <br/>
           <div className="text-center">
-            <a className="btn btn-primary" data-toggle="modal" data-target="#addPortfolioModal">
-              <i className="fa fa-plus" aria-hidden="true"/> New Portfolio
-            </a>
+            <RaisedButton label="New Portfolio" data-target="#addPortfolioModal" primary={true} onTouchTap={this._openAddPortfolioDialog}/>
           </div>
         </div>
-        {/* Modal add portfolio */}
+
+        <Dialog
+          open={this.state.addPortfolioDialogOpen}
+          title="Add Portfolio"
+          actions={addPortfolioDialogActions}
+          onRequestClose={this._closeAddPortfolioDialog}
+        >
+          <TextField type="input" fullWidth="true" className="Xform-control" id="portfolioName" placeholder="New portfolio name..." autoComplete="off" autoFocus="true"/>
+        </Dialog>  
+        
+        {/*
+        <Dialog
+          open={this.state.renamePortfolioDialogOpen}
+          title="Rename Portfolio"
+          actions={renamePortfolioDialogActions}
+          onRequestClose={this._closeRenamePortfolioDialog}
+        >
+          <TextField type="input" className="form-control" id="newPortfolioName" placeholder="New portfolio name..." autoComplete="off" autoFocus="true"/>
+          <TextField type="input" onChange={this._inputChanged} className="form-control" id="newPortfolioNameId" value={this.renamePortfolioDialogOpen}/>
+        </Dialog>  
+        */}
+
+        {/* Modal add portfolio 
         <div className="modal fade" id="addPortfolioModal" tabIndex="-1" role="dialog" ariaLabelledby="myModalLabel" ariaHidden="true">
           <div className="modal-dialog" role="document">
             <div className="modal-content">
@@ -211,6 +301,8 @@ module.exports = React.createClass({
             </div>
           </div>
         </div>
+        */}
+
         {/* Modal edit portfolio */}
         <div className="modal fade" id="renamePortfolioModal" tabIndex="-1" role="dialog" ariaLabelledby="myModalLabel" ariaHidden="true">
           <div className="modal-dialog" role="document">
@@ -236,7 +328,6 @@ module.exports = React.createClass({
             </div>
           </div>
         </div>
-
       </div>
     );
   }

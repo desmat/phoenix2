@@ -23,8 +23,8 @@ module.exports = React.createClass({
           <span className={this.props.data.returnPercent >= 0 ? "text-success" : this.props.data.returnPercent < 0 ? "text-danger" : ""}>{this.props.data.returnPercentFormatted}</span>
         </td>
         <td className="text-right text-nowrap">
-          <a href='#' onClick={this.delete} data-toggle="tooltip" title="Delete"><i className="fa fa-remove" aria-hidden="true"/></a>
-          &nbsp;<a href='#' onClick={this.rename} data-toggle="tooltip" title="Rename"><i className="fa fa-pencil" aria-hidden="true"/></a>
+          <a href='#' onClick={this.delete} data-toggle="tooltip" title="Delete"><i className="material-icons">clear</i></a>
+          <a href='#' onClick={this.rename} data-toggle="tooltip" title="Rename"><i className="material-icons">edit</i></a>
         </td>
       </tr>
     )

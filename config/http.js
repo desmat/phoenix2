@@ -35,6 +35,7 @@ module.exports.http = {
   ***************************************************************************/
 
     order: [
+      'setupMaterialUi',
       'startRequestTimer',
       'cookieParser',
       'session',
@@ -63,6 +64,21 @@ module.exports.http = {
     //     console.log("Requested :: ", req.method, req.url);
     //     return next();
     // },
+
+
+  /****************************************************************************
+  *                                                                           *
+  * Material-ui dependency                                                    *
+  * https://github.com/callemall/material-ui/pull/2172#issuecomment-157404901 *
+  *                                                                           *
+  ****************************************************************************/
+
+  setupMaterialUi: function (req, res, next) {
+    GLOBAL.navigator = {
+        userAgent: req.headers['user-agent']
+    }
+    next();
+  },
 
   /****************************************************************************
   *                                                                           *
