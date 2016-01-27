@@ -241,6 +241,7 @@ module.exports = React.createClass({
           <a className="btn btn-primary btn-raised" id="addholding" data-toggle="modal" data-target="#addHoldingModal">
             <i className="material-icons">add</i>Add Stock
           </a>
+          {/* spacer for proper alignment */}<div to="/" style={{visibility: 'hidden'}} className="btn btn-default"><i className="material-icons">fast_rewind</i>Back</div> 
         </div>
 
         {/* Modal add ticker */}
