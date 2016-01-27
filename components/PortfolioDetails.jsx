@@ -219,7 +219,8 @@ module.exports = React.createClass({
         <h3>Cash: <span className={this.state.data.dirty ? "text-muted" : ""}>${this.state.data.cash}</span></h3>
         <h3></h3>
 
-        <div className="portfolio-holdings well">      
+        <div className="portfolio-holdings panel panel-default">      
+          <div className="table-responsive">
           <table className="table table-sm table-hover">
             <thead className="thead-default">
               <tr>
@@ -234,6 +235,7 @@ module.exports = React.createClass({
               {holdings}
             </tbody>
           </table>
+          </div>
         </div>
 
         <div className="text-center">

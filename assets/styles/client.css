@@ -131,7 +131,7 @@ h2 {
     margin-top: -50px;
   }
 
-  .well {
+  .well, .panel {
     margin-left: -24px;
     margin-right: -24px;
     padding: 4px !important;
