@@ -219,26 +219,27 @@ module.exports = React.createClass({
         <h3>Cash: <span className={this.state.data.dirty ? "text-muted" : ""}>${this.state.data.cash}</span></h3>
         <h3></h3>
 
-        <table className="table table-sm table-hover portfolio-holdings">
-          <thead className="thead-default">
-            <tr>
-              <th colSpan="2" className="text-left"></th>
-              <th className="text-center">Qty</th>
-              <th colSpan="2" className="text-center">Price</th>
-              <th colSpan="2" className="text-center">Value</th>
-              <th></th>
-            </tr>
-          </thead>
-          <tbody>
-            {holdings}
-          </tbody>
-        </table>
+        <div className="portfolio-holdings well">      
+          <table className="table table-sm table-hover">
+            <thead className="thead-default">
+              <tr>
+                <th colSpan="2" className="text-left"></th>
+                <th className="text-center">Qty</th>
+                <th colSpan="2" className="text-center">Price</th>
+                <th colSpan="2" className="text-center">Value</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              {holdings}
+            </tbody>
+          </table>
+        </div>
 
-        <br/>
         <div className="text-center">
-          <Link to="/" className="btn btn-default"><i className="fa fa-backward" aria-hidden="true"/> Back</Link> 
-          &nbsp;<a className="btn btn-primary btn-raised" id="addholding" data-toggle="modal" data-target="#addHoldingModal">
-            <i className="fa fa-plus" aria-hidden="true"/> Add Stock
+          <Link to="/" className="btn btn-default"><i className="material-icons">fast_rewind</i>Back</Link> 
+          <a className="btn btn-primary btn-raised" id="addholding" data-toggle="modal" data-target="#addHoldingModal">
+            <i className="material-icons">add</i>Add Stock
           </a>
         </div>
 
@@ -260,8 +261,8 @@ module.exports = React.createClass({
                   </div>
               </div>
               <div className="modal-footer">
-                <a className="btn btn-default" data-dismiss="modal"><i className="fa fa-backward" aria-hidden="true"/> Cancel</a>
-                <a className="btn btn-primary" onClick={this.addHolding}><i className="fa fa-plus" ariaHidden="true"/> Add</a>
+                <a className="btn btn-default" data-dismiss="modal"><i className="material-icons">fast_rewind</i>Cancel</a>
+                <a className="btn btn-primary" onClick={this.addHolding}><i className="material-icons">add</i>Add</a>
               </div>
             </div>
           </div>
