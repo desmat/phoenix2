@@ -182,7 +182,7 @@ module.exports = React.createClass({
           
           <br/>
           <div className="text-center">
-            <a className="btn btn-primary" data-toggle="modal" data-target="#addPortfolioModal">
+            <a className="btn btn-primary btn-raised" data-toggle="modal" data-target="#addPortfolioModal">
               <i className="fa fa-plus" aria-hidden="true"/> New Portfolio
             </a>
           </div>

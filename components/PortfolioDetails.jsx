@@ -237,7 +237,7 @@ module.exports = React.createClass({
         <br/>
         <div className="text-center">
           <Link to="/" className="btn btn-default"><i className="fa fa-backward" aria-hidden="true"/> Back</Link> 
-          &nbsp;<a className="btn btn-primary" id="addholding" data-toggle="modal" data-target="#addHoldingModal">
+          &nbsp;<a className="btn btn-primary btn-raised" id="addholding" data-toggle="modal" data-target="#addHoldingModal">
             <i className="fa fa-plus" aria-hidden="true"/> Add Stock
           </a>
         </div>

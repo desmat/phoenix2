@@ -13,7 +13,11 @@ module.exports = React.createClass({
           <meta name="description" content="TODO" />
           <meta name="robots" />
           <meta name="viewport" content="initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=0, width=device-width" />
+          <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Roboto:300,400,500,700" type="text/css" />
+          <link href="//fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
           <link href="/styles/bootstrap.min.css" rel="stylesheet" />
+          <link href="/styles/bootstrap-material-design.min.css" rel="stylesheet" />
+          <link href="/styles/ripples.min.css" rel="stylesheet" />
           <link href="/styles/font-awesome.min.css" rel="stylesheet"/>
           <link href="/styles/client.css" media="all" rel="stylesheet" />
         </head>
@@ -25,6 +29,8 @@ module.exports = React.createClass({
           <script src="/js/dependencies/jquery.min.js"></script>
           <script src="/js/dependencies/lodash.min.js"></script>
           <script src="/js/dependencies/bootstrap.min.js"></script>
+          <script src="/js/dependencies/material.min.js"></script>
+          <script src="/js/dependencies/ripples.min.js"></script>
           <script src="/js/dependencies/typeahead.bundle.min.js"></script>
           <script src="/js/bundle.js"></script>
         </body>

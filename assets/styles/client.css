@@ -18,6 +18,13 @@ a.selected {
 */
 
 
+a {
+  text-decoration: none;
+  -webkit-transition: all .2s ease-in-out;
+  -moz-transition: all .2s ease-in-out;
+  transition: all .2s ease-in-out;
+}
+
 body {
 	margin-top: 0px;
 	margin-bottom: 8px;
@@ -49,12 +56,75 @@ h2 {
 }
 
 .portfolio-item:hover {
-	text-decoration: underline;
+	text-decoration: none;
+}
+
+.navbar-inverse {
+  color: red;
+  background-color: black;
 }
 
 .navbar-inverse .navbar-brand {
-    color: #fff;
+  color: grey;
+  font-weight: 600;
 }
+
+.navbar-inverse .navbar-brand:hover{
+  color: #009688;
+}
+
+.navbar-inverse .navbar-nav>li>a {
+  color: grey; 
+  font-weight: 400;
+}
+
+.navbar-inverse .navbar-nav>li>a:hover {
+  color: #009688; 
+}
+
+.navbar-inverse .light {
+    font-weight: 1000;
+    font-style: italic;
+    font-family: serif;
+}
+
+/*.navbar-header a {
+    color: white;
+}*/
+
+/*.navbar-inverse .navbar-toggle .icon-bar {
+  background-color: grey;
+  border: 0;
+}
+.navbar-inverse .navbar-toggle .icon-bar:hover {
+  background-color: #009688;
+}*/
+
+
+.navbar-inverse .navbar-toggle {
+  background: none;
+  border: 0;
+  color: grey;
+}
+
+.navbar-inverse .navbar-toggle:hover,
+.navbar-inverse .navbar-toggle:focus,
+.navbar-inverse .navbar-toggle:active {
+  background: none;
+  color: #009688;
+  text-decoration: none;
+}
+
+.navbar-inverse .navbar-toggle .icon-bar-unicode {
+  color: inherit;
+  margin-top: -10px;
+  margin-bottom: -10px;
+  font-size: 1.8em;
+  text-rendering: geometricPrecision; /* https://css-tricks.com/three-line-menu-navicon/ */
+  cursor: pointer;
+}
+
+
 
 /*.typeahead { 
   z-index: 1051; 
@@ -168,3 +238,13 @@ width:100%;
   -o-animation:      flash-green 1s ; /* Opera 12+ */
   animation:         flash-green 1s ; /* IE 10+ */
 }
+
+
+
+
+
+
+
+
+
+

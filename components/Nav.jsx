@@ -45,12 +45,11 @@ module.exports = React.createClass({
           <nav className="navbar-inverse">
               <div className="container-fluid">
                 <div className="navbar-header">
-                  <button type="button" className="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+                  <a className="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
                     <span className="sr-only">Toggle navigation</span>
-                    <span className="icon-bar"></span>
-                    <span className="icon-bar"></span>
-                  </button>
-                  <Link className="navbar-brand" to="/">Project Phoenix</Link>
+                    <div className="icon-bar-unicode">&#9776;</div>
+                  </a>
+                  <Link className="navbar-brand" to="/"><span className="light">Fantasy</span> Stocks</Link>
                 </div>
                 <div id="navbar" className="navbar-collapse collapse">
                   <ul className="nav navbar-nav navbar-right">
@@ -77,7 +76,7 @@ module.exports = React.createClass({
                     <span className="icon-bar"></span>
                     <span className="icon-bar"></span>
                   </button>
-                  <Link className="navbar-brand" to="/">Project Phoenix</Link>
+                  <Link className="navbar-brand" to="/"><span className="light">Fantasy</span> Stocks</Link>
                 </div>
                 <div id="navbar" className="navbar-collapse collapse">
                   <ul className="nav navbar-nav navbar-right">
@@ -103,7 +102,7 @@ module.exports = React.createClass({
     		            <span className="icon-bar"></span>
     		            <span className="icon-bar"></span>
     		          </button>
-    		          <Link className="navbar-brand" to="/">Project Phoenix</Link>
+    		          <Link className="navbar-brand" to="/"><span className="light">Fantasy</span> Stocks</Link>
     		        </div>
     		        <div id="navbar" className="navbar-collapse collapse">
     		          <ul className="nav navbar-nav navbar-right">

@@ -8,10 +8,9 @@ var TransactionService = require('../api/services/TransactionService');
 module.exports.jobs = [
   {
     name: "Update Tickers", 
-    interval: 1000, // * 60 * 1, //every 1 mins
+    interval: 1000 * 60 * 1, //every 1 mins
     job: function() {
-      sails.log.debug('*** Update Tickers Job ***');
-      //TODO make sure we're only getting data when market open
+      // sails.log.debug('*** Update Tickers Job ***');
       
       if (TickerService.isMarketOpen()) {
         //sails.log.debug("Job[Update Tickers]: Updating all tickers...");
