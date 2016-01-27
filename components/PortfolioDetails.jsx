@@ -215,16 +215,33 @@ module.exports = React.createClass({
     return(
       <div className="portfolio-details" onKeyDown={this.bodyKeyDown}>
         <h2>Portfolio: {this.state.data.name}</h2>
-        <h3>Value: <span className={this.state.data.dirty ? "text-muted" : ""}>${this.state.data.value} (<span className={this.state.data.returnPercent >= 0 ? "text-success" : this.state.data.returnPercent < 0 ? "text-danger" : ""}>{this.state.data.returnPercentFormatted}</span>)</span></h3>
-        <h3>Cash: <span className={this.state.data.dirty ? "text-muted" : ""}>${this.state.data.cash}</span></h3>
         <h3></h3>
 
-        <div className="portfolio-holdings panel panel-default">      
+        <div className="portfolio-details panel panel-default">  
           <div className="table-responsive">
           <table className="table table-sm table-hover">
             <thead className="thead-default">
               <tr>
-                <th colSpan="2" className="text-left"></th>
+                <th className="text-center" width="50%">Cash</th>
+                <th className="text-center" width="50%">Value</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td className="text-center"><span className={this.state.data.dirty ? "text-muted" : ""}>${this.state.data.cash}</span></td>
+                <td className="text-center"><span className={this.state.data.dirty ? "text-muted" : ""}>${this.state.data.value} (<span className={this.state.data.returnPercent >= 0 ? "text-success" : this.state.data.returnPercent < 0 ? "text-danger" : ""}>{this.state.data.returnPercentFormatted}</span>)</span></td>
+              </tr>
+            </tbody>
+          </table>
+          </div>
+        </div>
+
+        <div className="portfolio-holdings panel panel-default">  
+          <div className="table-responsive">
+          <table className="table table-sm table-hover">
+            <thead className="thead-default">
+              <tr>
+                <th colSpan="2" className="text-left">Holdings</th>
                 <th className="text-center">Qty</th>
                 <th colSpan="2" className="text-center">Price</th>
                 <th colSpan="2" className="text-center">Value</th>
@@ -243,7 +260,6 @@ module.exports = React.createClass({
           <a className="btn btn-primary btn-raised" id="addholding" data-toggle="modal" data-target="#addHoldingModal">
             <i className="material-icons">add</i>Add Stock
           </a>
-          {/* spacer for proper alignment */}<div to="/" style={{visibility: 'hidden'}} className="btn btn-default"><i className="material-icons">fast_rewind</i>Back</div> 
         </div>
 
         {/* Modal add ticker */}

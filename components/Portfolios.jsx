@@ -166,7 +166,7 @@ module.exports = React.createClass({
       <div className="portfolio-list-container">
         <h2>Portfolios</h2>
         
-        <div className="portfolio-list well">
+        <div className="portfolio-list panel panel-default">
           <table className="table table-sm table-hover">
             <thead className="thead-default">
               <tr>
