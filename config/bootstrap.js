@@ -18,8 +18,8 @@ module.exports.bootstrap = function(cb) {
   Database.count().then(function(count) {
     //console.log('database count: ' + count);
     //console.log('data count: ' + data.length);
-// var dataLength = data.length;
-// var dataCount = count
+var dataLength = data.length;
+var dataCount = count
     if (count < data.length) {
       _.each(data.slice(count, data.length), function(data, i) {
         
