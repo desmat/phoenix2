@@ -256,7 +256,6 @@ module.exports = React.createClass({
         </div>
 
         <div className="text-center">
-          <Link to="/" className="btn btn-default"><i className="material-icons">fast_rewind</i>Back</Link> 
           <a className="btn btn-primary btn-raised" id="addholding" data-toggle="modal" data-target="#addHoldingModal">
             <i className="material-icons">add</i>Add Stock
           </a>
@@ -280,8 +279,8 @@ module.exports = React.createClass({
                   </div>
               </div>
               <div className="modal-footer">
-                <a className="btn btn-default" data-dismiss="modal"><i className="material-icons">fast_rewind</i>Cancel</a>
-                <a className="btn btn-primary" onClick={this.addHolding}><i className="material-icons">add</i>Add</a>
+                <a className="btn btn-primary" data-dismiss="modal">Cancel</a>
+                <a className="btn btn-primary" onClick={this.addHolding}>Add</a>
               </div>
             </div>
           </div>

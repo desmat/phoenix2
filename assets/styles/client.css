@@ -99,9 +99,7 @@ h2 {
   color: grey;
 }
 
-.navbar-inverse .navbar-toggle:hover,
-.navbar-inverse .navbar-toggle:focus,
-.navbar-inverse .navbar-toggle:active {
+.navbar-inverse .navbar-toggle:hover {
   background: none;
   color: #009688;
   text-decoration: none;
@@ -125,6 +123,10 @@ h2 {
 }
 .table .material-icons:hover {
   color: #009688;
+}
+
+.table .material-icons:active {
+  color: lightgrey;
 }
 
 @media(max-width:767px) {

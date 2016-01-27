@@ -206,8 +206,8 @@ module.exports = React.createClass({
                   </div>
               </div>
               <div className="modal-footer bottom-align-text">
-                <a className="btn btn-default" ><i className="material-icons">fast_rewind</i> Cancel</a>
-                <a className="btn btn-primary" onClick={this.addHolding}><i className="material-icons">add</i> Add</a>
+                <a className="btn btn-primary" >Cancel</a>
+                <a className="btn btn-primary" onClick={this.addHolding}>Add</a>
               </div>
             </div>
           </div>
@@ -231,8 +231,8 @@ module.exports = React.createClass({
                   </div>
               </div>
               <div className="modal-footer">
-                <a className="btn btn-default" data-dismiss="modal"><i className="material-icons">fast_rewind</i> Cancel</a>
-                <a className="btn btn-success" onClick={this.addHolding}><i className="material-icons">add</i> Apply</a>
+                <a className="btn btn-primary" data-dismiss="modal">Cancel</a>
+                <a className="btn btn-primary" onClick={this.addHolding}>Apply</a>
               </div>
             </div>
           </div>
