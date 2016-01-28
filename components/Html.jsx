@@ -12,7 +12,16 @@ module.exports = React.createClass({
           <meta httpEquiv="X-UA-Compatible" content="IE=edge,chrome=1" />
           <meta name="description" content="TODO" />
           <meta name="robots" />
-          <meta name="viewport" content="initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=0, width=device-width" />
+          <meta name="viewport" content="initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=0, width=device-width, minimal-ui" />
+
+{/*  for ios 7 style, multi-resolution icon of 152x152 */}
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-barstyle" content="black-translucent" >
+{/* <link rel="apple-touch-icon" href="icon-152.png">  */}
+{/* for Chrome on Android, multi-resolution icon of 196x196  */}
+<meta name="mobile-web-app-capable" content="yes" />
+{/* <link rel="shortcut icon" sizes="196x196" href="icon-196.png">  */}
+
           <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Roboto:300,400,500,700" type="text/css" />
           <link href="//fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
           <link href="/styles/bootstrap.min.css" rel="stylesheet" />
