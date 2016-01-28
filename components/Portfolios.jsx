@@ -179,16 +179,15 @@ module.exports = React.createClass({
               {portfolios}
             </tbody>
           </table>        
-
         </div>
 
-        <div className="text-center">
-          <a className="btn btn-primary btn-raised" data-toggle="modal" data-target="#addPortfolioModal">
-            <i className="material-icons">add</i> New Portfolio
-          </a>
-        </div>
+        <div className="bottom-spacer" />
+
+        <div className="fab-container" >
+          <a href="#" className="btn btn-primary btn-raised btn-fab" data-target="#addPortfolioModal" data-toggle="modal" id="addholding"><i className="material-icons">add</i></a>        
+        </div>          
         
-        {/* Modal add portfolio */}
+        {/* Modal add portfolio */} 
         <div className="modal fade" id="addPortfolioModal" tabIndex="-1" role="dialog" ariaLabelledby="myModalLabel" ariaHidden="true">
           <div className="modal-dialog" role="document">
             <div className="modal-content">

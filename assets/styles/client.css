@@ -60,27 +60,26 @@ h2 {
 }
 
 .navbar-inverse {
-  color: red;
   background-color: black;
 }
 
 .navbar-inverse .navbar-brand {
-  color: lightgrey;
+  color: #009688;
   font-weight: 400;
   font-size: 28px;
 }
 
 .navbar-inverse .navbar-brand:hover{
-  color: #009688;
+  color: lightgrey;
 }
 
 .navbar-inverse .navbar-nav>li>a {
-  color: grey; 
+  color: #009688; 
   font-weight: 400;
 }
 
 .navbar-inverse .navbar-nav>li>a:hover {
-  color: #009688; 
+  color: lightgrey; 
 }
 
 .navbar-inverse .light {
@@ -96,12 +95,12 @@ h2 {
 .navbar-inverse .navbar-toggle {
   background: none;
   border: 0;
-  color: grey;
+  color: #009688;
 }
 
 .navbar-inverse .navbar-toggle:hover {
   background: none;
-  color: #009688;
+  color: lightgrey;
   text-decoration: none;
 }
 
@@ -131,6 +130,16 @@ h2 {
 
 .well, .panel {
   padding: 0px 6px 0px 6px !important;
+}
+
+.bottom-spacer {
+  margin: 80px;
+}
+
+.fab-container {
+  position: fixed !important; 
+  bottom: 14px; 
+  right: 14px;
 }
 
 @media(max-width:767px) {

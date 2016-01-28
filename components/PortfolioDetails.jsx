@@ -255,11 +255,11 @@ module.exports = React.createClass({
           </div>
         </div>
 
-        <div className="text-center">
-          <a className="btn btn-primary btn-raised" id="addholding" data-toggle="modal" data-target="#addHoldingModal">
-            <i className="material-icons">add</i>Add Stock
-          </a>
-        </div>
+        <div className="bottom-spacer" />
+
+        <div className="fab-container" >
+          <a href="#" className="btn btn-primary btn-raised btn-fab" data-target="#addHoldingModal" data-toggle="modal" id="addholding"><i className="material-icons">add</i></a>        
+        </div>          
 
         {/* Modal add ticker */}
         <div className="modal fade" id="addHoldingModal" tabIndex="-1" role="dialog" ariaLabelledby="myModalLabel" ariaHidden="true">
