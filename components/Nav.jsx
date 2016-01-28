@@ -42,7 +42,7 @@ module.exports = React.createClass({
     if (this.state.authenticated && this.state.admin) {
       return (
         <div>
-          <nav className="navbar-inverse">
+          <nav className="navbar-inverse navbar-fixed-top">
               <div className="container-fluid">
                 <div className="navbar-header">
                   <a className="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">

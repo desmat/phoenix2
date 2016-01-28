@@ -74,6 +74,39 @@ module.exports = React.createClass({
     }
   },
 
+  deletePortfolio() {
+    // console.log('deletePortfolio');
+
+    Api.delete('portfolio', this.state.data.id);
+    //maybe tweak the portfolios page here to make is smoother when we nagivate there?
+    App.navigate('/');
+  },
+
+  renamePortfolio() {
+    // console.log('renamePortfolio');
+
+    $('#newPortfolioName').val(this.state.data.name);
+    $('#renamePortfolioModal').modal('show');
+  },
+
+  confirmRenamePortfolio() {
+    // console.log('confirmRenamePortfolio');
+
+    var name = $('#newPortfolioName').val();
+    var id = this.state.data.id;
+
+    if (name && id) {
+      console.log('rename portfolio [' + id + '] to [' + name + ']');
+
+      this.state.data.name=name;
+      this.setState({data: this.state.data});
+
+      Api.put('portfolio', id, this.state.data);
+    }
+
+    $('#renamePortfolioModal').modal('hide');
+  },
+
   _clearUpdatedFlags(holdingId) {
     var h = _.find(this.state.data.holdings, {id: holdingId});
     if (h) {
@@ -82,6 +115,87 @@ module.exports = React.createClass({
       delete h.flashTimeout;
       this.setState({data: this.state.data});
     }
+  },
+
+  _initModals() {
+    // console.log('PortfolioDetails._initAddHoldingModal');
+    var self = this;
+
+    var findMatches = function(q, cb, async) {
+      var where = 'where={"or":[{"ticker":{"contains":"' + q + '"}},{"name":{"contains":"' + q + '"}}]}';
+      var url = 'ticker?' + where + '&sort=name%2asc';
+
+      Api.get(url, function(data) {
+        var matches = 
+          _.sortBy(
+            _.map(data, function(ticker) { return ticker.ticker + ' - ' + ticker.name; }), 
+            function(n) { return (1 - (n.toLowerCase().split(q.toLowerCase()).length/1000)).toFixed(4) + '-' + n });
+
+        async(matches);
+      });
+    };
+
+    $('#searchTicker').typeahead({
+      hint: false,
+      highlight: true,
+      minLength: 2, 
+      async: true,
+    },
+    {
+      name: 'stocks',
+      source: findMatches
+    });  
+
+    var setupPageKeyPressed = function(set){
+      if (set) {
+        document.activeElement.blur(); //strange: after navigating from the navbar document.onkeypress doesn't work
+        $(document).on('keypress', function(e) {
+          if (e.keyCode == 13) {
+            $('#addHoldingModal').modal('show');
+          }
+        });
+      }
+      else {
+        $(document).off('keypress');      
+      }
+    };
+
+    //modal events: add holding
+
+    $("#addHoldingModal").on('shown.bs.modal', function() { 
+      $("#searchTicker").val('');
+      $("#searchTicker").typeahead('val', '')     
+      $("#searchTicker").typeahead("close");
+      $("#searchTicker").focus(); 
+      setupPageKeyPressed(false); 
+    });
+
+    $("#addHoldingModal").on('hidden.bs.modal', function() { 
+      $("#searchTicker").val('');
+      $("#searchTicker").typeahead('val', '')     
+      $("#searchTicker").typeahead("close");
+      setupPageKeyPressed(true); 
+    });   
+
+    $("#searchTicker").on('keypress', function(e) { if (e.keyCode == 13) { self.addHolding(); } });
+
+    //modal events: rename portfolio
+    
+    $("#renamePortfolioModal").on('shown.bs.modal', function() {
+      setupPageKeyPressed(false);
+      $('#newPortfolioName').focus();
+      $('#newPortfolioName').select();
+    });
+
+    $("#renamePortfolioModal").on('hidden.bs.modal', function() { 
+      setupPageKeyPressed(true); 
+    });
+
+    $("#newPortfolioName").on('keypress', function(e) { if (e.keyCode == 13) { self.confirmRenamePortfolio(); } })
+
+    //finally init page-wide events
+
+    setupPageKeyPressed(true);    
   },
 
   fetchData() {
@@ -138,56 +252,10 @@ module.exports = React.createClass({
     // console.log('PortfolioDetails.componentWillMount');
   },
 
-  _initAddHoldingModal() {
-    // console.log('PortfolioDetails._initAddHoldingModal');
-    var self = this;
-
-    var findMatches = function(q, cb, async) {
-      var where = 'where={"or":[{"ticker":{"contains":"' + q + '"}},{"name":{"contains":"' + q + '"}}]}';
-      var url = 'ticker?' + where + '&sort=name%2asc';
-
-      Api.get(url, function(data) {
-        var matches = 
-          _.sortBy(
-            _.map(data, function(ticker) { return ticker.ticker + ' - ' + ticker.name; }), 
-            function(n) { return (1 - (n.toLowerCase().split(q.toLowerCase()).length/1000)).toFixed(4) + '-' + n });
-
-        async(matches);
-      });
-    };
-
-    $('#searchTicker').typeahead({
-      hint: false,
-      highlight: true,
-      minLength: 2, 
-      async: true,
-    },
-    {
-      name: 'stocks',
-      source: findMatches
-    });  
-
-    var resetModal = function () {
-      $("#searchTicker").val('');
-      $("#searchTicker").focus(); //TODO why the hell does brings back last value...
-      $("#searchTicker").typeahead("close");
-    };
-
-    $("#addHoldingModal").on('shown.bs.modal', resetModal);
-    $("#addHoldingModal").on('hidden.bs.modal', resetModal);
-    $("#searchTicker").on('keypress', function(e) { if (e.keyCode == 13) { self.addHolding(); } });
-  },
-
   componentDidMount() {
     // console.log('PortfolioDetails.componentDidMount');
 
-    $(document).on('keypress', function(e) {
-      if (e.keyCode == 13 && !$("#addHoldingModal").is(':visible')) {
-        $('#addHoldingModal').modal('show');
-      }
-    });
-
-    this._initAddHoldingModal();
+    this._initModals();
     App.registerSocketIo(this.componentName, this.socketIoModel, this.socketIo);
     this.fetchData();
   }, 
@@ -255,6 +323,11 @@ module.exports = React.createClass({
           </div>
         </div>
 
+        <div className="actions-container text-center">
+          <button onClick={this.deletePortfolio} className="btn btn-raised btn-warning">Delete Portfolio</button>
+          <button onClick={this.renamePortfolio} className="btn btn-raised btn-default">Rename Portfolio</button>
+        </div>
+
         <div className="bottom-spacer" />
 
         <div className="fab-container" >
@@ -285,6 +358,32 @@ module.exports = React.createClass({
             </div>
           </div>
         </div>
+
+        {/* Modal edit portfolio */}
+        <div className="modal fade" id="renamePortfolioModal" tabIndex="-1" role="dialog" ariaLabelledby="myModalLabel" ariaHidden="true">
+          <div className="modal-dialog" role="document">
+            <div className="modal-content">
+              <div className="modal-header">
+                <button type="button" className="close" data-dismiss="modal" ariaLabel="Close">
+                  <span ariaHidden="true">&times;</span>
+                </button>
+                <h4 className="modal-title" id="addPortfolio">Rename Portfolio</h4>
+              </div>
+              <div className="modal-body">
+                  <div className="form-group row">
+                    <div className="col-sm-12">
+                      <input type="input" className="form-control" id="newPortfolioName" placeholder="New portfolio name..." autoComplete="off" autoFocus="true"/>
+                    </div>
+                  </div>
+              </div>
+              <div className="modal-footer">
+                <a className="btn btn-primary" data-dismiss="modal">Cancel</a>
+                <a className="btn btn-primary" onClick={this.confirmRenamePortfolio}>Apply</a>
+              </div>
+            </div>
+          </div>
+        </div>
+
       </div>
     );
   },

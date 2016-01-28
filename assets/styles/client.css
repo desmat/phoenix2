@@ -26,7 +26,7 @@ a {
 }
 
 body {
-	margin-top: 0px;
+	margin-top: 50px;
 	margin-bottom: 8px;
 }
 
@@ -83,9 +83,9 @@ h2 {
 }
 
 .navbar-inverse .light {
-    font-weight: 400;
-    font-style: italic;
-    font-family: serif;
+  font-weight: 400;
+  font-style: italic;
+  font-family: serif;
 }
 
 .navbar-inverse .navbar-right {
@@ -117,15 +117,9 @@ h2 {
   margin-bottom: 0;
 }
 
-.table .material-icons {
-  color: grey;
-}
-.table .material-icons:hover {
+.drilldownable:hover {
   color: #009688;
-}
-
-.table .material-icons:active {
-  color: lightgrey;
+  cursor: pointer;
 }
 
 .well, .panel {

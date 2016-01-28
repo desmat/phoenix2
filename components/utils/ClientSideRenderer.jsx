@@ -15,6 +15,7 @@ var routes = require('../Routes.jsx');
 if (typeof document == "object") {
 	$.material.init();
 
+
 	//console.log('running router on client side!');
 	var targetElement = document.getElementById('react-content');
 
