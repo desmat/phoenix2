@@ -129,6 +129,10 @@ h2 {
   color: lightgrey;
 }
 
+.well, .panel {
+  padding: 0px 6px 0px 6px !important;
+}
+
 @media(max-width:767px) {
   .navbar-inverse .navbar-brand {  
     /* align-items: center; */
@@ -141,9 +145,10 @@ h2 {
   }
 
   .well, .panel {
-    margin-left: -24px;
-    margin-right: -24px;
-    padding: 4px !important;
+    margin-left: -30px;
+    margin-right: -30px;
+    /*padding: 0px 6px 0px 6px !important;*/
+    border-radius: 0px;
   }
 
   h1, h2, h3, h4, h5, h6 {
