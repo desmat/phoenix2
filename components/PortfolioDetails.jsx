@@ -4,29 +4,32 @@ var Link = Router.Link;
 var Api = require('../assets/js/Api');
 var App = require('../assets/js/App');
 var PortfolioHolding = require('./PortfolioHolding.jsx');
+var AddStockModal = require('./AddStockModal.jsx');
+var RenamePortfolioModal = require('./RenamePortfolioModal.jsx');
 
 module.exports = React.createClass({
 
-  addHolding() {
-    console.log('PortfolioDetails.addHolding');    
-    if (!$('#addHoldingModalAdd').prop('disabled')) {
-      var ticker = $('#searchTicker').typeahead('val');
-      if (ticker) {
-        ticker = ticker.split('-');
-        if (ticker) {
-          if (_.isArray(ticker) && ticker.length > 0) ticker = ticker[0];
-      
-          var quantity = document.getElementById('tradeSlider').noUiSlider.get();
+  addStock() {
+    console.log('PortfolioDetails.addStock');    
 
-          this.buyHolding(ticker, quantity);
+    var ticker = $('#searchTicker').typeahead('val');
+    if (ticker) {
+      ticker = ticker.split('-');
+      if (ticker) {
+        if (_.isArray(ticker) && ticker.length > 0) ticker = ticker[0];
+    
+        var quantity = document.getElementById('tradeSlider').noUiSlider.get();
+
+        if (quantity > 0) {
+          this.buyStock(ticker, quantity);
           $('#addHoldingModal').modal('hide');
         }
       }
     }
   },
 
-  buyHolding(ticker, quantity) {
-    console.log('PortfolioDetails.buyHolding(' + ticker + ', ' + quantity + ')');
+  buyStock(ticker, quantity) {
+    console.log('PortfolioDetails.buyStock(' + ticker + ', ' + quantity + ')');
     quantity = quantity || 1;
     var self = this;
     var portfolioHolding;
@@ -62,7 +65,7 @@ module.exports = React.createClass({
     }
   },
 
-  sellHolding(ticker, quantity) {
+  sellStock(ticker, quantity) {
     quantity = quantity || 1;
     var self = this;
     var portfolioHolding;
@@ -167,195 +170,54 @@ module.exports = React.createClass({
     }
   },
 
+  _setupPageKeyPressed(set){
+    // console.log('PortfolioDetails._setupPageKeyPressed(' + set + ')');
+    // var self = this;
+
+    // if (set) {
+    //   // console.log('activeElement'); console.dir(document.activeElement);
+    //   document.activeElement.blur(); 
+    //   // $('#addHolding').blur();
+    //   $(document).on('keydown', function(e) {
+    //     if (e.keyCode == 13) {
+    //       $('#addHoldingModal').modal('show');
+    //     }
+    //     else if (e.keyCode == 27) {
+    //       self._closeDialogPanel();
+    //     }
+    //   });
+    // }
+    // else {
+    //   $(document).off('keypress');      
+    // }
+  },
+
+  _addStockModalShown() {
+    console.log('PortfolioDetails._addStockModalShown');
+    this._setupPageKeyPressed(false);
+  },
+
+  _addStockModalHidden() {
+    console.log('PortfolioDetails._addStockModalHidden');
+    this._setupPageKeyPressed(true); 
+  },
+
+  _renamePortfolioModalShown() {
+    console.log('PortfolioDetails._renamePortfolioModalShown');
+    this._setupPageKeyPressed(false);
+  },
+
+  _renamePortfolioModalHidden() {
+    console.log('PortfolioDetails._renamePortfolioModalHidden');
+    this._setupPageKeyPressed(true); 
+  },
+
   _initModals() {
-    // console.log('PortfolioDetails._initAddHoldingModal');
-    var self = this;
-
-    var findMatches = function(q, cb, async) {
-      var where = 'where={"or":[{"ticker":{"contains":"' + q + '"}},{"name":{"contains":"' + q + '"}}]}';
-      var url = 'ticker?' + where + '&sort=name%2asc';
-
-      Api.get(url, function(data) {
-        var matches = 
-          _.sortBy(
-            _.map(data, function(ticker) { return ticker.ticker + ' - ' + ticker.name; }), 
-            function(n) { return (1 - (n.toLowerCase().split(q.toLowerCase()).length/1000)).toFixed(4) + '-' + n });
-
-        async(matches);
-      });
-    };
-
-    $('#searchTicker').typeahead({
-      hint: false,
-      highlight: true,
-      minLength: 2, 
-      async: true,
-    },
-    {
-      name: 'stocks',
-      source: findMatches
-    });  
-
-    var setupPageKeyPressed = function(set){
-      if (set) {
-        document.activeElement.blur(); //strange: after navigating from the navbar document.onkeypress doesn't work
-        $(document).on('keydown', function(e) {
-          if (e.keyCode == 13) {
-            $('#addHoldingModal').modal('show');
-          }
-          else if (e.keyCode == 27) {
-            self._closeDialogPanel();
-          }
-        });
-      }
-      else {
-        $(document).off('keypress');      
-      }
-    };
-
-    //modal events: add holding
-
-
-
-
-
-
-
-
-
-
-
-    //setup the slider
-
-    var setupTradeSlider = function(ticker) {
-      console.log('setupTradeSlider: ' + ticker);
-      var start = 0;
-      var min = 0;
-      var max = 1;
-      var step = 1;
-      var disabled = true;
-
-      if (typeof ticker === 'string') {
-        //search ticker, setup with it
-        Api.get('ticker/' + ticker, function(data) {
-          if (data) {
-            if (_.isArray(data)) data = data[0];
-            return setupTradeSlider(data);
-          }
-        })
-      }
-      else if (typeof ticker === 'object') {
-        //setup with ticker's price and shit
-        console.log('cash: ' + self.state.data.cash);
-        console.log('price: ' + ticker.price);
-        max = parseInt(Math.floor(self.state.data.cash / ticker.price));
-        disabled = false;
-      }
-
-      var slider = document.getElementById('tradeSlider');
-      var sliderIndicator = $('#tradeSliderIndicator');
-
-      if (slider.noUiSlider && slider.noUiSlider.destroy) slider.noUiSlider.destroy(slider);
-
-      noUiSlider.create(slider, {
-        start: 0,
-        // connect: true,
-        step: 1,
-        range: {
-          'min': min,
-          'max': max
-        }
-      }); 
-
-      slider.noUiSlider.on('update', function(){
-        var count = slider.noUiSlider.get();
-        var quantity = 0; //TODO current holding quantity
-        if (count > quantity) {
-          sliderIndicator.html('Trade shares (+' + parseInt(count - quantity) + ')');
-          $('#addHoldingModalAdd').prop('disabled', false);
-        }
-        else if (count < quantity) {
-          sliderIndicator.html('Trade shares (' + parseInt(count - quantity) + ')');
-          $('#addHoldingModalAdd').prop('disabled', false);
-        }
-        else {
-          sliderIndicator.html('Trade shares');
-          $('#addHoldingModalAdd').prop('disabled', true);
-        }
-      });
-
-      if (disabled) {
-        slider.setAttribute('disabled', disabled) 
-      }
-      else {
-        slider.removeAttribute('disabled');
-      }             
-    };
-
-    setupTradeSlider();
-
-    var getTickerFromInput = function() {
-      var ticker = $('#searchTicker').typeahead('val');
-      if (ticker) {
-        ticker = ticker.split('-');
-        if (ticker) {
-          if (_.isArray(ticker) && ticker.length > 0) ticker = ticker[0];
-        }
-      }
-
-      return ticker;
-    };
-
-    $("#searchTicker").typeahead().on('typeahead:selected', function(e, datum) {
-      //console.log('selected: ' + getTickerFromInput());
-      // GRRRR f'in flaky shit! http://stackoverflow.com/questions/16974783/typeahead-js-on-blur-event
-      $('#searchTicker').typeahead('val', $('#searchTicker').val());
-      setupTradeSlider(getTickerFromInput());
-    });
-
-
-
-
-
-
-
-
-
-
-
-    $("#addHoldingModal").on('shown.bs.modal', function() { 
-      $("#searchTicker").typeahead('val', '')     
-      $("#searchTicker").typeahead("close");
-      $("#searchTicker").focus(); 
-      setupPageKeyPressed(false); 
-      setupTradeSlider();
-    });
-
-    $("#addHoldingModal").on('hidden.bs.modal', function() { 
-      $("#searchTicker").typeahead('val', '')     
-      $("#searchTicker").typeahead("close");
-      setupPageKeyPressed(true); 
-    });   
-
-    $("#searchTicker").on('keypress', function(e) { if (e.keyCode == 13) { self.addHolding(); } });
-
-    //modal events: rename portfolio
+    console.log('PortfolioDetails._initModals');
     
-    $("#renamePortfolioModal").on('shown.bs.modal', function() {
-      setupPageKeyPressed(false);
-      $('#newPortfolioName').focus();
-      $('#newPortfolioName').select();
-    });
-
-    $("#renamePortfolioModal").on('hidden.bs.modal', function() { 
-      setupPageKeyPressed(true); 
-    });
-
-    $("#newPortfolioName").on('keypress', function(e) { if (e.keyCode == 13) { self.confirmRenamePortfolio(); } })
-
-    //finally init page-wide events
-
-    setupPageKeyPressed(true);    
+    // this._initRenamePortfolioModal();
+    // this._initAddHoldingModal();
+    this._setupPageKeyPressed(true);    
   },
 
   fetchData() {
@@ -414,15 +276,10 @@ module.exports = React.createClass({
 
   componentDidMount() {
     // console.log('PortfolioDetails.componentDidMount');
-
+// $('#addholding').click();
     this._initModals();
     App.registerSocketIo(this.componentName, this.socketIoModel, this.socketIo);
     this.fetchData();
-
-
-
-$('#addholding').click();
-
   }, 
 
   componentDidUpdate() {
@@ -441,7 +298,7 @@ $('#addholding').click();
 
     var holdings = _.sortBy(this.state.data.holdings, 'ticker').map(function(holding) {
       return (  
-        <PortfolioHolding key={holding.id} data={holding} selectHolding={self.selectHolding} buyHolding={self.buyHolding} sellHolding={self.sellHolding}/>
+        <PortfolioHolding key={holding.id} data={holding} selectHolding={self.selectHolding} buyStock={self.buyStock} sellStock={self.sellStock}/>
       );
     });
 
@@ -503,7 +360,7 @@ $('#addholding').click();
           <p className="text-center"></p>
           <p className="text-center dialog-content">TODO put things here</p>
           <div className="text-center">
-            <p><button className="btn btn-danger" onClick={this.sellHolding}>Sell</button> <button className="btn btn-primary" onClick={this.buyHolding}>Buy</button></p>
+            <p><button className="btn btn-danger" onClick={this.sellStock}>Sell</button> <button className="btn btn-primary" onClick={this.buyStock}>Buy</button></p>
           </div>
 
           <div className={`fab-container-close ${this.state.dialogPanelOpened ? 'fab-container-close' : ''}`}  >
@@ -511,59 +368,9 @@ $('#addholding').click();
           </div>                    
         </div>
 
-        {/* Modal add ticker */}
-        <div className="modal fade" id="addHoldingModal" tabIndex="-1" role="dialog" ariaLabelledby="myModalLabel" ariaHidden="true">
-          <div className="modal-dialog" role="document">
-            <div className="modal-content">
-              <div className="modal-header">
-                <button type="button" className="close" data-dismiss="modal" ariaLabel="Close">
-                  <span ariaHidden="true">&times;</span>
-                </button>
-                <h4 className="modal-title" id="myModalLabel">Add Stock</h4>
-              </div>
-              <div className="modal-body">
-                  <div className="form-group row">
-                    <div className="col-sm-12">
-                      <input type="input" className="form-control" id="searchTicker" placeholder="Search stock by symbol or name..." autoComplete="off" autoFocus="true"/>
-                    </div>
-                    <div className="col-sm-12">
-                      <div id="tradeSliderIndicator">Trade shares</div>
-                      <div id="tradeSlider" className="slider shor slider-primary"></div>
-                    </div>
-                  </div>
-              </div>
-              <div className="modal-footer">
-                <button className="btn btn-primary" data-dismiss="modal">Cancel</button>
-                <button className="btn btn-primary" id="addHoldingModalAdd" disabled="disabled" onClick={this.addHolding}>Add</button>
-              </div>
-            </div>
-          </div>
-        </div>
+        <AddStockModal cash={this.state.data.cash} ok={this.addStock} shown={this._addStockModalShown} hidden={this._addStockModalHidden} />
 
-        {/* Modal edit portfolio */}
-        <div className="modal fade" id="renamePortfolioModal" tabIndex="-1" role="dialog" ariaLabelledby="myModalLabel" ariaHidden="true">
-          <div className="modal-dialog" role="document">
-            <div className="modal-content">
-              <div className="modal-header">
-                <button type="button" className="close" data-dismiss="modal" ariaLabel="Close">
-                  <span ariaHidden="true">&times;</span>
-                </button>
-                <h4 className="modal-title" id="addPortfolio">Rename Portfolio</h4>
-              </div>
-              <div className="modal-body">
-                  <div className="form-group row">
-                    <div className="col-sm-12">
-                      <input type="input" className="form-control" id="newPortfolioName" placeholder="New portfolio name..." autoComplete="off" autoFocus="true"/>
-                    </div>
-                  </div>
-              </div>
-              <div className="modal-footer">
-                <a className="btn btn-primary" data-dismiss="modal">Cancel</a>
-                <a className="btn btn-primary" onClick={this.confirmRenamePortfolio}>Apply</a>
-              </div>
-            </div>
-          </div>
-        </div>
+        <RenamePortfolioModal ok={this.confirmRenamePortfolio} shown={this._renamePortfolioModalShown} hidden={this._renamePortfolioModalHidden} />
 
       </div>
     );

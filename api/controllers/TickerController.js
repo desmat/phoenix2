@@ -10,7 +10,7 @@ module.exports = {
   //find ticker by either id or symbol
   findOne(req, res) {
     var id = req.params['id'];
-    console.log("TickerController.findOne: id=" + id);
+    // console.log("TickerController.findOne: id=" + id);
 
     if (typeof id !== 'undefined') {
       var search = {};
