@@ -132,8 +132,43 @@ h2 {
 
 .fab-container {
   position: fixed !important; 
-  bottom: 14px; 
+  bottom: 14px;
   right: 14px;
+  z-index: 99;
+  transition: all .2s ease-in-out;  
+}
+
+.fab-container-opened {
+  bottom: 71px;
+}
+
+.fab-container-close {
+  position: fixed !important; 
+  bottom: 14px;
+  right: 14px;
+  z-index: 99;
+  transition: all .2s ease-in-out;  
+  opacity: 0.6;
+}
+
+.fab-container-close-opened {
+  bottom: 61px;
+}
+
+.dialog-panel {
+  position: fixed !important; 
+  bottom: -999px; 
+  left: 0px;
+  width: 100%;
+  height: 100px;
+  -webkit-box-shadow: 0 10px 40px rgba(0,0,0,0.8) !important;
+     -moz-box-shadow: 0 10px 40px rgba(0,0,0,0.8) !important;
+          box-shadow: 0 10px 40px rgba(0,0,0,0.8) !important;
+  transition: all .2s ease-in-out;  
+}
+
+.dialog-panel-opened {
+  bottom: -21px; 
 }
 
 @media(max-width:767px) {
@@ -152,6 +187,11 @@ h2 {
     margin-right: -30px;
     /*padding: 0px 6px 0px 6px !important;*/
     border-radius: 0px;
+  }
+
+  .dialog-panel {
+    margin-left: 0;
+    margin-right: 0;
   }
 
   h1, h2, h3, h4, h5, h6 {

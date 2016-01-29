@@ -22,12 +22,21 @@ module.exports = React.createClass({
   },
 
   buyHolding(ticker) {
-    //console.log('PortfolioDetails.buyHolding(' + ticker + ')');
-    ticker = ticker.toUpperCase();
+    // console.log('PortfolioDetails.buyHolding(' + ticker + ')');
     var self = this;
-    var portfolioHolding = _.find(this.state.data.holdings, {ticker: ticker});
+    var portfolioHolding;
+
+    if (typeof ticker == 'string') {
+      portfolioHolding = _.find(this.state.data.holdings, {ticker: ticker.toUpperCase()});
+    } 
+    else if (typeof this.state.selectedHoldingId !== 'undefined') {
+      ticker = undefined;
+      portfolioHolding = _.find(this.state.data.holdings, {id: this.state.selectedHoldingId});
+    }
+
     //portfolio already contains this holding
     if (portfolioHolding) {
+      ticker = portfolioHolding.ticker;
       portfolioHolding.shares = portfolioHolding.shares + 1;
       portfolioHolding.dirty = true;
       this.state.data.dirty = true;
@@ -41,16 +50,28 @@ module.exports = React.createClass({
       this.setState({data: this.state.data}); //id will be updated later
     }
 
-    Api.post('portfolio/' + this.state.data.id + '/ticker/' + ticker, {}, function(data) { 
-      //self.fetchData();
-    });    
+    if (ticker) {
+      Api.post('portfolio/' + this.state.data.id + '/ticker/' + ticker, {}, function(data) { 
+        //self.fetchData();
+      });    
+    }
   },
 
   sellHolding(ticker) {
     var self = this;
-    var portfolioHolding = _.find(this.state.data.holdings, {ticker: ticker});
+    var portfolioHolding;
+
+    if (typeof ticker == 'string') {
+      portfolioHolding = _.find(this.state.data.holdings, {ticker: ticker.toUpperCase()});
+    } 
+    else if (typeof this.state.selectedHoldingId !== 'undefined') {
+      ticker = undefined;
+      portfolioHolding = _.find(this.state.data.holdings, {id: this.state.selectedHoldingId});
+    }
+
     //portfolio already contains this holding
     if (portfolioHolding) {
+      ticker = portfolioHolding.ticker;
       portfolioHolding.shares = portfolioHolding.shares - 1;      
       portfolioHolding.dirty = true;
 
@@ -107,6 +128,28 @@ module.exports = React.createClass({
     $('#renamePortfolioModal').modal('hide');
   },
 
+  selectHolding(id) {
+    console.log('PortfolioDetails.selectHolding(' + id + ')');
+    var self = this;
+
+    // if (this.state.dialogPanelOpened) {
+    //   this._closeDialogPanel();
+    // }
+    // else {
+      //TODO set panel content
+      var portfolioHolding = _.find(this.state.data.holdings, {id: id});
+      $('.dialog-content').html('Details for ' + portfolioHolding.ticker + ' holding');
+      this.setState({dialogPanelOpened: true, selectedHoldingId: id});
+    // }
+  },
+
+  _closeDialogPanel() {
+    if (this.state.dialogPanelOpened) {
+      //TODO blank out panel
+      this.setState({dialogPanelOpened: false, selectedHoldingId: undefined});
+    }
+  },
+
   _clearUpdatedFlags(holdingId) {
     var h = _.find(this.state.data.holdings, {id: holdingId});
     if (h) {
@@ -149,9 +192,12 @@ module.exports = React.createClass({
     var setupPageKeyPressed = function(set){
       if (set) {
         document.activeElement.blur(); //strange: after navigating from the navbar document.onkeypress doesn't work
-        $(document).on('keypress', function(e) {
+        $(document).on('keydown', function(e) {
           if (e.keyCode == 13) {
             $('#addHoldingModal').modal('show');
+          }
+          else if (e.keyCode == 27) {
+            self._closeDialogPanel();
           }
         });
       }
@@ -245,7 +291,7 @@ module.exports = React.createClass({
     this.componentName = 'PortfolioDetails';
     this.socketIoModel = 'portfolio';
     this.componentDataUrl = 'portfolio/' + this.props.params.id;
-    return {data: Api.getInitial(this.componentDataUrl)};
+    return {data: Api.getInitial(this.componentDataUrl), dialogPanelOpened: false};
   },  
 
   componentWillMount() {
@@ -276,7 +322,7 @@ module.exports = React.createClass({
 
     var holdings = _.sortBy(this.state.data.holdings, 'ticker').map(function(holding) {
       return (  
-        <PortfolioHolding key={holding.id} data={holding}  buyHolding={self.buyHolding} sellHolding={self.sellHolding}/>
+        <PortfolioHolding key={holding.id} data={holding} selectHolding={self.selectHolding} buyHolding={self.buyHolding} sellHolding={self.sellHolding}/>
       );
     });
 
@@ -330,9 +376,21 @@ module.exports = React.createClass({
 
         <div className="bottom-spacer" />
 
-        <div className="fab-container" >
-          <a href="#" className="btn btn-primary btn-raised btn-fab" data-target="#addHoldingModal" data-toggle="modal" id="addholding"><i className="material-icons">add</i></a>        
+        <div className={`fab-container ${this.state.dialogPanelOpened ? 'fab-container-opened' : ''}`}>
+          <button className="btn btn-primary btn-raised btn-fab" data-target="#addHoldingModal" data-toggle="modal" id="addholding"><i className="material-icons">{this.state.dialogPanelOpened ? 'shopping_cart' : 'add'}</i></button>
         </div>          
+
+        <div className={`well dialog-panel ${this.state.dialogPanelOpened ? 'dialog-panel-opened' : ''}`}>
+          <p className="text-center"></p>
+          <p className="text-center dialog-content">TODO put things here</p>
+          <div className="text-center">
+            <p><button className="btn btn-danger" onClick={this.sellHolding}>Sell</button> <button className="btn btn-primary" onClick={this.buyHolding}>Buy</button></p>
+          </div>
+
+          <div className={`fab-container-close ${this.state.dialogPanelOpened ? 'fab-container-close' : ''}`}  >
+            <button href="#" className="btn btn-default btn-raised btn-fab" onClick={this._closeDialogPanel}><i className="material-icons">arrow_drop_down</i></button>
+          </div>                    
+        </div>
 
         {/* Modal add ticker */}
         <div className="modal fade" id="addHoldingModal" tabIndex="-1" role="dialog" ariaLabelledby="myModalLabel" ariaHidden="true">
