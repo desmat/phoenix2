@@ -22,6 +22,45 @@ module.exports = React.createClass({
     }
   }, 
 
+  _initModals() {
+    var self = this;
+
+    if (typeof document == "object") {
+      var setupPageKeyPressed = function(set){
+        if (set) {
+          document.activeElement.blur(); //strange: after navigating from the navbar document.onkeypress doesn't work
+          $(document).on('keydown', function(e) {
+            if (e.keyCode == 13) {
+              $('#addPortfolioModal').modal('show');
+            }
+          });
+        }
+        else {
+          $(document).off('keypress');      
+        }
+      };    
+
+      //modal events: rename portfolio
+      
+      $("#addPortfolioModal").on('shown.bs.modal', function() {
+        setupPageKeyPressed(false);
+        $('#portfolioName').val('');
+        $('#portfolioName').focus();
+      });
+
+      $("#addPortfolioModal").on('hidden.bs.modal', function() { 
+        $('#portfolioName').val('');
+        setupPageKeyPressed(true); 
+      });
+
+      $("#portfolioName").on('keypress', function(e) { if (e.keyCode == 13) { self.addPortfolio(); } })
+
+      //finally init page-wide events
+
+      setupPageKeyPressed(true);    
+    } 
+  },
+
   fetchData() {
     //console.log('Portfolio.fetchData');
     var self = this;
@@ -44,6 +83,7 @@ module.exports = React.createClass({
   getInitialState() {
     this.componentName = 'Portfolio';
     this.componentDataUrl = 'portfolio';
+    this._initModals();
     return {data: Api.getInitial(this.componentDataUrl)};
   },  
 

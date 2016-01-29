@@ -12,11 +12,7 @@ var routes = require('../Routes.jsx');
  * On the front-end, look for element react-content and render React component tree
  */ 
 
-if (typeof document == "object") {
-	$(function() {
-	    FastClick.attach(document.body);
-	});
-
+if (typeof document == "object") {	
 	$.material.init();
 
 	//console.log('running router on client side!');
