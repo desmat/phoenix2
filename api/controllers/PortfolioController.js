@@ -27,11 +27,12 @@ module.exports = {
   },
 
   buy(req, res) {
-    var portfolioId = req.params['id'];
-    var ticker = req.params['ticker'];
-    //console.log('PortfolioController.buy: id=' + portfolioId, ' ticker=' + ticker);
+    var portfolioId = req.param('id');
+    var ticker = req.param('ticker');
+    var quantity = req.param('quantity') || 1;
+    console.log('PortfolioController.buy: id=' + portfolioId, ' ticker=' + ticker + ' quantity=' + quantity);
 
-    PortfolioService.buyOrSell(portfolioId, ticker, 'buy', function(err) {
+    PortfolioService.buyOrSell(portfolioId, ticker, 'buy', quantity, function(err) {
       if (err) {
         sails.log.warn(err);
         return res.json({error: 'Error buying ticker [' + ticker + ']: ' + err});
@@ -44,9 +45,10 @@ module.exports = {
   sell(req, res) {
     var portfolioId = req.params['id'];
     var ticker = req.params['ticker'];
+    var quantity = req.param('quantity') || 1;
     //console.log('PortfolioController.sell: id=' + portfolioId, ' ticker=' + ticker);
 
-    PortfolioService.buyOrSell(portfolioId, ticker, 'sell', function(err) {
+    PortfolioService.buyOrSell(portfolioId, ticker, 'sell', quantity, function(err) {
       if (err) {
         sails.log.warn(err);
         return res.json({error: 'Error selling ticker [' + ticker + ']: ' + err});

@@ -8,21 +8,26 @@ var PortfolioHolding = require('./PortfolioHolding.jsx');
 module.exports = React.createClass({
 
   addHolding() {
-    // console.log('PortfolioDetails.addHolding');    
-    var ticker = $('#searchTicker').val();
-    if (ticker) {
-      ticker = ticker.split('-');
+    console.log('PortfolioDetails.addHolding');    
+    if (!$('#addHoldingModalAdd').prop('disabled')) {
+      var ticker = $('#searchTicker').typeahead('val');
       if (ticker) {
-        if (_.isArray(ticker) && ticker.length > 0) ticker = ticker[0];
-    
-        this.buyHolding(ticker);
-        $('#addHoldingModal').modal('hide');
+        ticker = ticker.split('-');
+        if (ticker) {
+          if (_.isArray(ticker) && ticker.length > 0) ticker = ticker[0];
+      
+          var quantity = document.getElementById('tradeSlider').noUiSlider.get();
+
+          this.buyHolding(ticker, quantity);
+          $('#addHoldingModal').modal('hide');
+        }
       }
     }
   },
 
-  buyHolding(ticker) {
-    // console.log('PortfolioDetails.buyHolding(' + ticker + ')');
+  buyHolding(ticker, quantity) {
+    console.log('PortfolioDetails.buyHolding(' + ticker + ', ' + quantity + ')');
+    quantity = quantity || 1;
     var self = this;
     var portfolioHolding;
 
@@ -37,27 +42,28 @@ module.exports = React.createClass({
     //portfolio already contains this holding
     if (portfolioHolding) {
       ticker = portfolioHolding.ticker;
-      portfolioHolding.shares = portfolioHolding.shares + 1;
+      portfolioHolding.shares = portfolioHolding.shares + quantity;
       portfolioHolding.dirty = true;
       this.state.data.dirty = true;
       this.setState({data: this.state.data});
     }
     //portfolio does not contain this holding
     else {
-      portfolioHolding = {portfolioId: this.props.params.id, id:0, ticker:ticker, shares:1, cost:0, dirty: true};
+      portfolioHolding = {portfolioId: this.props.params.id, id:0, ticker:ticker, shares:quantity, cost:0, dirty: true};
       this.state.data.holdings = this.state.data.holdings.concat(portfolioHolding);
       this.state.data.dirty = true;
       this.setState({data: this.state.data}); //id will be updated later
     }
 
     if (ticker) {
-      Api.post('portfolio/' + this.state.data.id + '/ticker/' + ticker, {}, function(data) { 
+      Api.post('portfolio/' + this.state.data.id + '/ticker/' + ticker, {quantity: quantity}, function(data) { 
         //self.fetchData();
       });    
     }
   },
 
-  sellHolding(ticker) {
+  sellHolding(ticker, quantity) {
+    quantity = quantity || 1;
     var self = this;
     var portfolioHolding;
 
@@ -72,7 +78,7 @@ module.exports = React.createClass({
     //portfolio already contains this holding
     if (portfolioHolding) {
       ticker = portfolioHolding.ticker;
-      portfolioHolding.shares = portfolioHolding.shares - 1;      
+      portfolioHolding.shares = portfolioHolding.shares - quantity;      
       portfolioHolding.dirty = true;
 
       if (portfolioHolding.shares <= 0) {
@@ -85,7 +91,7 @@ module.exports = React.createClass({
         this.setState({data: this.state.data});
       }
 
-      Api.delete('portfolio/' + this.state.data.id + '/ticker/' + ticker, null, function(data) { 
+      Api.delete('portfolio/' + this.state.data.id + '/ticker/' + ticker, {quantity: quantity}, function(data) { 
         //self.fetchData();
       }); 
     }
@@ -99,7 +105,8 @@ module.exports = React.createClass({
     // console.log('deletePortfolio');
 
     Api.delete('portfolio', this.state.data.id);
-    //maybe tweak the portfolios page here to make is smoother when we nagivate there?
+
+    //TODO maybe tweak the portfolios page here to make is smoother when we nagivate there?
     App.navigate('/');
   },
 
@@ -208,16 +215,123 @@ module.exports = React.createClass({
 
     //modal events: add holding
 
+
+
+
+
+
+
+
+
+
+
+    //setup the slider
+
+    var setupTradeSlider = function(ticker) {
+      console.log('setupTradeSlider: ' + ticker);
+      var start = 0;
+      var min = 0;
+      var max = 1;
+      var step = 1;
+      var disabled = true;
+
+      if (typeof ticker === 'string') {
+        //search ticker, setup with it
+        Api.get('ticker/' + ticker, function(data) {
+          if (data) {
+            if (_.isArray(data)) data = data[0];
+            return setupTradeSlider(data);
+          }
+        })
+      }
+      else if (typeof ticker === 'object') {
+        //setup with ticker's price and shit
+        console.log('cash: ' + self.state.data.cash);
+        console.log('price: ' + ticker.price);
+        max = parseInt(Math.floor(self.state.data.cash / ticker.price));
+        disabled = false;
+      }
+
+      var slider = document.getElementById('tradeSlider');
+      var sliderIndicator = $('#tradeSliderIndicator');
+
+      if (slider.noUiSlider && slider.noUiSlider.destroy) slider.noUiSlider.destroy(slider);
+
+      noUiSlider.create(slider, {
+        start: 0,
+        // connect: true,
+        step: 1,
+        range: {
+          'min': min,
+          'max': max
+        }
+      }); 
+
+      slider.noUiSlider.on('update', function(){
+        var count = slider.noUiSlider.get();
+        var quantity = 0; //TODO current holding quantity
+        if (count > quantity) {
+          sliderIndicator.html('Trade shares (+' + parseInt(count - quantity) + ')');
+          $('#addHoldingModalAdd').prop('disabled', false);
+        }
+        else if (count < quantity) {
+          sliderIndicator.html('Trade shares (' + parseInt(count - quantity) + ')');
+          $('#addHoldingModalAdd').prop('disabled', false);
+        }
+        else {
+          sliderIndicator.html('Trade shares');
+          $('#addHoldingModalAdd').prop('disabled', true);
+        }
+      });
+
+      if (disabled) {
+        slider.setAttribute('disabled', disabled) 
+      }
+      else {
+        slider.removeAttribute('disabled');
+      }             
+    };
+
+    setupTradeSlider();
+
+    var getTickerFromInput = function() {
+      var ticker = $('#searchTicker').typeahead('val');
+      if (ticker) {
+        ticker = ticker.split('-');
+        if (ticker) {
+          if (_.isArray(ticker) && ticker.length > 0) ticker = ticker[0];
+        }
+      }
+
+      return ticker;
+    };
+
+    $("#searchTicker").typeahead().on('typeahead:selected', function(e, datum) {
+      //console.log('selected: ' + getTickerFromInput());
+      // GRRRR f'in flaky shit! http://stackoverflow.com/questions/16974783/typeahead-js-on-blur-event
+      $('#searchTicker').typeahead('val', $('#searchTicker').val());
+      setupTradeSlider(getTickerFromInput());
+    });
+
+
+
+
+
+
+
+
+
+
+
     $("#addHoldingModal").on('shown.bs.modal', function() { 
-      $("#searchTicker").val('');
       $("#searchTicker").typeahead('val', '')     
       $("#searchTicker").typeahead("close");
       $("#searchTicker").focus(); 
       setupPageKeyPressed(false); 
+      setupTradeSlider();
     });
 
     $("#addHoldingModal").on('hidden.bs.modal', function() { 
-      $("#searchTicker").val('');
       $("#searchTicker").typeahead('val', '')     
       $("#searchTicker").typeahead("close");
       setupPageKeyPressed(true); 
@@ -304,6 +418,11 @@ module.exports = React.createClass({
     this._initModals();
     App.registerSocketIo(this.componentName, this.socketIoModel, this.socketIo);
     this.fetchData();
+
+
+
+$('#addholding').click();
+
   }, 
 
   componentDidUpdate() {
@@ -407,11 +526,15 @@ module.exports = React.createClass({
                     <div className="col-sm-12">
                       <input type="input" className="form-control" id="searchTicker" placeholder="Search stock by symbol or name..." autoComplete="off" autoFocus="true"/>
                     </div>
+                    <div className="col-sm-12">
+                      <div id="tradeSliderIndicator">Trade shares</div>
+                      <div id="tradeSlider" className="slider shor slider-primary"></div>
+                    </div>
                   </div>
               </div>
               <div className="modal-footer">
-                <a className="btn btn-primary" data-dismiss="modal">Cancel</a>
-                <a className="btn btn-primary" onClick={this.addHolding}>Add</a>
+                <button className="btn btn-primary" data-dismiss="modal">Cancel</button>
+                <button className="btn btn-primary" id="addHoldingModalAdd" disabled="disabled" onClick={this.addHolding}>Add</button>
               </div>
             </div>
           </div>

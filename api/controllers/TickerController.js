@@ -6,6 +6,35 @@
  */
 
 module.exports = {
+
+  //find ticker by either id or symbol
+  findOne(req, res) {
+    var id = req.params['id'];
+    console.log("TickerController.findOne: id=" + id);
+
+    if (typeof id !== 'undefined') {
+      var search = {};
+      if (!_.isNaN(parseInt(id))) {
+        search.id = id;
+      }
+      else {
+        search.ticker = id;
+      }
+
+      Ticker.findOne(search, function(err, data) {
+        if (err) {
+          var msg = "Error searching for ticker [" + id + "]: Ticker.findOne error: " + error;
+          sails.log.warn("TickerController.findOne: " + msg);
+          return res.json({error: msg});
+        }
+
+        return res.json(data);
+      });
+    }
+    else {
+      return res.json({});
+    }
+  },
 	
   updateAll(req, res) {
     res.send("Updating all tickers...");

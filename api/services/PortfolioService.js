@@ -162,7 +162,7 @@ module.exports = {
     });
   },
 
-  buyOrSell(portfolioId, ticker, buyOrSell, cb) { 
+  buyOrSell(portfolioId, ticker, buyOrSell, quantity, cb) { 
     Portfolio.findOne({id: portfolioId}, function(err, portfolio) {
       if (err) {
         sails.log.warn('Error buying/selling ticker [' + ticker + '] on portfolio [' + portfolioId + ']: ' + err);
@@ -173,7 +173,7 @@ module.exports = {
         return cb(err);
       }
 
-      Transaction.create({type: buyOrSell, portfolioId: portfolioId, ticker: ticker}, function(err, transaction) {
+      Transaction.create({type: buyOrSell, portfolioId: portfolioId, ticker: ticker, quantity: quantity}, function(err, transaction) {
         if (err) {
           sails.log.warn('Error buying/selling ticker [' + ticker + '] on portfolio [' + portfolioId + ']: Error creating transaction: ' + err);
           return cb(err);
