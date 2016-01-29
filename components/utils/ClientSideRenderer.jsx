@@ -15,6 +15,9 @@ var routes = require('../Routes.jsx');
 if (typeof document == "object") {
 	$.material.init();
 
+	$(function() {
+	    FastClick.attach(document.body);
+	});
 
 	//console.log('running router on client side!');
 	var targetElement = document.getElementById('react-content');

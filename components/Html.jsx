@@ -41,6 +41,7 @@ module.exports = React.createClass({
           <script src="/js/dependencies/material.min.js"></script>
           <script src="/js/dependencies/ripples.min.js"></script>
           <script src="/js/dependencies/typeahead.bundle.min.js"></script>
+          <script src="/js/dependencies/fastclick.js"></script>
           <script src="/js/bundle.js"></script>
         </body>
       </html>
