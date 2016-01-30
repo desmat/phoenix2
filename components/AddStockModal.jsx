@@ -3,8 +3,6 @@ var Router = require("react-router");
 var Link = Router.Link;
 var Api = require('../assets/js/Api');
 var App = require('../assets/js/App');
-var PortfolioHolding = require('./PortfolioHolding.jsx');
-var RenamePortfolioModal = require('./RenamePortfolioModal.jsx');
 
 module.exports = React.createClass({
 
@@ -126,7 +124,7 @@ module.exports = React.createClass({
   },
 
   _initModal() {
-    console.log('AddStockModal._initAddHoldingModal');
+    console.log('AddStockModal._initModal');
     var self = this;
 
     this._initSearchTicker();

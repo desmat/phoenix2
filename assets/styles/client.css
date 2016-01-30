@@ -138,7 +138,7 @@ h2 {
   transition: all .2s ease-in-out;  
 }
 
-.fab-container-opened {
+.fab-container-open {
   bottom: 71px;
 }
 
@@ -151,7 +151,7 @@ h2 {
   opacity: 0.6;
 }
 
-.fab-container-close-opened {
+.fab-container-close-open {
   bottom: 61px;
 }
 
@@ -167,11 +167,11 @@ h2 {
   transition: all .2s ease-in-out;  
 }
 
-.dialog-panel-opened {
+.dialog-panel-open {
   bottom: -21px; 
 }
 
-.tradeSliderContainer {
+.portfolio-holding-dialog-slider-container {
   padding-left: 22px;
   padding-right: 22px;
 }
@@ -212,7 +212,7 @@ h2 {
     margin-right: 0;
   }
 
-  .tradeSliderContainer {
+  .portfolio-holding-dialog-slider-container {
     padding-left: 7px;
     padding-right: 7px;
   }
