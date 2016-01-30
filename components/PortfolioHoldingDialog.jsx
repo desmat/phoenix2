@@ -8,7 +8,7 @@ module.exports = React.createClass({
 
   _fabClicked() {
     // console.log('PortfolioHoldingDialog._fabClicked');
-    if (typeof this.props.open !== 'undefined' && this.props.open) {
+    if (typeof this.props.isOpen !== 'undefined' && this.props.isOpen) {
       var shares = document.getElementById('trade-slider').noUiSlider.get();
       // console.log('PortfolioHoldingDialog._fabClicked: trade: ' + this.props.portfolioHolding.ticker + ': ' + parseInt(shares - this.props.portfolioHolding.shares));
 
@@ -93,31 +93,34 @@ module.exports = React.createClass({
   }, 
 
   componentWillReceiveProps(nextProps) {
-    console.log('PorfolioHoldingDialog.componentWillReceiveProps');
+    // console.log('PorfolioHoldingDialog.componentWillReceiveProps');
 
-    if (nextProps.open && nextProps.portfolioHolding && (!this.props.portfolioHolding || nextProps.portfolioHolding.id != this.props.portfolioHolding.id)) {
+    if (nextProps.isOpen && nextProps.portfolioHolding && (!this.props.portfolioHolding || nextProps.portfolioHolding.id != this.props.portfolioHolding.id)) {
       this._initTradeSlider(nextProps.portfolioHolding, nextProps.cash);
       $('.dialog-content').html('Details for ' + nextProps.portfolioHolding.ticker + ' holding');
+    }
+
+    if (nextProps.isOpen && !this.props.isOpen) {
+      if (nextProps.opened) nextProps.opened(); 
+    }
+    else if (!nextProps.isOpen && this.props.isOpen) {
+      if (nextProps.closed) nextProps.closed(); 
     }
   },
 
   componentDidUpdate() {
-    console.log('PorfolioHoldingDialog.componentDidUpdate');
-
-    //only callback when component has data (portfolioHolding)
-    if (this.props.portfolioHolding && this.props.opened && this.props.open) this.props.opened();
-    if (this.props.portfolioHolding && this.props.closed && !this.props.open) this.props.closed();
+    // console.log('PorfolioHoldingDialog.componentDidUpdate');
   },
 
   render: function() {    
     // console.log('PorfolioHoldingDialog.render');
     return(
       <div className="portfolio-holding-dialog">
-        <div className={`fab-container ${this.props.open ? 'fab-container-open' : ''} ${this.state.dirty ? 'fab-container-dirty' : ''}`}>
-          <button className={`btn btn-raised btn-fab ${this.state.dirty ? 'btn-warning' : this.props.open ? 'btn-default' : 'btn-primary'}`} onClick={this._fabClicked} id="addholding"><i className="material-icons">{this.props.open ? this.state.dirty ? 'check' : 'arrow_drop_down' : 'add'}</i></button>
+        <div className={`fab-container ${this.props.isOpen ? 'fab-container-open' : ''} ${this.state.dirty ? 'fab-container-dirty' : ''}`}>
+          <button className={`btn btn-raised btn-fab ${this.state.dirty ? 'btn-warning' : this.props.isOpen ? 'btn-default' : 'btn-primary'}`} onClick={this._fabClicked} id="addholding"><i className="material-icons">{this.props.isOpen ? this.state.dirty ? 'check' : 'arrow_drop_down' : 'add'}</i></button>
         </div>          
 
-        <div className={`well dialog-panel ${this.props.open ? 'dialog-panel-open' : ''}`}>
+        <div className={`well dialog-panel ${this.props.isOpen ? 'dialog-panel-open' : ''}`}>
           <p className="text-center"></p>
           <p className="text-center dialog-content">TODO put things here</p>
           {/*
@@ -131,7 +134,7 @@ module.exports = React.createClass({
           </div>
 
           {/*
-          <div className={`fab-container-close ${this.props.open ? 'fab-container-close' : ''}`}  >
+          <div className={`fab-container-close ${this.props.isOpen ? 'fab-container-close' : ''}`}  >
             <button href="#" className="btn btn-default btn-raised btn-fab" onClick={this._closeDialogPanel}><i className="material-icons">arrow_drop_down</i></button>
           </div>                    
           */}

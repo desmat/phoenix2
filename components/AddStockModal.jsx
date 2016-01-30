@@ -6,8 +6,33 @@ var App = require('../assets/js/App');
 
 module.exports = React.createClass({
 
+  _okClicked() {
+    // console.log('AddStockModal._okClicked');
+
+    var ticker = $('#searchTicker').typeahead('val');
+    if (ticker) {
+      ticker = ticker.split('-');
+      if (ticker) {
+        if (_.isArray(ticker) && ticker.length > 0) ticker = ticker[0];
+    
+        var quantity = document.getElementById('tradeSlider').noUiSlider.get();
+
+        if (quantity > 0 && this.props.close) {
+          this.props.close({ticker: ticker, quantity: quantity});
+        }
+      }
+    }
+
+    //TODO error handling and shit
+  },
+
+  _cancelClicked() {
+    // console.log('AddStockModal._cancelClicked');
+    if (this.props.close) this.props.close();
+  },
+
   _initTradeSlider(ticker) {
-    console.log('AddStockModal._initTradeSlider: ' + ticker);
+    // console.log('AddStockModal._initTradeSlider: ' + ticker);
     var self = this;
     var start = 0;
     var min = 0;
@@ -26,9 +51,9 @@ module.exports = React.createClass({
     }
     else if (typeof ticker === 'object') {
       //setup with ticker's price and shit
-      console.log('cash: ' + self.props.cash);
+      console.log('cash: ' + self.props.data.cash);
       console.log('price: ' + ticker.price);
-      max = parseInt(Math.floor(self.props.cash / ticker.price));
+      max = parseInt(Math.floor(self.props.data.cash / ticker.price));
       disabled = false;
     }
 
@@ -73,7 +98,7 @@ module.exports = React.createClass({
   },
 
   _initSearchTicker() {
-    console.log('AddStockModal._initSearchTicker');
+    // console.log('AddStockModal._initSearchTicker');
     var self = this;
 
     var findMatches = function(q, cb, async) {
@@ -123,8 +148,8 @@ module.exports = React.createClass({
     $("#searchTicker").on('keypress', function(e) { if (e.keyCode == 13) { self.props.ok(); } });    
   },
 
-  _initModal() {
-    console.log('AddStockModal._initModal');
+  _init() {
+    // console.log('AddStockModal._init');
     var self = this;
 
     this._initSearchTicker();
@@ -132,7 +157,7 @@ module.exports = React.createClass({
     this._initTradeSlider();
 
     $("#addHoldingModal").on('shown.bs.modal', function() { 
-      self.props.shown(); //self._setupPageKeyPressed(false); 
+      if (self.props.opened) self.props.opened(); //self._setupPageKeyPressed(false); 
       self._initTradeSlider();
       $("#searchTicker").focus();
       $("#searchTicker").select();
@@ -142,14 +167,27 @@ module.exports = React.createClass({
       $("#searchTicker").typeahead('val', '')     
       $("#searchTicker").typeahead('close');
       self._initTradeSlider();
-      self.props.hidden(); //self._setupPageKeyPressed(true); 
+      if (self.props.closed) self.props.closed(); //self._setupPageKeyPressed(true); 
     });   
   },
 
   componentDidMount() {
     // console.log('AddStockModal.componentDidMount');
-    this._initModal();
+    this._init();
   }, 
+
+  componentWillReceiveProps(nextProps) {
+    // console.log('AddStockModal.componentWillReceiveProps'); console.dir(nextProps);
+
+    if (nextProps.isOpen && !this.props.isOpen) {
+      $('#addHoldingModal').modal('show'); 
+      // if (nextProps.opened) nextProps.opened(); //dialog has its own lifecycle hooks above
+    }
+    else if (!nextProps.isOpen && this.props.isOpen) {
+      $('#addHoldingModal').modal('hide');      
+      // if (nextProps.closed) nextProps.closed(); //dialog has its own lifecycle hooks above    
+    }
+  },
 
   render: function() {    
     return(
@@ -175,7 +213,7 @@ module.exports = React.createClass({
             </div>
             <div className="modal-footer">
               <button className="btn btn-primary" data-dismiss="modal">Cancel</button>
-              <button className="btn btn-primary" id="addHoldingModalAdd" onClick={this.props.ok}>Add</button>
+              <button className="btn btn-primary" id="addHoldingModalAdd" onClick={this._okClicked}>Add</button>
             </div>
           </div>
         </div>

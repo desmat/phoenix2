@@ -7,7 +7,7 @@ var App = require('../assets/js/App');
 module.exports = React.createClass({
 
   _okClicked() {
-    console.log('RenamePortfolioModal._okClicked');
+    // console.log('RenamePortfolioModal._okClicked');
 
     var name = $('#newPortfolioName').val();
     if (name && this.props.close) this.props.close({name: name});
@@ -15,12 +15,12 @@ module.exports = React.createClass({
   },
 
   _cancelClicked() {
-    console.log('RenamePortfolioModal._cancelClicked');
+    // console.log('RenamePortfolioModal._cancelClicked');
     if (this.props.close) this.props.close();
   },
 
   _init() {
-    console.log('RenamePortfolioModal._init');
+    // console.log('RenamePortfolioModal._init');
     var self = this;
 
     $("#renamePortfolioModal").on('shown.bs.modal', function() {
@@ -37,17 +37,17 @@ module.exports = React.createClass({
   },
 
   componentDidMount() {
-    // console.log('RenamePortfolioModal.componentDidMount');
+    console.log('RenamePortfolioModal.componentDidMount');
     this._init();
   }, 
 
   componentWillReceiveProps(nextProps) {
-    console.log('RenamePortfolioModal.componentWillReceiveProps');
+    // console.log('RenamePortfolioModal.componentWillReceiveProps');
 
     if (nextProps.isOpen && !this.props.isOpen && nextProps.data.name) {
       $('#newPortfolioName').val(nextProps.data.name);
       $('#renamePortfolioModal').modal('show'); 
-      // if (nextProps.shown) nextProps.shown(); //dialog has its own lifecycle hooks above
+      // if (nextProps.opened) nextProps.opened(); //dialog has its own lifecycle hooks above
     }
     else if (!nextProps.isOpen && this.props.isOpen) {
       $('#newPortfolioName').val('');
