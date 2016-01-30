@@ -113,6 +113,7 @@ module.exports = React.createClass({
 
     this._initTradeSlider();
 
+    //enable swipe-down to close dialog
     $(".portfolio-holding-dialog").swipe( {
       //Generic swipe handler for all directions
       swipe:function(event, direction, distance, duration, fingerCount, fingerData) {
@@ -122,7 +123,6 @@ module.exports = React.createClass({
         }
       }
     });
-
   }, 
 
   componentWillUnmount() {

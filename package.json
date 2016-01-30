@@ -37,8 +37,6 @@
     "react": "^0.14.3",
     "react-dom": "^0.14.3",
     "react-router": "^1.0.2",
-    "react-swipeable": "^3.1.0",
-    "react-swiper": "^0.1.5",
     "request": "^2.67.0",
     "sails": "~0.11.3",
     "sails-disk": "~0.10.0",
