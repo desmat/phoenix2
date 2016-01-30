@@ -173,21 +173,22 @@ module.exports = React.createClass({
     // }
   },
 
-  // _addStockModalShown() {
-  //   console.log('PortfolioDetails._addStockModalShown');
-  //   this._setupPageKeyPressed(false);
-  // },
+  _addStockModalOpened() {
+    console.log('PortfolioDetails._addStockModalOpened');
+    this._setupPageKeyPressed(false);
+  },
 
-  // _addStockModalHidden() {
-  //   console.log('PortfolioDetails._addStockModalHidden');
-  //   this._setupPageKeyPressed(true); 
-  // },
+  _addStockModalClosed() {
+    console.log('PortfolioDetails._addStockModalClosed');
+    this._setupPageKeyPressed(true); 
+  },
 
   _openAddStockModal() {
     $('#addHoldingModal').modal('show');
   },
 
   _closeAddStockModal(result) {
+    console.log('PortfolioDetails._closeAddStockModal');
     //TODO
   },
 
@@ -386,7 +387,7 @@ module.exports = React.createClass({
 
         <PortfolioHoldingDialog open={this.state.portfolioHoldingDialogOpen} close={this._closePortfolioHoldingDialog} fabClicked={this.openAddStockModal} selectedHoldingId={this.state.selectedHoldingId} portfolioHolding={this.state.selectedHolding} cash={this.state.data.cash} buyStock={this.buyStock} sellStock={this.sellStock} opened={this._portfolioHoldingDialogOpened} closed={this._portfolioHoldingDialogClosed}/>
 
-        <AddStockModal isOpen={this.state.addStockModalOpen} close={this.closeAddStockModal} cash={this.state.data.cash} ok={this.addStock} shown={this._addStockModalShown} hidden={this._addStockModalHidden} />
+        <AddStockModal isOpen={this.state.addStockModalOpen} close={this._closeAddStockModal} cash={this.state.data.cash} ok={this.addStock} opened={this._addStockModalOpened} closed={this._addStockModalClosed} />
 
         <RenamePortfolioModal isOpen={this.state.renamePortfolioModalOpen} close={this._closeRenamePortfolioModal} data={{name: this.state.data.name}} opened={this._renamePortfolioModalOpened} closed={this._renamePortfolioModalClosed} />
 
