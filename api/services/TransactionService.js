@@ -25,6 +25,22 @@ module.exports = {
   processPortfolioTransaction(portfolio, transaction, cb) {
     // console.log('TransactionService.processPortfolioTransaction');
 
+    var transactionError = function(msg) {
+      sails.log.debug('TransactionService.processPortfolioTransaction: error processing transaction [' + transaction.id + ']: ' + msg);
+
+      transaction.state = 'error';
+      transaction.save(function(err, transaction) {
+        if (err) {
+          sails.log.debug('Error saving transaction [' + transaction.id + ']: ' + err)
+        }
+
+        sails.log.debug('TransactionService.processPortfolioTransaction: processed transaction [' + transaction.id + ']');
+        return cb(null, portfolio);            
+      });    
+
+      return cb(msg);
+    };
+
     this.findPortfolioHolding(portfolio, transaction.ticker, function(err, holding) {
       if (err) {
         return cb('Error processPortfolioTransaction: ' + err);
@@ -54,19 +70,19 @@ module.exports = {
         }
       } 
       else  {
-        return cb('Unknown type for transaction [' + transaction.id + ']: ' + transaction.type);
+        return transactionError('Unknown type for transaction [' + transaction.id + ']: ' + transaction.type);
       }
 
       //validation
 
       //don't allow cash to go negative
       if (cash < 0 && (-1 * cash) > portfolio.cash) {
-        return cb('Insufficient funds');
+        return transactionError('Insufficient funds');
       }
 
       //don't sell things we don't have!
       if (cost < 0 && transaction.quantity > holding.shares) {
-        return cb('Insuffient shares');
+        return transactionError('Insuffient shares');
       }
 
       holding.transactionId = transaction.id;
