@@ -42,7 +42,8 @@ module.exports = React.createClass({
           <script src="/js/dependencies/ripples.min.js"></script>
           <script src="/js/dependencies/typeahead.bundle.min.js"></script>
           <script src="/js/dependencies/fastclick.js"></script>
-          <script src="/js/dependencies/enable-fastclick.js"></script>
+          <script src="/js/dependencies/enable-fastclick.js"></script> 
+          <script src="/js/dependencies/jquery.touchSwipe.min.js"></script>
           <script src="/js/dependencies/nouislider.min.js"></script>
           <script src="/js/bundle.js"></script>
 

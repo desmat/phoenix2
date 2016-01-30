@@ -112,18 +112,13 @@ module.exports = React.createClass({
 
     this._initTradeSlider();
 
-    $(".dialog-panel").on("click",function(e){
-      $('.dialog-content').html('CLICK!');
+    $("#test").swipe( {
+      //Generic swipe handler for all directions
+      swipe:function(event, direction, distance, duration, fingerCount, fingerData) {
+        $('#asdf').html("You swiped " + direction );  
+      }
     });
-    $(".dialog-panel").on("swipeup",function(e){
-      $('.dialog-content').html('SWIPE UP!');
-    });
-    $(".dialog-panel").on("swipedown",function(e){
-      $('.dialog-content').html('SWIPE DOWN!');
-    });
-    $(".dialog-panel").on("swipte",function(e){
-      $('.dialog-content').html('SWIPE!');
-    });
+
   }, 
 
   componentWillUnmount() {
@@ -156,14 +151,14 @@ module.exports = React.createClass({
   render: function() {    
     // console.log('PorfolioHoldingDialog.render');
     return(
-      <div className="portfolio-holding-dialog">
+      <div id="test" className="portfolio-holding-dialog">
         <div className={`fab-container ${this.props.isOpen ? 'fab-container-open' : ''} ${this.state.dirty ? 'fab-container-dirty' : ''}`}>
           <button className={`btn btn-raised btn-fab ${this.state.dirty ? 'btn-warning' : this.props.isOpen ? 'btn-default' : 'btn-primary'}`} onClick={this._fabClicked} id="addholding"><i className="material-icons">{this.props.isOpen ? this.state.dirty ? 'check' : 'arrow_drop_down' : 'add'}</i></button>
         </div>          
 
         <div className={`well dialog-panel ${this.props.isOpen ? 'dialog-panel-open' : ''}`}>
           <p className="text-center"></p>
-          <p className="text-center dialog-content">TODO put things here</p>
+          <p id="asdf" className="text-center dialog-content">TODO put things here</p>
           {/*
           <div className="text-center">
             <p><button className="btn btn-danger" onClick={this.sellStock}>Sell</button> <button className="btn btn-primary" onClick={this.buyStock}>Buy</button></p>
