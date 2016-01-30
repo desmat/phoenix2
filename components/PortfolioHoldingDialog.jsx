@@ -10,12 +10,19 @@ module.exports = React.createClass({
     // console.log('PortfolioHoldingDialog._fabClicked');
     if (typeof this.props.isOpen !== 'undefined' && this.props.isOpen) {
       var shares = document.getElementById('trade-slider').noUiSlider.get();
+      var quantity = shares - this.props.portfolioHolding.shares;
       // console.log('PortfolioHoldingDialog._fabClicked: trade: ' + this.props.portfolioHolding.ticker + ': ' + parseInt(shares - this.props.portfolioHolding.shares));
 
       this.setState({open: false, dirty: false});
-      this.props.close({ticker: this.props.portfolioHolding.ticker, quantity: shares - this.props.portfolioHolding.shares});
+
+      if (quantity && this.props.close) {
+        this.props.close({ticker: this.props.portfolioHolding.ticker, quantity: quantity});
+      }
+      else if (this.props.close) {
+        this.props.close();
+      }
     }
-    else {
+    else if (this.props.fabClicked) {
       this.props.fabClicked()
     }
   },
@@ -74,10 +81,24 @@ module.exports = React.createClass({
     }             
   },
 
-  _init() {
-    // console.log('PorfolioHoldingDialog._init');
+  _setupPageKeyPressed(set){
+    // console.log('PorfolioHoldingDialog._setupPageKeyPressed(' + set + ')');
+    var self = this;
 
-    this._initTradeSlider();
+    if (set) {
+      $(document).on('keydown', function(e) {
+        /*if (e.keyCode == 13) {
+          self._fabClicked();
+        }
+        else */if (e.keyCode == 27) {
+          self.setState({open: false, dirty: false});
+          self.props.close();
+        }
+      });
+    }
+    else {
+      $(document).off('keypress');      
+    }
   },
 
   getInitialState() {
@@ -89,8 +110,13 @@ module.exports = React.createClass({
   componentDidMount() {
     // console.log('PorfolioHoldingDialog.componentDidMount');
 
-    this._init();
+    this._initTradeSlider();
   }, 
+
+  componentWillUnmount() {
+    // console.log('PorfolioHoldingDialog.componentWillUnmount');
+    this._setupPageKeyPressed(false);
+  },
 
   componentWillReceiveProps(nextProps) {
     // console.log('PorfolioHoldingDialog.componentWillReceiveProps');
@@ -101,9 +127,11 @@ module.exports = React.createClass({
     }
 
     if (nextProps.isOpen && !this.props.isOpen) {
+      this._setupPageKeyPressed(true);
       if (nextProps.opened) nextProps.opened(); 
     }
     else if (!nextProps.isOpen && this.props.isOpen) {
+      this._setupPageKeyPressed(false);
       if (nextProps.closed) nextProps.closed(); 
     }
   },
