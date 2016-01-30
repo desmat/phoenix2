@@ -176,6 +176,19 @@ h2 {
   padding-right: 22px;
 }
 
+.noUi-handle {
+  width: 25px;
+  height: 25px;
+  left: -12px;
+  top: -12px;
+}
+
+.noUi-handle.noUi-handle-lower.noUi-active {
+  color: red;
+  -webkit-transform: scale3d(1.5, 1.5, 1);
+  transform:         scale3d(1.5, 1.5, 1);
+}
+
 @media(max-width:767px) {
   .navbar-inverse .navbar-brand {  
     /* align-items: center; */
@@ -212,7 +225,6 @@ h2 {
 /*.typeahead { 
   z-index: 1051; 
 }*/
-
 
 .twitter-typeahead{
 width:100%;
