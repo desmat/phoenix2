@@ -109,13 +109,17 @@ module.exports = React.createClass({
 
   componentDidMount() {
     // console.log('PorfolioHoldingDialog.componentDidMount');
+    var self = this;
 
     this._initTradeSlider();
 
-    $("#test").swipe( {
+    $(".portfolio-holding-dialog").swipe( {
       //Generic swipe handler for all directions
       swipe:function(event, direction, distance, duration, fingerCount, fingerData) {
-        $('#asdf').html("You swiped " + direction );  
+        if (direction == 'down') {
+         self.setState({open: false, dirty: false});
+         self.props.close();
+        }
       }
     });
 
@@ -158,7 +162,7 @@ module.exports = React.createClass({
 
         <div className={`well dialog-panel ${this.props.isOpen ? 'dialog-panel-open' : ''}`}>
           <p className="text-center"></p>
-          <p id="asdf" className="text-center dialog-content">TODO put things here</p>
+          <p className="text-center dialog-content">TODO put things here</p>
           {/*
           <div className="text-center">
             <p><button className="btn btn-danger" onClick={this.sellStock}>Sell</button> <button className="btn btn-primary" onClick={this.buyStock}>Buy</button></p>
