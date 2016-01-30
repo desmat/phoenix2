@@ -112,9 +112,17 @@ module.exports = React.createClass({
 
     this._initTradeSlider();
 
-
-    $(".dialog-panel-open").on("swipe",function(){
-      console.log('SWIPE');
+    $(".dialog-panel").on("click",function(e){
+      $('.dialog-content').html('CLICK!');
+    });
+    $(".dialog-panel").on("swipeup",function(e){
+      $('.dialog-content').html('SWIPE UP!');
+    });
+    $(".dialog-panel").on("swipedown",function(e){
+      $('.dialog-content').html('SWIPE DOWN!');
+    });
+    $(".dialog-panel").on("swipte",function(e){
+      $('.dialog-content').html('SWIPE!');
     });
   }, 
 

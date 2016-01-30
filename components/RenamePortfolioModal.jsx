@@ -34,6 +34,21 @@ module.exports = React.createClass({
     });
 
     $("#newPortfolioName").on('keypress', function(e) { if (e.keyCode == 13) { self._okClicked() } });
+
+
+
+    $("#renamePortfolioModal").on("click",function(e){
+      $('.modal-title').html('CLICK!');
+    });
+    $("#renamePortfolioModal").on("swipeup",function(e){
+      $('.modal-title').html('SWIPE UP!');
+    });
+    $("#renamePortfolioModal").on("swipedown",function(e){
+      $('.modal-title').html('SWIPE DOWN!');
+    });
+    $("#renamePortfolioModal").on("swipte",function(e){
+      $('.modal-title').html('SWIPE!');
+    });    
   },
 
   componentDidMount() {
