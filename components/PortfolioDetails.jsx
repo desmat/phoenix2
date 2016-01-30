@@ -23,7 +23,7 @@ module.exports = React.createClass({
 
         if (quantity > 0) {
           this.buyStock(ticker, quantity);
-          $('#addHoldingModal').modal('hide');
+          
         }
       }
     }
@@ -115,17 +115,9 @@ module.exports = React.createClass({
     App.navigate('/');
   },
 
-  renamePortfolio() {
-    // console.log('renamePortfolio');
+  renamePortfolio(name) {
+    console.log('PortfolioDetails.confirmRenamePortfolio');
 
-    $('#newPortfolioName').val(this.state.data.name);
-    $('#renamePortfolioModal').modal('show');
-  },
-
-  confirmRenamePortfolio() {
-    // console.log('confirmRenamePortfolio');
-
-    var name = $('#newPortfolioName').val();
     var id = this.state.data.id;
 
     if (name && id) {
@@ -145,7 +137,7 @@ module.exports = React.createClass({
 
     var portfolioHolding = _.find(this.state.data.holdings, {id: id});
     if (portfolioHolding) {
-      this.setState({portfolioHoldingDialogOpen: true, selectedHolding: portfolioHolding});
+      this._openPortfolioHoldingDialog(portfolioHolding);
     }
   },
 
@@ -181,32 +173,75 @@ module.exports = React.createClass({
     // }
   },
 
-  _addStockModalShown() {
-    console.log('PortfolioDetails._addStockModalShown');
+  // _addStockModalShown() {
+  //   console.log('PortfolioDetails._addStockModalShown');
+  //   this._setupPageKeyPressed(false);
+  // },
+
+  // _addStockModalHidden() {
+  //   console.log('PortfolioDetails._addStockModalHidden');
+  //   this._setupPageKeyPressed(true); 
+  // },
+
+  _openAddStockModal() {
+    $('#addHoldingModal').modal('show');
+  },
+
+  _closeAddStockModal(result) {
+    //TODO
+  },
+
+  _renamePortfolioModalOpened() {
+    console.log('PortfolioDetails._renamePortfolioModalOpened');
     this._setupPageKeyPressed(false);
   },
 
-  _addStockModalHidden() {
-    console.log('PortfolioDetails._addStockModalHidden');
+  _renamePortfolioModalClosed() {
+    console.log('PortfolioDetails._renamePortfolioModalClosed');
+    //the ESC key will hide modals by defaut and so we better catch it here
+    if (this.state.renamePortfolioModalOpen) this.setState({renamePortfolioModalOpen: false});
     this._setupPageKeyPressed(true); 
   },
 
-  _renamePortfolioModalShown() {
-    console.log('PortfolioDetails._renamePortfolioModalShown');
-    this._setupPageKeyPressed(false);
+  _openRenamePortfolioModal() {
+    console.log('PortfolioDetails._openRenamePortfolioModal');
+
+    this.setState({renamePortfolioModalOpen: true});
   },
 
-  _renamePortfolioModalHidden() {
-    console.log('PortfolioDetails._renamePortfolioModalHidden');
-    this._setupPageKeyPressed(true); 
+  _closeRenamePortfolioModal(result) {
+    console.log('PortfolioDetails._closeRenamePortfolioModal');
+
+    if (result && result.name) {
+      this.renamePortfolio(result.name);
+    }
+
+    this.setState({renamePortfolioModalOpen: false}); //redundant?
   },
 
-  _portfolioHoldingDialogClosed() {
-    console.log('PortfolioDetails._portfolioHoldingDialogClosed');
+  // _portfolioHoldingDialogClosed() {
+  //   console.log('PortfolioDetails._portfolioHoldingDialogClosed');
+  // },
+
+  // _portfolioHoldingDialogOpened() {
+  //   console.log('PortfolioDetails._portfolioHoldingDialogOpened');
+  // },
+
+  _openPortfolioHoldingDialog(portfolioHolding) {
+      this.setState({portfolioHoldingDialogOpen: true, selectedHolding: portfolioHolding});
   },
 
-  _portfolioHoldingDialogOpened() {
-    console.log('PortfolioDetails._portfolioHoldingDialogOpened');
+  _closePortfolioHoldingDialog(result) {
+    if (result && result.ticker && result.quantity) {
+      if (result.quantity > 0) {
+        this.buyStock(result.ticker, result.quantity);
+      }
+      else if (result.quantity < 0) {
+        this.sellStock(result.ticker, Math.abs(result.quantity));
+      }
+    }
+
+    this.setState({portfolioHoldingDialogOpen: false});
   },
 
   _initModals() {
@@ -344,16 +379,16 @@ module.exports = React.createClass({
 
         <div className="actions-container text-center">
           <button onClick={this.deletePortfolio} className="btn btn-raised btn-default">Delete</button>
-          <button onClick={this.renamePortfolio} className="btn btn-raised btn-default">Rename</button>
+          <button onClick={this._openRenamePortfolioModal} className="btn btn-raised btn-default">Rename</button>
         </div>
 
         <div className="bottom-spacer" />
 
-        <PortfolioHoldingDialog open={this.state.portfolioHoldingDialogOpen} selectedHoldingId={this.state.selectedHoldingId} portfolioHolding={this.state.selectedHolding} cash={this.state.data.cash} buyStock={this.buyStock} sellStock={this.sellStock} opened={this._portfolioHoldingDialogOpened} closed={this._portfolioHoldingDialogClosed}/>
+        <PortfolioHoldingDialog open={this.state.portfolioHoldingDialogOpen} close={this._closePortfolioHoldingDialog} fabClicked={this.openAddStockModal} selectedHoldingId={this.state.selectedHoldingId} portfolioHolding={this.state.selectedHolding} cash={this.state.data.cash} buyStock={this.buyStock} sellStock={this.sellStock} opened={this._portfolioHoldingDialogOpened} closed={this._portfolioHoldingDialogClosed}/>
 
-        <AddStockModal cash={this.state.data.cash} ok={this.addStock} shown={this._addStockModalShown} hidden={this._addStockModalHidden} />
+        <AddStockModal isOpen={this.state.addStockModalOpen} close={this.closeAddStockModal} cash={this.state.data.cash} ok={this.addStock} shown={this._addStockModalShown} hidden={this._addStockModalHidden} />
 
-        <RenamePortfolioModal ok={this.confirmRenamePortfolio} shown={this._renamePortfolioModalShown} hidden={this._renamePortfolioModalHidden} />
+        <RenamePortfolioModal isOpen={this.state.renamePortfolioModalOpen} close={this._closeRenamePortfolioModal} data={{name: this.state.data.name}} opened={this._renamePortfolioModalOpened} closed={this._renamePortfolioModalClosed} />
 
       </div>
     );

@@ -8,21 +8,15 @@ module.exports = React.createClass({
 
   _fabClicked() {
     // console.log('PortfolioHoldingDialog._fabClicked');
-    if (typeof this.state.open !== 'undefined' && this.state.open) {
+    if (typeof this.props.open !== 'undefined' && this.props.open) {
       var shares = document.getElementById('trade-slider').noUiSlider.get();
       // console.log('PortfolioHoldingDialog._fabClicked: trade: ' + this.props.portfolioHolding.ticker + ': ' + parseInt(shares - this.props.portfolioHolding.shares));
 
-      if (shares - this.props.portfolioHolding.shares > 0) {
-        this.props.buyStock(this.props.portfolioHolding.ticker, shares - this.props.portfolioHolding.shares);
-      }
-      else if (shares - this.props.portfolioHolding.shares < 0) {
-        this.props.sellStock(this.props.portfolioHolding.ticker, Math.abs(shares - this.props.portfolioHolding.shares));
-      }
-
-     this.setState({open: false, dirty: false});
+      this.setState({open: false, dirty: false});
+      this.props.close({ticker: this.props.portfolioHolding.ticker, quantity: shares - this.props.portfolioHolding.shares});
     }
     else {
-      $('#addHoldingModal').modal('show');
+      this.props.fabClicked()
     }
   },
 
@@ -89,7 +83,7 @@ module.exports = React.createClass({
   getInitialState() {
     // console.log('PortfolioHoldingDialog.getInitialState');
 
-    return {open: this.props.open, dirty: false};
+    return {dirty: false};
   },  
 
   componentDidMount() {
@@ -101,9 +95,7 @@ module.exports = React.createClass({
   componentWillReceiveProps(nextProps) {
     console.log('PorfolioHoldingDialog.componentWillReceiveProps');
 
-    this.setState({open: nextProps.open});
-
-    if (nextProps.portfolioHolding && (!this.props.portfolioHolding || nextProps.portfolioHolding.id != this.props.portfolioHolding.id)) {
+    if (nextProps.open && nextProps.portfolioHolding && (!this.props.portfolioHolding || nextProps.portfolioHolding.id != this.props.portfolioHolding.id)) {
       this._initTradeSlider(nextProps.portfolioHolding, nextProps.cash);
       $('.dialog-content').html('Details for ' + nextProps.portfolioHolding.ticker + ' holding');
     }
@@ -113,19 +105,19 @@ module.exports = React.createClass({
     console.log('PorfolioHoldingDialog.componentDidUpdate');
 
     //only callback when component has data (portfolioHolding)
-    if (this.props.portfolioHolding && this.props.opened && this.state.open) this.props.opened();
-    if (this.props.portfolioHolding && this.props.closed && !this.state.open) this.props.closed();
+    if (this.props.portfolioHolding && this.props.opened && this.props.open) this.props.opened();
+    if (this.props.portfolioHolding && this.props.closed && !this.props.open) this.props.closed();
   },
 
   render: function() {    
     // console.log('PorfolioHoldingDialog.render');
     return(
       <div className="portfolio-holding-dialog">
-        <div className={`fab-container ${this.state.open ? 'fab-container-open' : ''} ${this.state.dirty ? 'fab-container-dirty' : ''}`}>
-          <button className={`btn btn-raised btn-fab ${this.state.dirty ? 'btn-warning' : this.state.open ? 'btn-default' : 'btn-primary'}`} onClick={this._fabClicked} id="addholding"><i className="material-icons">{this.state.open ? this.state.dirty ? 'check' : 'arrow_drop_down' : 'add'}</i></button>
+        <div className={`fab-container ${this.props.open ? 'fab-container-open' : ''} ${this.state.dirty ? 'fab-container-dirty' : ''}`}>
+          <button className={`btn btn-raised btn-fab ${this.state.dirty ? 'btn-warning' : this.props.open ? 'btn-default' : 'btn-primary'}`} onClick={this._fabClicked} id="addholding"><i className="material-icons">{this.props.open ? this.state.dirty ? 'check' : 'arrow_drop_down' : 'add'}</i></button>
         </div>          
 
-        <div className={`well dialog-panel ${this.state.open ? 'dialog-panel-open' : ''}`}>
+        <div className={`well dialog-panel ${this.props.open ? 'dialog-panel-open' : ''}`}>
           <p className="text-center"></p>
           <p className="text-center dialog-content">TODO put things here</p>
           {/*
@@ -139,7 +131,7 @@ module.exports = React.createClass({
           </div>
 
           {/*
-          <div className={`fab-container-close ${this.state.open ? 'fab-container-close' : ''}`}  >
+          <div className={`fab-container-close ${this.props.open ? 'fab-container-close' : ''}`}  >
             <button href="#" className="btn btn-default btn-raised btn-fab" onClick={this._closeDialogPanel}><i className="material-icons">arrow_drop_down</i></button>
           </div>                    
           */}
