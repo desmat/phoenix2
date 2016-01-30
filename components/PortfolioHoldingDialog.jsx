@@ -20,7 +20,6 @@ module.exports = React.createClass({
       }
 
      this.setState({open: false, dirty: false});
-     this.props.closed();
     }
     else {
       $('#addHoldingModal').modal('show');
@@ -108,6 +107,11 @@ module.exports = React.createClass({
       this._initTradeSlider(nextProps.portfolioHolding, nextProps.cash);
       $('.dialog-content').html('Details for ' + nextProps.portfolioHolding.ticker + ' holding');
     }
+  },
+
+  componentDidUpdate() {
+    if (this.props.opened && this.props.open) this.props.opened();
+    if (this.props.closed && !this.props.open) this.props.closed();
   },
 
   render: function() {    

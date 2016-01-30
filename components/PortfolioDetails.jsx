@@ -142,23 +142,11 @@ module.exports = React.createClass({
 
   selectHolding(id) {
     console.log('PortfolioDetails.selectHolding(' + id + ')');
-    var self = this;
 
-    // if (this.state.portfolioHoldingDialogOpen) {
-    //   this._closeDialogPanel();
-    // }
-    // else {
-      //TODO set panel content
-      var portfolioHolding = _.find(this.state.data.holdings, {id: id});
-      this.setState({portfolioHoldingDialogOpen: true, selectedHoldingId: id, selectedHolding: portfolioHolding});
-    // }
-  },
-
-  _closeDialogPanel() {
-    // if (this.state.portfolioHoldingDialogOpen) {
-    //   //TODO blank out panel
-    //   this.setState({portfolioHoldingDialogOpen: false, selectedHoldingId: undefined});
-    // }
+    var portfolioHolding = _.find(this.state.data.holdings, {id: id});
+    if (portfolioHolding) {
+      this.setState({portfolioHoldingDialogOpen: true, selectedHolding: portfolioHolding});
+    }
   },
 
   _clearUpdatedFlags(holdingId) {
@@ -215,7 +203,10 @@ module.exports = React.createClass({
 
   _portfolioHoldingDialogClosed() {
     console.log('PortfolioDetails._portfolioHoldingDialogClosed');
-    this.setState({portfolioHoldingDialogOpen: false});
+  },
+
+  _portfolioHoldingDialogOpened() {
+    console.log('PortfolioDetails._portfolioHoldingDialogOpened');
   },
 
   _initModals() {
@@ -358,7 +349,7 @@ module.exports = React.createClass({
 
         <div className="bottom-spacer" />
 
-        <PortfolioHoldingDialog open={this.state.portfolioHoldingDialogOpen} selectedHoldingId={this.state.selectedHoldingId} portfolioHolding={this.state.selectedHolding} cash={this.state.data.cash} closed={this._portfolioHoldingDialogClosed} buyStock={this.buyStock} sellStock={this.sellStock}/>
+        <PortfolioHoldingDialog open={this.state.portfolioHoldingDialogOpen} selectedHoldingId={this.state.selectedHoldingId} portfolioHolding={this.state.selectedHolding} cash={this.state.data.cash} buyStock={this.buyStock} sellStock={this.sellStock} opened={this._portfolioHoldingDialogOpened} closed={this._portfolioHoldingDialogClosed}/>
 
         <AddStockModal cash={this.state.data.cash} ok={this.addStock} shown={this._addStockModalShown} hidden={this._addStockModalHidden} />
 
