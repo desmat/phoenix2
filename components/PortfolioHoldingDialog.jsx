@@ -99,7 +99,7 @@ module.exports = React.createClass({
   }, 
 
   componentWillReceiveProps(nextProps) {
-    // console.log('PorfolioHoldingDialog.componentWillReceiveProps');
+    console.log('PorfolioHoldingDialog.componentWillReceiveProps');
 
     this.setState({open: nextProps.open});
 
@@ -110,8 +110,11 @@ module.exports = React.createClass({
   },
 
   componentDidUpdate() {
-    if (this.props.opened && this.props.open) this.props.opened();
-    if (this.props.closed && !this.props.open) this.props.closed();
+    console.log('PorfolioHoldingDialog.componentDidUpdate');
+
+    //only callback when component has data (portfolioHolding)
+    if (this.props.portfolioHolding && this.props.opened && this.state.open) this.props.opened();
+    if (this.props.portfolioHolding && this.props.closed && !this.state.open) this.props.closed();
   },
 
   render: function() {    
