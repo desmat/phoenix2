@@ -66,6 +66,7 @@ module.exports = React.createClass({
   },
 
   sellStock(ticker, quantity) {
+    console.log('PortfolioDetails.sellStock(' + ticker + ', ' + quantity + ')');
     quantity = quantity || 1;
     var self = this;
     var portfolioHolding;
@@ -94,7 +95,7 @@ module.exports = React.createClass({
         this.setState({data: this.state.data});
       }
 
-      Api.delete('portfolio/' + this.state.data.id + '/ticker/' + ticker, {quantity: quantity}, function(data) { 
+      Api.post('portfolio/' + this.state.data.id + '/ticker/' + ticker, {quantity: -1 * quantity}, function(data) { 
         //self.fetchData();
       }); 
     }
@@ -149,6 +150,7 @@ module.exports = React.createClass({
       //TODO set panel content
       var portfolioHolding = _.find(this.state.data.holdings, {id: id});
       $('.dialog-content').html('Details for ' + portfolioHolding.ticker + ' holding');
+      self._initTradeSlider(portfolioHolding.ticker);
       this.setState({dialogPanelOpened: true, selectedHoldingId: id});
     // }
   },
@@ -211,6 +213,110 @@ module.exports = React.createClass({
     console.log('PortfolioDetails._renamePortfolioModalHidden');
     this._setupPageKeyPressed(true); 
   },
+
+
+
+
+
+
+
+
+  _initTradeSlider(ticker) {
+    console.log('PortfolioDetails._initTradeSlider: ' + ticker);
+    var self = this;
+    var quantity = 0;
+    var min = 0;
+    var max = 1;
+    var step = 1;
+    var disabled = true;
+
+    if (typeof ticker === 'string') {
+      //search ticker, setup with it
+      Api.get('ticker/' + ticker, function(data) {
+        if (data) {
+          if (_.isArray(data)) data = data[0];
+          return self._initTradeSlider(data);
+        }
+      })
+    }
+    else if (typeof ticker === 'object') {
+      //setup with ticker's price and shit
+      console.log('cash: ' + self.state.data.cash);
+      console.log('price: ' + ticker.price);
+      quantity = _.find(self.state.data.holdings, {id: self.state.selectedHoldingId}).shares;
+      max = parseInt(Math.floor(self.state.data.cash / ticker.price) + quantity);
+      disabled = false;
+    }
+
+    var slider = document.getElementById('dialogPanelTradeSlider');
+    var sliderIndicator = $('#dialogPanelTradeSliderIndicator');
+
+    if (slider.noUiSlider && slider.noUiSlider.destroy) slider.noUiSlider.destroy(slider);
+
+    noUiSlider.create(slider, {
+      start: quantity,
+      // connect: true,
+      step: 1,
+      range: {
+        'min': min,
+        'max': max
+      }
+    }); 
+
+    slider.noUiSlider.on('update', function(){
+      var count = slider.noUiSlider.get();
+      if (count > quantity) {
+        sliderIndicator.html('Trade shares (+' + parseInt(count - quantity) + ')');
+        self.setState({dialogPanelDirty: true});
+        // $('#addHoldingModalAdd').prop('disabled', false);
+      }
+      else if (count < quantity) {
+        sliderIndicator.html('Trade shares (' + parseInt(count - quantity) + ')');
+        self.setState({dialogPanelDirty: true});
+        // $('#addHoldingModalAdd').prop('disabled', false);
+      }
+      else {
+        sliderIndicator.html('Trade shares');
+        self.setState({dialogPanelDirty: false});
+        // $('#addHoldingModalAdd').prop('disabled', true);
+      }
+    });
+
+    if (disabled) {
+      slider.setAttribute('disabled', disabled) 
+    }
+    else {
+      slider.removeAttribute('disabled');
+    }             
+  },
+
+  _fabClicked() {
+    console.log('PortfolioDetails._fabClicked');
+    console.log(this.state.dialogPanelOpened);
+    if (typeof this.state.dialogPanelOpened !== 'undefined' && this.state.dialogPanelOpened) {
+      var holding = _.find(this.state.data.holdings, {id: this.state.selectedHoldingId});
+      var shares = document.getElementById('dialogPanelTradeSlider').noUiSlider.get();
+      console.log('TODO trade: ' + holding.ticker + ': ' + parseInt(shares - holding.shares));
+
+      if (shares - holding.shares > 0) {
+        this.buyStock(holding.ticker, shares - holding.shares);
+      }
+      else if (shares - holding.shares < 0) {
+        this.sellStock(holding.ticker, Math.abs(shares - holding.shares));
+      }
+
+      this.setState({dialogPanelOpened: false, selectedHoldingId: undefined, dialogPanelDirty: false});
+    }
+    else {
+      $('#addHoldingModal').modal('show');
+    }
+  },
+
+
+
+
+
+
 
   _initModals() {
     console.log('PortfolioDetails._initModals');
@@ -352,20 +458,28 @@ module.exports = React.createClass({
 
         <div className="bottom-spacer" />
 
-        <div className={`fab-container ${this.state.dialogPanelOpened ? 'fab-container-opened' : ''}`}>
-          <button className="btn btn-primary btn-raised btn-fab" data-target="#addHoldingModal" data-toggle="modal" id="addholding"><i className="material-icons">{this.state.dialogPanelOpened ? 'shopping_cart' : 'add'}</i></button>
+        <div className={`fab-container ${this.state.dialogPanelOpened ? 'fab-container-opened' : ''} ${this.state.dialogPanelDirty ? 'fab-container-dirty' : ''}`}>
+          <button className={`btn btn-raised btn-fab ${this.state.dialogPanelDirty ? 'btn-warning' : this.state.dialogPanelOpened ? 'btn-default' : 'btn-primary'}`} onClick={this._fabClicked} id="addholding"><i className="material-icons">{this.state.dialogPanelOpened ? this.state.dialogPanelDirty ? 'check' : 'arrow_drop_down' : 'add'}</i></button>
         </div>          
 
         <div className={`well dialog-panel ${this.state.dialogPanelOpened ? 'dialog-panel-opened' : ''}`}>
           <p className="text-center"></p>
           <p className="text-center dialog-content">TODO put things here</p>
+          {/*
           <div className="text-center">
             <p><button className="btn btn-danger" onClick={this.sellStock}>Sell</button> <button className="btn btn-primary" onClick={this.buyStock}>Buy</button></p>
           </div>
+          */}
+          <div className="tradeSliderContainer">
+            <div id="dialogPanelTradeSliderIndicator">Trade shares</div>
+            <div id="dialogPanelTradeSlider" className="slider shor slider-primary"></div>          
+          </div>
 
+          {/*
           <div className={`fab-container-close ${this.state.dialogPanelOpened ? 'fab-container-close' : ''}`}  >
             <button href="#" className="btn btn-default btn-raised btn-fab" onClick={this._closeDialogPanel}><i className="material-icons">arrow_drop_down</i></button>
           </div>                    
+          */}
         </div>
 
         <AddStockModal cash={this.state.data.cash} ok={this.addStock} shown={this._addStockModalShown} hidden={this._addStockModalHidden} />

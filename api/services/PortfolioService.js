@@ -162,7 +162,7 @@ module.exports = {
     });
   },
 
-  buyOrSell(portfolioId, ticker, buyOrSell, quantity, cb) { 
+  trade(portfolioId, ticker, buyOrSell, quantity, cb) { 
     Portfolio.findOne({id: portfolioId}, function(err, portfolio) {
       if (err) {
         sails.log.warn('Error buying/selling ticker [' + ticker + '] on portfolio [' + portfolioId + ']: ' + err);

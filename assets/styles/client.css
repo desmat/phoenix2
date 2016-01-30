@@ -171,6 +171,11 @@ h2 {
   bottom: -21px; 
 }
 
+.tradeSliderContainer {
+  padding-left: 22px;
+  padding-right: 22px;
+}
+
 @media(max-width:767px) {
   .navbar-inverse .navbar-brand {  
     /* align-items: center; */
@@ -192,6 +197,11 @@ h2 {
   .dialog-panel {
     margin-left: 0;
     margin-right: 0;
+  }
+
+  .tradeSliderContainer {
+    padding-left: 7px;
+    padding-right: 7px;
   }
 
   h1, h2, h3, h4, h5, h6 {
