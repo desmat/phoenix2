@@ -111,6 +111,11 @@ module.exports = React.createClass({
     // console.log('PorfolioHoldingDialog.componentDidMount');
 
     this._initTradeSlider();
+
+
+    $(".dialog-panel-open").on("swipe",function(){
+      console.log('SWIPE');
+    });
   }, 
 
   componentWillUnmount() {
