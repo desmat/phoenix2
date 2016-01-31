@@ -28,6 +28,7 @@ a {
 body {
 	margin-top: 50px;
 	margin-bottom: 8px;
+  background-color: rgba(255,255,255,.84);
 }
 
 h2 {
@@ -59,52 +60,52 @@ h2 {
 	text-decoration: none;
 }
 
-.navbar-inverse {
-  background-color: black;
+.navbar {
+  /*background-color: black;*/
 }
 
-.navbar-inverse .navbar-brand {
-  color: #009688;
+.navbar .navbar-brand {
+  color: rgba(255,255,255,.84);
   font-weight: 400;
   font-size: 28px;
 }
 
-.navbar-inverse .navbar-brand:hover{
-  color: lightgrey;
+.navbar .navbar-brand:hover{
+  color: white;
 }
 
-.navbar-inverse .navbar-nav>li>a {
-  color: #009688; 
+.navbar .navbar-nav>li>a {
+  color: rgba(255,255,255,.84); 
   font-weight: 400;
 }
 
-.navbar-inverse .navbar-nav>li>a:hover {
-  color: lightgrey; 
+.navbar .navbar-nav>li>a:hover {
+  color: white; 
 }
 
-.navbar-inverse .light {
+.navbar .light {
   font-weight: 400;
   font-style: italic;
   font-family: serif;
 }
 
-.navbar-inverse .navbar-right {
+.navbar .navbar-right {
   font-size: 18px;
 }
 
-.navbar-inverse .navbar-toggle {
+.navbar .navbar-toggle {
   background: none;
   border: 0;
-  color: #009688;
+  color: rgba(255,255,255,.84);
 }
 
-.navbar-inverse .navbar-toggle:hover {
+.navbar .navbar-toggle:hover {
   background: none;
-  color: lightgrey;
+  color: white;
   text-decoration: none;
 }
 
-.navbar-inverse .navbar-toggle .icon-bar-unicode {
+.navbar .navbar-toggle .icon-bar-unicode {
   color: inherit;
   margin-top: -10px;
   margin-bottom: -10px;
@@ -120,6 +121,10 @@ h2 {
 .drilldownable:hover {
   color: #009688;
   cursor: pointer;
+}
+
+.text-preview {
+  color: #ff5722;
 }
 
 .well, .panel {
@@ -184,13 +189,12 @@ h2 {
 }
 
 .noUi-handle.noUi-handle-lower.noUi-active {
-  color: red;
   -webkit-transform: scale3d(1.5, 1.5, 1);
   transform:         scale3d(1.5, 1.5, 1);
 }
 
 @media(max-width:767px) {
-  .navbar-inverse .navbar-brand {  
+  .navbar .navbar-brand {  
     /* align-items: center; */
     text-align: center;
     /* align-content: center; */

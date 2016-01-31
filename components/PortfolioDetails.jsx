@@ -367,8 +367,7 @@ module.exports = React.createClass({
         </div>
 
         <div className="actions-container text-center">
-          <button onClick={this.deletePortfolio} className="btn btn-raised btn-default">Delete</button>
-          <button onClick={this._openRenamePortfolioModal} className="btn btn-raised btn-default">Rename</button>
+          <button onClick={this.deletePortfolio} className="btn btn-raised btn-default">Delete</button> <button onClick={this._openRenamePortfolioModal} className="btn btn-raised btn-default">Rename</button>
         </div>
 
         <div className="bottom-spacer" />
