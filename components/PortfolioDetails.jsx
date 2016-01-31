@@ -10,6 +10,63 @@ var PortfolioHoldingDialog = require('./PortfolioHoldingDialog.jsx');
 
 module.exports = React.createClass({
 
+  previewTrade(ticker, quantity) {
+    if (quantity > 0) {
+      return this.previewBuyStock(ticker, quantity);
+    }
+    else if (quantity < 0) {
+      return this.previewSellStock(ticker, Math.abs(quantity));
+    }
+    else {
+      if (ticker) {
+        var portfolioHolding = _.find(this.state.data.holdings, {ticker: ticker.toUpperCase()});
+        if (portfolioHolding) {
+          delete portfolioHolding.sharesPreview;
+          delete portfolioHolding.valuePreview;
+        }
+      }
+
+      delete this.state.data.cashPreview;      
+    }
+  },
+
+  previewBuyStock(ticker, quantity) {
+    console.log('PortfolioDetails.previewBuyStock(' + ticker + ', ' + quantity + ')');
+    var self = this;
+    var portfolioHolding;
+
+    if (typeof ticker == 'string') {
+      portfolioHolding = _.find(this.state.data.holdings, {ticker: ticker.toUpperCase()});
+    } 
+
+    if (portfolioHolding && quantity) {
+      portfolioHolding.sharesPreview = parseInt(portfolioHolding.shares) + parseInt(quantity);
+      portfolioHolding.valuePreview = App.formatNumber(parseFloat(portfolioHolding.value) + (parseInt(quantity) * portfolioHolding.price));
+      this.state.data.cashPreview = App.formatNumber(parseFloat(this.state.data.cash) - parseFloat(quantity * portfolioHolding.price));
+
+      this.setState({data: this.state.data});      
+    }
+  },
+
+  previewSellStock(ticker, quantity) {
+    console.log('PortfolioDetails.previewSellStock(' + ticker + ', ' + quantity + ')');
+    var self = this;
+    var portfolioHolding;
+
+    if (typeof ticker == 'string') {
+      portfolioHolding = _.find(this.state.data.holdings, {ticker: ticker.toUpperCase()});
+    } 
+
+    if (portfolioHolding && quantity) {
+      portfolioHolding.sharesPreview = parseInt(portfolioHolding.shares) - parseInt(quantity);
+      if (!portfolioHolding.sharesPreview) portfolioHolding.sharesPreview = '0';
+      portfolioHolding.valuePreview = App.formatNumber(parseFloat(portfolioHolding.value) - (parseInt(quantity) * portfolioHolding.price));
+      this.state.data.cashPreview = App.formatNumber(parseFloat(this.state.data.cash) + parseFloat(quantity * portfolioHolding.price));
+
+      this.setState({data: this.state.data});      
+    }
+  },
+
   buyStock(ticker, quantity) {
     // console.log('PortfolioDetails.buyStock(' + ticker + ', ' + quantity + ')');
     quantity = parseInt(quantity || 1);
@@ -24,21 +81,23 @@ module.exports = React.createClass({
       portfolioHolding = _.find(this.state.data.holdings, {id: this.state.selectedHoldingId});
     }
 
-    //portfolio already contains this holding
-    if (portfolioHolding) {
-      ticker = portfolioHolding.ticker;
-      portfolioHolding.shares = portfolioHolding.shares + quantity;
-      portfolioHolding.dirty = true;
-      this.state.data.dirty = true;
-      this.setState({data: this.state.data});
-    }
     //portfolio does not contain this holding
-    else {
-      portfolioHolding = {portfolioId: this.props.params.id, id:0, ticker:ticker, shares:quantity, cost:0, dirty: true};
+    if (!portfolioHolding) {
+      portfolioHolding = {portfolioId: this.props.params.id, id:0, ticker:ticker, cost:0, dirty: true};
       this.state.data.holdings = this.state.data.holdings.concat(portfolioHolding);
-      this.state.data.dirty = true;
-      this.setState({data: this.state.data}); //id will be updated later
     }
+
+    portfolioHolding.shares = portfolioHolding.shares + quantity;
+    portfolioHolding.value = App.formatNumber(parseFloat(portfolioHolding.value) + (parseInt(quantity) * portfolioHolding.price));
+    delete portfolioHolding.sharesPreview;
+    delete portfolioHolding.valuePreview;
+    portfolioHolding.dirty = true;
+
+    this.state.data.cash = App.formatNumber(parseFloat(this.state.data.cash) - parseFloat(quantity * portfolioHolding.price));
+    delete this.state.data.cashPreview;
+    this.state.data.dirty = true;
+
+    this.setState({data: this.state.data});
 
     if (ticker) {
       Api.post('portfolio/' + this.state.data.id + '/ticker/' + ticker, {quantity: quantity}, function(data) { 
@@ -65,17 +124,21 @@ module.exports = React.createClass({
     if (portfolioHolding) {
       ticker = portfolioHolding.ticker;
       portfolioHolding.shares = portfolioHolding.shares - quantity;      
+      portfolioHolding.value = App.formatNumber(parseFloat(portfolioHolding.value) - (parseInt(quantity) * portfolioHolding.price));
       portfolioHolding.dirty = true;
+      delete portfolioHolding.sharesPreview;
+      delete portfolioHolding.valuePreview;
+      delete this.state.data.cashPreview;
 
       if (portfolioHolding.shares <= 0) {
         this.state.data.holdings = _.difference(this.state.data.holdings, _.filter(this.state.data.holdings, {ticker:ticker}));
-        this.state.data.dirty = true;
-        this.setState({data: this.state.data});
       }
-      else {
-        this.state.data.dirty = true;
-        this.setState({data: this.state.data});
-      }
+
+      this.state.data.cash = App.formatNumber(parseFloat(this.state.data.cash) + parseFloat(quantity * portfolioHolding.price));
+      delete this.state.data.cashPreview;
+      this.state.data.dirty = true;
+
+      this.setState({data: this.state.data});
 
       Api.post('portfolio/' + this.state.data.id + '/ticker/' + ticker, {quantity: -1 * quantity}, function(data) { 
         //self.fetchData();
@@ -339,7 +402,7 @@ module.exports = React.createClass({
             </thead>
             <tbody>
               <tr>
-                <td className="text-center"><span className={this.state.data.dirty ? "text-muted" : ""}>${this.state.data.cash}</span></td>
+                <td className="text-center"><span className={this.state.data.cashPreview ? "text-preview" : this.state.data.dirty ? "text-muted" : ""}>${this.state.data.cashPreview ? this.state.data.cashPreview : this.state.data.cash}</span></td>
                 <td className="text-center"><span className={this.state.data.dirty ? "text-muted" : ""}>${this.state.data.value} (<span className={this.state.data.returnPercent >= 0 ? "text-success" : this.state.data.returnPercent < 0 ? "text-danger" : ""}>{this.state.data.returnPercentFormatted}</span>)</span></td>
               </tr>
             </tbody>
@@ -372,7 +435,7 @@ module.exports = React.createClass({
 
         <div className="bottom-spacer" />
 
-        <PortfolioHoldingDialog isOpen={this.state.portfolioHoldingDialogOpen} fabClicked={this._openAddStockModal} close={this._closePortfolioHoldingDialog} selectedHoldingId={this.state.selectedHoldingId} portfolioHolding={this.state.selectedHolding} cash={this.state.data.cash} buyStock={this.buyStock} sellStock={this.sellStock} opened={this._portfolioHoldingDialogOpened} closed={this._portfolioHoldingDialogClosed}/>
+        <PortfolioHoldingDialog isOpen={this.state.portfolioHoldingDialogOpen} fabClicked={this._openAddStockModal} close={this._closePortfolioHoldingDialog} preview={this.previewTrade} selectedHoldingId={this.state.selectedHoldingId} portfolioHolding={this.state.selectedHolding} cash={this.state.data.cash} buyStock={this.buyStock} sellStock={this.sellStock} opened={this._portfolioHoldingDialogOpened} closed={this._portfolioHoldingDialogClosed}/>
 
         <AddStockModal isOpen={this.state.addStockModalOpen} close={this._closeAddStockModal} data={{cash: this.state.data.cash}} opened={this._addStockModalOpened} closed={this._addStockModalClosed} />
 

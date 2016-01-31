@@ -2,6 +2,16 @@ var Api = require('./Api');
 
 module.exports = {
 
+  formatNumber(number, precision) {
+    precision = precision || 2;
+
+    return (Math.round(100 * parseFloat(number)) / 100).toFixed(precision);    
+  },
+
+  formatCurrency(number) {
+    return "$" + this.formatNumber(number, 2);
+  },
+
   registerSocketIo(component, model, fn) {
     // console.log('App.registerSocketIo');
 

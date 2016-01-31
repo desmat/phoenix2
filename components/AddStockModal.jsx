@@ -39,6 +39,7 @@ module.exports = React.createClass({
     var max = 1;
     var step = 1;
     var disabled = true;
+    var symbol;
 
     if (typeof ticker === 'string') {
       //search ticker, setup with it
@@ -55,6 +56,7 @@ module.exports = React.createClass({
       console.log('price: ' + ticker.price);
       max = parseInt(Math.floor(self.props.data.cash / ticker.price));
       disabled = false;
+      symbol = ticker.ticker;
     }
 
     var slider = document.getElementById('tradeSlider');
@@ -77,14 +79,17 @@ module.exports = React.createClass({
       var quantity = 0; //TODO current holding quantity
       if (count > quantity) {
         sliderIndicator.html('Trade shares (+' + parseInt(count - quantity) + ')');
+        if (symbol && self.props.preview) self.props.preview(symbol, count - quantity);
         $('#addHoldingModalAdd').prop('disabled', false);
       }
       else if (count < quantity) {
         sliderIndicator.html('Trade shares (' + parseInt(count - quantity) + ')');
+        if (symbol && self.props.preview) self.props.preview(symbol, quantity - count);
         $('#addHoldingModalAdd').prop('disabled', false);
       }
       else {
         sliderIndicator.html('Trade shares');
+        if (symbol && self.props.preview) self.props.preview(symbol);
         $('#addHoldingModalAdd').prop('disabled', true);
       }
     });

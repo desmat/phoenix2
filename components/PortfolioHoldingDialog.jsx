@@ -28,15 +28,12 @@ module.exports = React.createClass({
   },
 
   _close(result) {
-    if (this.props.portfolioHolding && this.state.dirty) {
-      $('.portfolio-holding-shares-' + this.props.portfolioHolding.id).removeClass('text-preview');      
-      $('.portfolio-holding-value-' + this.props.portfolioHolding.id).removeClass('text-preview'); 
-      $('.portfolio-holding-shares-' + this.props.portfolioHolding.id).text(this.props.portfolioHolding.shares);
-      $('.portfolio-holding-value-' + this.props.portfolioHolding.id).text('$' + (Math.round(100 * this.props.portfolioHolding.shares * this.props.portfolioHolding.price) / 100).toFixed(2));
-
+    if (this.props.preview && !result && this.props.portfolioHolding && this.state.dirty) {
+      if (this.props.preview) this.props.preview(this.props.portfolioHolding.ticker);
     }
 
-    this.setState({open: false, dirty: false});      
+    this.setState({open: false});      
+
     if (this.props.close) this.props.close(result);
   },
 
@@ -74,28 +71,17 @@ module.exports = React.createClass({
       var count = slider.noUiSlider.get();
       if (count > quantity) {
         sliderIndicator.html('Trade shares (+' + parseInt(count - quantity) + ')');
-        $('.portfolio-holding-shares-' + portfolioHolding.id).addClass('text-preview');
-        $('.portfolio-holding-shares-' + portfolioHolding.id).text(parseInt(count));
-        $('.portfolio-holding-value-' + portfolioHolding.id).addClass('text-preview');
-        $('.portfolio-holding-value-' + portfolioHolding.id).text('$' + (Math.round(100 * count * portfolioHolding.price) / 100).toFixed(2));
+        if (self.props.preview) self.props.preview(portfolioHolding.ticker, count - quantity);
         self.setState({dirty: true});
       }
       else if (count < quantity) {
         sliderIndicator.html('Trade shares (' + parseInt(count - quantity) + ')');
-        $('.portfolio-holding-shares-' + portfolioHolding.id).addClass('text-preview');
-        $('.portfolio-holding-shares-' + portfolioHolding.id).text(parseInt(count));
-        $('.portfolio-holding-value-' + portfolioHolding.id).addClass('text-preview');
-        $('.portfolio-holding-value-' + portfolioHolding.id).text('$' + (Math.round(100 * count * portfolioHolding.price) / 100).toFixed(2));
+        if (self.props.preview) self.props.preview(portfolioHolding.ticker, count - quantity);
         self.setState({dirty: true});
       }
       else {
         sliderIndicator.html('Trade shares');
-        if (portfolioHolding) {
-          $('.portfolio-holding-shares-' + portfolioHolding.id).removeClass('text-preview');      
-          $('.portfolio-holding-value-' + portfolioHolding.id).removeClass('text-preview'); 
-          $('.portfolio-holding-shares-' + portfolioHolding.id).text(portfolioHolding.shares);
-          $('.portfolio-holding-value-' + portfolioHolding.id).text('$' + (Math.round(100 * portfolioHolding.shares * portfolioHolding.price) / 100).toFixed(2));
-        }
+        if (portfolioHolding && self.props.preview) self.props.preview(portfolioHolding.ticker);
         self.setState({dirty: false});
       }
     });
@@ -166,6 +152,7 @@ module.exports = React.createClass({
     if (nextProps.isOpen && !this.props.isOpen) {
       this._setupPageKeyPressed(true);
       if (nextProps.opened) nextProps.opened(); 
+      //TODO reset slider and shit if opened and still dirty
     }
     else if (!nextProps.isOpen && this.props.isOpen) {
       this._setupPageKeyPressed(false);
