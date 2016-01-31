@@ -114,14 +114,14 @@ module.exports = React.createClass({
     this._initTradeSlider();
 
     //enable swipe-down to close dialog
-    $(".portfolio-holding-dialog").swipe( {
-      //Generic swipe handler for all directions
-      swipe:function(event, direction, distance, duration, fingerCount, fingerData) {
+    $(".portfolio-holding-dialog").swipe({
+      swipe: function(event, direction) {
         if (direction == 'down') {
-         self.setState({open: false, dirty: false});
-         self.props.close();
+          self.setState({open: false, dirty: false});
+          self.props.close();
         }
-      }
+      },
+      threshold:20
     });
   }, 
 
@@ -155,9 +155,9 @@ module.exports = React.createClass({
   render: function() {    
     // console.log('PorfolioHoldingDialog.render');
     return(
-      <div id="test" className="portfolio-holding-dialog">
+      <div className="portfolio-holding-dialog swipe-down-cancel">
         <div className={`fab-container ${this.props.isOpen ? 'fab-container-open' : ''} ${this.state.dirty ? 'fab-container-dirty' : ''}`}>
-          <button className={`btn btn-raised btn-fab ${this.state.dirty ? 'btn-warning' : this.props.isOpen ? 'btn-default' : 'btn-primary'}`} onClick={this._fabClicked} id="addholding"><i className="material-icons">{this.props.isOpen ? this.state.dirty ? 'check' : 'arrow_drop_down' : 'add'}</i></button>
+          <button className={`btn btn-raised btn-fab swipe-down-cancel ${this.state.dirty ? 'btn-warning' : this.props.isOpen ? 'btn-default' : 'btn-primary'}`} onClick={this._fabClicked} id="addholding"><i className="material-icons">{this.props.isOpen ? this.state.dirty ? 'check' : 'arrow_drop_down' : 'add'}</i></button>
         </div>          
 
         <div className={`well dialog-panel ${this.props.isOpen ? 'dialog-panel-open' : ''}`}>
